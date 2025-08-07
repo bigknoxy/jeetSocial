@@ -1,0 +1,31 @@
+# Python
+__pycache__/
+*.pyc
+*.pyo
+*.pyd
+*.db
+*.sqlite3
+
+# Environment files
+.env
+.env.*
+
+# Node.js (if used)
+node_modules/
+
+# OS files
+.DS_Store
+Thumbs.db
+
+# Docker
+*.log
+*.pid
+
+# Test/coverage
+.coverage
+htmlcov/
+*.cover
+
+# Misc
+*.swp
+*.swo

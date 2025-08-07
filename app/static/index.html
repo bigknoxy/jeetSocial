@@ -1,0 +1,87 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>jeetSocial</title>
+  <link rel="icon" type="image/svg+xml" href="/static/favicon.svg">
+  <style>
+    body {
+      font-family: 'Segoe UI', Arial, sans-serif;
+      max-width: 500px;
+      margin: 2em auto;
+      background: #181a20;
+      color: #f4f4f4;
+    }
+    h1 {
+      text-align: center;
+      color: #7ec4fa;
+      letter-spacing: 1px;
+    }
+    #post-form {
+      display: flex;
+      flex-direction: column;
+      gap: 0.5em;
+      margin-bottom: 2em;
+    }
+    #message {
+      font-size: 1em;
+      padding: 0.5em;
+      background: #23263a;
+      color: #f4f4f4;
+      border: 1px solid #333a4d;
+      border-radius: 6px;
+      resize: vertical;
+    }
+    #submit {
+      font-size: 1em;
+      padding: 0.5em;
+      background: #7ec4fa;
+      color: #181a20;
+      border: none;
+      border-radius: 6px;
+      cursor: pointer;
+      font-weight: bold;
+      transition: background 0.2s;
+    }
+    #submit:hover {
+      background: #5baee6;
+    }
+    #error {
+      color: #ff6b6b;
+      margin-bottom: 1em;
+    }
+    .post {
+      background: #23263a;
+      border-radius: 6px;
+      box-shadow: 0 1px 3px #222;
+      margin-bottom: 1em;
+      padding: 1em;
+      border: 1px solid #333a4d;
+    }
+    .username {
+      font-weight: bold;
+      color: #7ec4fa;
+    }
+    .timestamp {
+      font-size: 0.9em;
+      color: #b0b8c1;
+      float: right;
+    }
+    @media (max-width: 600px) {
+      body { margin: 1em; }
+      .post { padding: 0.7em; }
+    }
+  </style>
+</head>
+<body>
+  <h1>jeetSocial</h1>
+  <div id="error"></div>
+  <form id="post-form">
+    <textarea id="message" rows="3" placeholder="How are you feeling?" required></textarea>
+    <button id="submit" type="submit">Post</button>
+  </form>
+  <div id="feed"></div>
+  <script src="/static/main.js"></script>
+</body>
+</html>
