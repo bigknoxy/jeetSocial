@@ -1,13 +1,15 @@
-FROM python:3.6-slim
+FROM python:3.10-slim
 WORKDIR /app
 COPY requirements.txt requirements.txt
-# Install build-essential for scientific Python packages
-RUN apt-get update && apt-get install -y build-essential gcc g++ make && rm -rf /var/lib/apt/lists/*
 RUN pip install --no-cache-dir -r requirements.txt
 # Ensure python-dotenv is installed for .env support
 COPY app app
+COPY migrations migrations
+COPY wait-for-it.sh wait-for-it.sh
 COPY tests tests
-COPY .env.example .env
+COPY init_db.py init_db.py
+# COPY .env.example .env
+# .env is injected by docker-compose, not built into the image
 ENV PYTHONPATH=/app
 EXPOSE 5000
-CMD ["flask", "run", "--host=0.0.0.0"]
+CMD ["/bin/sh", "-c", "flask db upgrade && flask run --host=0.0.0.0"]

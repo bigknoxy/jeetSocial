@@ -1,0 +1,11 @@
+# Migrations Documentation
+
+- Migration files are auto-applied at container startup in Docker Compose.
+- Always commit new migration files in `migrations/versions/` to version control.
+- For a clean migration, reset the database volume with:
+  ```bash
+  docker compose down -v
+  docker compose up --build
+  ```
+- The web container waits for the database to be ready before running migrations, using `wait-for-it.sh`.
+- If you encounter migration errors, check logs and confirm the database is reachable and the migration files are present.

@@ -1,5 +1,8 @@
 import random
 import string
+import os
+import re
+import logging
 
 ADJECTIVES = [
     "Blue", "Green", "Red", "Yellow", "Purple", "Orange", "Silver", "Golden",
@@ -17,48 +20,62 @@ ANIMALS = [
     "DramaLizard", "PartyGhoul", "WackyWorm", "BumbleBeast", "GiggleGolem", "PranksterPhantom"
 ]
 
-HATEFUL_WORDS = {
-    # General hate/offensive
-    "hate", "kill", "die", "dumb", "stupid", "idiot", "moron", "retard", "loser",
-    # Racist slurs (examples, not exhaustive)
+# Expanded hateful word/phrase list
+HATEFUL_WORDS = [
+    "stupid", "idiot", "dumb", "moron", "hate", "bigot", "racist", "sexist",
+    "homophobe", "loser", "worthless", "trash", "garbage", "retard", "freak",
+    "ugly", "fat", "disgusting", "creep", "kill yourself", "kys", "die", "nazi",
+    "terrorist", "go away", "shut up", "pathetic", "ignorant", "clown", "jerk",
+    "bastard", "asshole", "bitch", "whore", "slut", "pig", "animal", "subhuman",
+    "vermin", "scum", "filth", "degenerate", "unwanted", "unlovable", "unworthy",
+    "failure", "no one likes you", "nobody likes you", "get lost", "drop dead",
+    "go to hell", "burn in hell", "die in a fire", "fool", "imbecile", "savage",
+    "monster", "disease", "plague", "parasite", "cockroach", "rat", "snake",
+    "worm", "leech", "bloodsucker", "menace", "threat", "danger", "evil",
+    # Add more as needed
+    # Existing slurs and phrases from previous list
     "nigger", "chink", "spic", "gook", "wetback", "raghead", "coon", "jigaboo", "porch monkey",
-    # Sexist/misogynist
     "bitch", "slut", "whore", "cunt", "skank", "twat",
-    # Homophobic/transphobic
     "fag", "faggot", "dyke", "tranny", "shemale",
-    # Religious hate
     "kike", "hebe", "christkiller", "infidel",
-    # Other slurs/offensive
     "cripple", "gimp", "spaz", "tard",
-    # Variations/misspellings
     "n1gger", "nigg3r", "b1tch", "wh0re", "c*nt", "f@g", "f4ggot",
-    # Offensive phrases
     "go die", "drop dead", "kill yourself", "kys", "i hate you", "you should die",
-    # Placeholder for extension
     "slur1", "slur2"
-}
+]
 
+HATEFUL_REGEX = re.compile(
+    r"\b(" + "|".join(re.escape(word) for word in HATEFUL_WORDS) + r")\b",
+    re.IGNORECASE
+)
+
+KIND_WORDS = {
+    "kind", "support", "encourage", "uplift", "help", "cheer", "inspire", "love", "hope", "joy", "awesome", "great", "wonderful", "amazing", "brave", "strong", "proud", "thank you", "grateful", "gratitude", "appreciate", "respect", "courage", "compassion", "generous", "friendly", "smile", "happy", "peace", "positive", "positivity", "good job", "well done", "you matter", "you are loved", "you are enough", "keep going", "you got this"
+}
 
 def generate_username():
     return f"{random.choice(ADJECTIVES)}{random.choice(ANIMALS)}{random.randint(10,99)}"
 
+def normalize_text(text):
+    return re.sub(r'[^\w\s]', '', text.lower())
 
-import os
+def is_hate_speech(text):
+    """
+    Returns (is_hate, reason, details)
+    - is_hate: bool
+    - reason: 'word_list'
+    - details: matched word/phrase
+    """
+    normalized = normalize_text(text)
+    match = HATEFUL_REGEX.search(normalized)
+    if match:
+        logging.info(f"Post rejected by word list: '{match.group(0)}'")
+        return True, "word_list", match.group(0)
+    return False, None, None
 
-USE_HATESONAR = os.getenv('USE_HATESONAR', 'false').lower() == 'true'
-
-if USE_HATESONAR:
-    from hatesonar import Sonar
-    sonar = Sonar()
-
-def is_hateful(message):
-    if USE_HATESONAR:
-        result = sonar.ping(text=message)
-        label = result['top_class']
-        return label == 'hate_speech' or label == 'offensive_language'
-    else:
-        lowered = message.lower()
-        for word in HATEFUL_WORDS:
-            if word in lowered:
-                return True
-        return False
+def is_kind(message):
+    lowered = message.lower()
+    for word in KIND_WORDS:
+        if word in lowered:
+            return True
+    return False

@@ -1,69 +1,112 @@
 # jeetSocial
 
-Minimal, anonymous social platform. All posts are anonymous and assigned a random username.
+## Overview
+jeetSocial is a minimal, anonymous social platform designed for kindness and privacy. The app now uses Docker Compose for robust, production-grade deployment. The web container waits for the Postgres database to be ready using `wait-for-it.sh`, then runs migrations and starts Flask, ensuring reliable startup and schema consistency.
 
-## Quickstart
+## Setup & Development
 
-1. Copy `.env.example` to `.env` and adjust as needed.
-2. Build and run with Docker Compose:
+### Requirements
+- Python 3.11+
+- Docker & Docker Compose (for production and local development)
+
+### Installation (Local Development)
+1. **Create and activate a virtual environment:**
+   ```bash
+   python3 -m venv venv
+   source venv/bin/activate
    ```
-   docker-compose up --build
+2. **Install dependencies:**
+   ```bash
+   pip install -r requirements.txt
    ```
-3. Access the app at [http://localhost:5000](http://localhost:5000)
 
-## Environment Variables
+### Database Migrations (Local)
+- Migrations are managed with Flask-Migrate (Alembic).
+- To initialize and generate migrations:
+  ```bash
+  flask db init                # Only once, if migrations/ does not exist
+  flask db migrate -m "Describe your migration"
+  flask db upgrade
+  ```
+- **Commit migration files:** Always commit new migration files in `migrations/versions/` to version control.
 
-The app uses environment variables for configuration. Here’s what each one means:
+### Running Tests
+- Run all tests:
+  ```bash
+  PYTHONPATH=. ./venv/bin/pytest tests/
+  ```
 
-| Variable              | Purpose/Usage                                      | Effect on App                        |
-|-----------------------|----------------------------------------------------|--------------------------------------|
-| FLASK_APP             | Tells Flask which app to run                       | Starts jeetSocial backend            |
-| FLASK_ENV             | Sets Flask environment mode                        | Enables debug features in dev        |
-| DATABASE_URL          | Connection string for Postgres                     | Connects backend to database         |
-| SECRET_KEY            | Security for sessions/cookies                      | Protects app, should be secret       |
-| ENABLE_RATE_LIMITING  | Enables/disables rate limiting (default: true)     | Set to 'false' in dev to disable     |
+### Running the App
 
-**Details:**
-- `FLASK_APP=app`: Tells Flask to run the app in the `app/` directory.
-- `FLASK_ENV=development`: Enables debug features for development. Use `production` for live deployments.
-- `DATABASE_URL=postgresql://postgres:postgres@db:5432/jeetsocial`: Connection string for the Postgres database (default for Docker Compose setup).
-- `SECRET_KEY=your-secret-key`: Used for session management and security. Should be a long, random string in production.
+- **Development:**
+  ```bash
+  python -m app
+  ```
 
-## Feature Flags & .env
+- **Production & Local (Docker Compose):**
+  ```bash
+  docker compose up --build
+  ```
+  - The web container waits for the Postgres database to be ready using `wait-for-it.sh`.
+  - Once ready, it runs migrations (`flask db upgrade`) and starts Flask.
+  - All endpoints (including `/feed`) are available once the app is running.
 
-- All configuration is managed via environment variables in your `.env` file (see `.env.example`).
-- The app uses [python-dotenv](https://pypi.org/project/python-dotenv/) to automatically load `.env` files.
-- **ENABLE_RATE_LIMITING**: Set to `false` in your `.env` to disable rate limiting in development. Defaults to `true` in production.
+### Environment Variables
 
-## Rate Limiting
+- `.env` file is required. For Docker Compose and production, use a Postgres URI:
+  ```
+  DATABASE_URL=postgresql://postgres:postgres@db:5432/jeetsocial
+  SECRET_KEY=your-secret-key
+  ENABLE_RATE_LIMITING=1
+  ```
+- **Do not commit secrets.** Document required variables in README.
 
-Normal users:
-- Can post once per minute.
-- If they try to post again too soon, they get a 429 error and must wait.
-- The error message shown is:
-  > "You are posting too quickly. Please wait a minute before posting again. This helps keep jeetSocial spam-free and fair for everyone."
+### Migration Workflow (Automated in Docker)
 
-Why?
-- Prevents spam, flooding, and abuse.
-- Keeps the platform fair and usable for everyone.
+- Migration files are generated and committed to `migrations/versions/`.
+- The Dockerfile copies migrations into the image.
+- At container startup, migrations are applied automatically.
+- The web service command in `docker-compose.yml`:
+  ```
+  command: /bin/sh -c "chmod +x wait-for-it.sh && ./wait-for-it.sh db:5432 -- flask db upgrade && flask run --host=0.0.0.0"
+  ```
+- **Race condition protection:** The app is robust against race conditions between web and db startup.
 
-Rate limiting is enforced in production using Flask-Limiter. During automated tests, it is disabled to allow fast, reliable test runs. You can also disable it in development by setting `ENABLE_RATE_LIMITING=false` in your `.env`.
+### Database Reset & Clean Migration
 
-## Testing
+- To reset the database and apply migrations from scratch:
+  ```bash
+  docker compose down -v
+  docker compose up --build
+  ```
+  This removes the database volume and ensures a clean migration.
 
-Run tests inside the web container:
-```
-docker-compose run web pytest
-```
+## Kindness Mission
+- All posts are anonymous and must pass a hate speech filter.
+- The About page and UI promote positivity and kindness.
 
-### Test Coverage
-- The project includes basic tests for posting messages and hate speech filtering.
-- **During testing**, rate limiting is automatically disabled so tests can run without hitting '429 Too Many Requests' errors.
-- This ensures robust, reliable test results and a smooth developer experience.
+## Feature Flags
+- Moderation and rate limiting can be toggled via environment variables.
 
-## Linting
+## Docker Compose & Dockerfile Highlights
+- **wait-for-it.sh** is copied into the image and used to block the web service until the database is ready.
+- The web service runs:
+  ```
+  flask db upgrade && flask run --host=0.0.0.0
+  ```
+- The database volume is named `pgdata` and can be reset for clean migrations.
 
-Run flake8 inside the web container:
-```
-docker-compose run web flake8 .
-```
+## Contributing
+- Use feature branches for new features.
+- Commit migration files with your changes.
+- Submit PRs to `main` after all tests pass.
+- See AGENTS.md for project guidelines.
+
+## Troubleshooting
+- **Migration errors:** If migrations fail, check:
+  - The database is reachable (`db:5432`).
+  - Migration files are present and committed.
+  - The `.env` file uses the correct Postgres URI.
+  - Use `docker compose logs web` and `docker compose logs db` for details.
+- **Endpoint issues:** Ensure the app is running and migrations have completed. All routes (including `/feed`) are available once startup is complete.
+- **General:** Confirm `.env` uses the correct Postgres URI and secrets.
