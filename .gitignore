@@ -6,9 +6,8 @@ __pycache__/
 *.db
 *.sqlite3
 
-# Environment files
+# Environment file
 .env
-.env.*
 
 # Node.js (if used)
 node_modules/
@@ -29,3 +28,16 @@ htmlcov/
 # Misc
 *.swp
 *.swo
+
+# Python virtual environment
+venv/
+
+# Pytest cache
+.pytest_cache/
+
+# Instance folder (runtime files)
+instance/
+
+# Test results and artifacts
+test-results/
+.playwright-artifacts-0/

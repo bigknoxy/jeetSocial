@@ -3,85 +3,36 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>jeetSocial</title>
-  <link rel="icon" type="image/svg+xml" href="/static/favicon.svg">
+  <title>jeetSocial – Anonymous, but always kind.</title>
+  <link rel="icon" href="/static/favicon.svg">
   <style>
-    body {
-      font-family: 'Segoe UI', Arial, sans-serif;
-      max-width: 500px;
-      margin: 2em auto;
-      background: #181a20;
-      color: #f4f4f4;
-    }
-    h1 {
-      text-align: center;
-      color: #7ec4fa;
-      letter-spacing: 1px;
-    }
-    #post-form {
-      display: flex;
-      flex-direction: column;
-      gap: 0.5em;
-      margin-bottom: 2em;
-    }
-    #message {
-      font-size: 1em;
-      padding: 0.5em;
-      background: #23263a;
-      color: #f4f4f4;
-      border: 1px solid #333a4d;
-      border-radius: 6px;
-      resize: vertical;
-    }
-    #submit {
-      font-size: 1em;
-      padding: 0.5em;
-      background: #7ec4fa;
-      color: #181a20;
-      border: none;
-      border-radius: 6px;
-      cursor: pointer;
-      font-weight: bold;
-      transition: background 0.2s;
-    }
-    #submit:hover {
-      background: #5baee6;
-    }
-    #error {
-      color: #ff6b6b;
-      margin-bottom: 1em;
-    }
-    .post {
-      background: #23263a;
-      border-radius: 6px;
-      box-shadow: 0 1px 3px #222;
-      margin-bottom: 1em;
-      padding: 1em;
-      border: 1px solid #333a4d;
-    }
-    .username {
-      font-weight: bold;
-      color: #7ec4fa;
-    }
-    .timestamp {
-      font-size: 0.9em;
-      color: #b0b8c1;
-      float: right;
-    }
-    @media (max-width: 600px) {
-      body { margin: 1em; }
-      .post { padding: 0.7em; }
-    }
+    body { font-family: sans-serif; background: #f7f7f7; margin: 0; }
+    .banner { background: #e0ffe0; color: #2d7a2d; padding: 1em; text-align: center; font-size: 1.2em; font-weight: bold; }
+    .container { max-width: 600px; margin: 2em auto; background: #fff; border-radius: 8px; box-shadow: 0 2px 8px rgba(0,0,0,0.05); padding: 2em; }
+    h1 { color: #2d7a2d; }
+    .desc { margin-bottom: 2em; color: #444; }
   </style>
 </head>
 <body>
-  <h1>jeetSocial</h1>
-  <div id="error"></div>
-  <form id="post-form">
-    <textarea id="message" rows="3" placeholder="How are you feeling?" required></textarea>
-    <button id="submit" type="submit">Post</button>
-  </form>
-  <div id="feed"></div>
-  <script src="/static/main.js"></script>
+  <div class="banner">
+    jeetSocial exists to spread and encourage kindness. Share something uplifting or supportive today!
+  </div>
+  <div class="container">
+    <h1>jeetSocial</h1>
+    <div class="desc">
+      Welcome to a safe, anonymous space for sharing kindness and positivity.<br>
+      All posts are anonymous and assigned a random username.<br>
+      Please keep your messages kind, supportive, and uplifting!
+      <br><br>
+      <a href="/static/about.html" style="color:#2d7a2d;text-decoration:underline;font-weight:bold;">Learn more about our kindness mission</a>
+    </div>
+    <!-- The rest of your app UI goes here -->
+    <div id="feed"></div>
+    <form id="postForm">
+      <textarea name="message" rows="3" style="width:100%;" placeholder="Share something kind or uplifting..."></textarea><br>
+      <button type="submit">Post</button>
+    </form>
+    <script src="/static/main.js"></script>
+  </div>
 </body>
 </html>
