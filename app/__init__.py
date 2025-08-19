@@ -38,5 +38,19 @@ def create_app(config_override=None):
     from app.routes import bp as routes_bp
     app.register_blueprint(routes_bp)
 
+    # Global error handler for all unhandled exceptions
+    from flask import jsonify, current_app
+    from werkzeug.exceptions import HTTPException
+    @app.errorhandler(Exception)
+    def handle_global_exception(e):
+        code = 500
+        if isinstance(e, HTTPException):
+            code = e.code
+        if hasattr(current_app, 'logger'):
+            current_app.logger.error(f"Unhandled exception: {e}")
+        return jsonify({
+            "error": "Sorry, something went wrong. Please try again later."
+        }), code
+
     return app
 

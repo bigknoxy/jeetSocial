@@ -3,6 +3,7 @@ flask_sqlalchemy
 psycopg2-binary
 flask-limiter
 pytest
+pytest-cov
 requests
 python-dotenv
 flask-migrate

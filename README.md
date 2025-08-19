@@ -30,11 +30,44 @@ jeetSocial is a minimal, anonymous social platform designed for kindness and pri
   ```
 - **Commit migration files:** Always commit new migration files in `migrations/versions/` to version control.
 
-### Running Tests
+### Running Tests & Coverage
+
+#### Python (Backend)
 - Run all tests:
   ```bash
   PYTHONPATH=. ./venv/bin/pytest tests/
   ```
+- Run tests with coverage:
+  ```bash
+  PYTHONPATH=. ./venv/bin/pytest --cov=app --cov-report=term-missing
+  ```
+- Minimum coverage threshold: **80%** (enforced in CI)
+
+#### JavaScript (Frontend)
+- Run all JS unit tests:
+  ```bash
+  npm test
+  ```
+- Run JS tests with coverage:
+  ```bash
+  npm run test:coverage
+  ```
+- Minimum coverage threshold: **80%** (enforced in CI)
+
+#### End-to-End (E2E) Tests
+- Run Playwright E2E tests:
+  ```bash
+  npm run e2e
+  ```
+
+### Expanding Test Coverage
+- Add tests for edge cases (long/empty/special char posts, moderation bypass attempts).
+- Add integration tests for API endpoints and error scenarios.
+- Add E2E tests for critical user flows (posting, moderation, error handling).
+
+### CI Integration
+- All tests and coverage checks are run automatically in CI (see `.github/workflows/ci.yml`).
+- Builds fail if coverage drops below threshold.
 
 ### Running the App
 

@@ -36,7 +36,12 @@ def _create_post_impl():
     username = generate_username()
     post = Post(username=username, message=message)
     db.session.add(post)
-    db.session.commit()
+    try:
+        db.session.commit()
+    except Exception as e:
+        current_app.logger.error(f"DB commit failed: {e}")
+        db.session.rollback()
+        return jsonify({'error': 'Database error. Please try again later.'}), 500
     return jsonify({
         'id': post.id,
         'username': post.username,
