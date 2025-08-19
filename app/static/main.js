@@ -4,13 +4,17 @@ async function fetchFeed() {
   try {
     const resp = await fetch('/api/posts');
     const posts = await resp.json();
-    feed.innerHTML = posts.map(post => `
-      <div class="post">
-        <span class="username">${post.username}</span>
-        <span class="timestamp">${new Date(post.timestamp).toLocaleString()}</span>
-        <div>${escapeHtml(post.message)}</div>
-      </div>
-    `).join('');
+    const accentColors = ["#ff4b5c", "#ffb26b", "#ffe347", "#43e97b", "#3fa7d6", "#7c4dff", "#c86dd7"];
+feed.innerHTML = posts.map((post, i) => {
+  const color = accentColors[i % accentColors.length];
+  return `
+    <div class="post" style="border-left: 6px solid ${color};">
+      <span class="username" style="color:${color}">${post.username}</span>
+      <span class="timestamp">${new Date(post.timestamp).toLocaleString()}</span>
+      <div>${escapeHtml(post.message)}</div>
+    </div>
+  `;
+}).join('');
   } catch (e) {
     feed.innerHTML = '<em>Error loading feed.</em>';
   }

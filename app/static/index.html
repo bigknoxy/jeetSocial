@@ -6,22 +6,49 @@
   <title>jeetSocial – Anonymous, but always kind.</title>
   <link rel="icon" href="/static/favicon.svg">
   <style>
-    body { font-family: sans-serif; background: #f7f7f7; margin: 0; }
-    .banner { background: #e0ffe0; color: #2d7a2d; padding: 1em; text-align: center; font-size: 1.2em; font-weight: bold; }
-    .container { max-width: 600px; margin: 2em auto; background: #fff; border-radius: 8px; box-shadow: 0 2px 8px rgba(0,0,0,0.05); padding: 2em; }
-    h1 { color: #2d7a2d; }
-    .desc { margin-bottom: 2em; color: #444; }
+    body {
+      font-family: sans-serif;
+      background: #18181b;
+      color: #f5f5f5;
+      margin: 0;
+    }
+    .banner {
+      background: #222;
+      color: #fff;
+      padding: 1em;
+      text-align: center;
+      font-size: 1.2em;
+      font-weight: bold;
+      border-bottom: 4px solid;
+      border-image: linear-gradient(90deg, #ff4b5c, #ffb26b, #ffe347, #43e97b, #3fa7d6, #7c4dff, #c86dd7) 1;
+    }
+    .container {
+      max-width: 600px;
+      margin: 2em auto;
+      background: #222;
+      border-radius: 8px;
+      box-shadow: 0 2px 8px rgba(0,0,0,0.2);
+      padding: 2em;
+    }
+    h1, h2 {
+      color: #ffe347;
+    }
+    .desc {
+      margin-bottom: 2em;
+      color: #b3b3b3;
+    }
     .post {
-      background: #f9f9f9;
+      background: #23232b;
       border-radius: 6px;
-      box-shadow: 0 1px 4px rgba(0,0,0,0.03);
+      box-shadow: 0 1px 4px rgba(0,0,0,0.08);
       margin-bottom: 1em;
       padding: 1em;
-      border: 1px solid #eee;
+      border-left: 6px solid #43e97b;
+      color: #f5f5f5;
     }
     .username {
       font-weight: bold;
-      color: #2d7a2d;
+      color: #ff4b5c;
       margin-right: 1em;
     }
     .timestamp {
@@ -32,7 +59,41 @@
     .post div {
       margin-top: 0.5em;
       font-size: 1.1em;
-      color: #333;
+      color: #ffe347;
+    }
+    button {
+      background: linear-gradient(90deg, #ff4b5c, #ffb26b, #ffe347, #43e97b, #3fa7d6, #7c4dff, #c86dd7);
+      color: #fff;
+      border: none;
+      border-radius: 4px;
+      padding: 0.5em 1.5em;
+      font-weight: bold;
+      cursor: pointer;
+      transition: box-shadow 0.2s;
+      font-size: 1em;
+    }
+    button:hover {
+      box-shadow: 0 0 8px #43e97b;
+    }
+    textarea {
+      background: #23232b;
+      color: #f5f5f5;
+      border: 2px solid #3fa7d6;
+      border-radius: 4px;
+      padding: 0.5em;
+      font-size: 1em;
+      margin-bottom: 0.5em;
+      width: 100%;
+      resize: vertical;
+    }
+    textarea:focus {
+      border-color: #ff4b5c;
+      outline: none;
+    }
+    #error {
+      color: #ff4b5c;
+      font-weight: bold;
+      margin-bottom: 1em;
     }
   </style>
 </head>
