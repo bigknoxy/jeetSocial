@@ -57,11 +57,24 @@
       color: #3fa7d6;
       text-decoration: underline;
     }
-  </style>
+     .rainbow-link-gradient, .banner .rainbow-link-gradient {
+       background: linear-gradient(90deg, #ff4b5c, #ffb26b, #ffe347, #43e97b, #3fa7d6, #7c4dff, #c86dd7);
+       -webkit-background-clip: text;
+       -webkit-text-fill-color: transparent;
+       color: inherit !important;
+       font-weight: bold;
+       font-size: 1.1em;
+       text-decoration: underline;
+       transition: text-shadow 0.2s;
+     }
+     .rainbow-link-gradient:hover {
+       text-shadow: 0 0 8px #43e97b;
+     }
+   </style>
 </head>
 <body>
   <div class="banner">
-    <a href="/static/index.html" aria-label="Go to homepage">jeetSocial</a>: Spreading kindness, support, and positivity.
+    <a href="/static/index.html" class="rainbow-link-gradient" aria-label="Go to homepage">jeetSocial</a>: Spreading kindness, support, and positivity.
   </div>
   <div class="container">
     <h1>About jeetSocial</h1>
