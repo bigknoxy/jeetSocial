@@ -123,10 +123,21 @@ window.addEventListener('DOMContentLoaded', setupEnterToPost);
 
 
 // Emoji Picker Integration
+function isMobileDevice() {
+  return /Mobi|Android|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent);
+}
+
 window.addEventListener('DOMContentLoaded', function() {
   const emojiBtn = document.getElementById('emoji-btn');
   const emojiPicker = document.getElementById('emoji-picker');
   const textarea = document.getElementById('message');
+
+  // Hide emoji button on mobile devices
+  if (emojiBtn && isMobileDevice()) {
+    emojiBtn.style.display = 'none';
+    if (emojiPicker) emojiPicker.style.display = 'none';
+    return;
+  }
 
   // Position picker below button
   function positionPicker() {
