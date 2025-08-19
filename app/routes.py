@@ -16,27 +16,36 @@ def static_files(path):
 @bp.route('/api/posts', methods=['GET'])
 def get_posts():
     since = request.args.get('since')
+    page = int(request.args.get('page', 1))
+    limit = int(request.args.get('limit', 50))
     query = Post.query
     if since:
         from datetime import datetime
         try:
-            # Accept ISO8601 or Unix timestamp
             try:
                 since_dt = datetime.fromisoformat(since)
             except ValueError:
                 since_dt = datetime.utcfromtimestamp(float(since))
-            query = query.filter(Post.timestamp > since_dt)
+            query = query.filter(Post.timestamp >= since_dt)
         except Exception:
-            pass  # fallback: ignore invalid since param
-    posts = query.order_by(Post.timestamp.desc()).limit(50).all()
-    return jsonify([
-        {
-            'id': p.id,
-            'username': p.username,
-            'message': p.message,
-            'timestamp': p.timestamp.isoformat()
-        } for p in posts
-    ])
+            pass
+    total_count = query.count()
+    posts = query.order_by(Post.timestamp.desc()).offset((page-1)*limit).limit(limit).all()
+    has_more = (page * limit) < total_count
+    return jsonify({
+        'posts': [
+            {
+                'id': p.id,
+                'username': p.username,
+                'message': p.message,
+                'timestamp': p.timestamp.isoformat()
+            } for p in posts
+        ],
+        'total_count': total_count,
+        'page': page,
+        'limit': limit,
+        'has_more': has_more
+    })
 
 def _create_post_impl():
     data = request.get_json()

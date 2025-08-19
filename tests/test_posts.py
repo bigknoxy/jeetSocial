@@ -45,6 +45,26 @@ def test_neutral_post(client):
     assert 'username' in data
     assert data['message'] == 'This is a post.'
 
+def test_paging(client):
+    # Create 55 posts
+    for i in range(55):
+        client.post('/api/posts', json={'message': f'Post {i+1}'})
+    # Page 1, limit 20
+    resp = client.get('/api/posts?page=1&limit=20')
+    assert resp.status_code == 200
+    data = resp.get_json()
+    assert len(data['posts']) == 20
+    assert data['page'] == 1
+    assert data['limit'] == 20
+    assert data['has_more'] is True
+    # Page 3, limit 20 (should have 15 posts)
+    resp = client.get('/api/posts?page=3&limit=20')
+    assert resp.status_code == 200
+    data = resp.get_json()
+    assert len(data['posts']) == 15
+    assert data['page'] == 3
+    assert data['has_more'] is False
+
 def test_empty_post(client):
     resp = client.post('/api/posts', json={'message': ''})
     assert resp.status_code == 400
