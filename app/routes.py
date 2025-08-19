@@ -15,7 +15,20 @@ def static_files(path):
 
 @bp.route('/api/posts', methods=['GET'])
 def get_posts():
-    posts = Post.query.order_by(Post.timestamp.desc()).limit(50).all()
+    since = request.args.get('since')
+    query = Post.query
+    if since:
+        from datetime import datetime
+        try:
+            # Accept ISO8601 or Unix timestamp
+            try:
+                since_dt = datetime.fromisoformat(since)
+            except ValueError:
+                since_dt = datetime.utcfromtimestamp(float(since))
+            query = query.filter(Post.timestamp > since_dt)
+        except Exception:
+            pass  # fallback: ignore invalid since param
+    posts = query.order_by(Post.timestamp.desc()).limit(50).all()
     return jsonify([
         {
             'id': p.id,

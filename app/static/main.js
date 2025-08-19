@@ -1,24 +1,63 @@
-async function fetchFeed() {
+let latestTimestamp = null;
+
+async function fetchFeed(initial = false) {
   const feed = document.getElementById('feed');
-  feed.innerHTML = '<em>Loading...</em>';
+  if (initial) feed.innerHTML = '<em>Loading...</em>';
   try {
-    const resp = await fetch('/api/posts');
+    let url = '/api/posts';
+    if (!initial && latestTimestamp) {
+      url += `?since=${encodeURIComponent(latestTimestamp)}`;
+    }
+    const resp = await fetch(url);
     const posts = await resp.json();
     const accentColors = ["#ff4b5c", "#ffb26b", "#ffe347", "#43e97b", "#3fa7d6", "#7c4dff", "#c86dd7"];
-feed.innerHTML = posts.map((post, i) => {
-  const color = accentColors[i % accentColors.length];
-  return `
-    <div class="post" style="border-left: 6px solid ${color};">
-      <span class="username" style="color:${color}">${post.username}</span>
-      <span class="timestamp">${new Date(post.timestamp).toLocaleString()}</span>
-      <div>${escapeHtml(post.message)}</div>
-    </div>
-  `;
-}).join('');
+    if (initial) {
+      feed.innerHTML = posts.map((post, i) => {
+        const color = accentColors[i % accentColors.length];
+        return `
+          <div class="post" style="border-left: 6px solid ${color};">
+            <span class="username" style="color:${color}">${post.username}</span>
+            <span class="timestamp">${new Date(post.timestamp).toLocaleString()}</span>
+            <div>${escapeHtml(post.message)}</div>
+          </div>
+        `;
+      }).join('');
+      if (posts.length > 0) {
+        latestTimestamp = posts[0].timestamp;
+      }
+    } else {
+      // Only append new posts
+      if (posts.length > 0) {
+        latestTimestamp = posts[0].timestamp;
+        const newPostsHtml = posts.map((post, i) => {
+          const color = accentColors[Math.floor(Math.random() * accentColors.length)];
+          return `
+            <div class="post new-post" style="border-left: 6px solid ${color}; animation: fadeIn 1s;">
+              <span class="username" style="color:${color}">${post.username}</span>
+              <span class="timestamp">${new Date(post.timestamp).toLocaleString()}</span>
+              <div>${escapeHtml(post.message)}</div>
+            </div>
+          `;
+        }).join('');
+        feed.insertAdjacentHTML('afterbegin', newPostsHtml);
+      }
+    }
   } catch (e) {
-    feed.innerHTML = '<em>Error loading feed.</em>';
+    if (initial) feed.innerHTML = '<em>Error loading feed.</em>';
   }
 }
+
+// Initial load
+window.addEventListener('DOMContentLoaded', () => fetchFeed(true));
+
+// Poll for new posts every 15 seconds
+setInterval(() => fetchFeed(false), 15000);
+
+// Optional: highlight new posts
+const style = document.createElement('style');
+style.innerHTML = `@keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } } .new-post { background: #23232b; box-shadow: 0 0 8px #ffe347; }`;
+document.head.appendChild(style);
+
 
 function escapeHtml(text) {
   const div = document.createElement('div');
