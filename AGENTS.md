@@ -5,13 +5,15 @@
 - **Project Purpose:** jeetSocial is a minimal, anonymous social platform. All posts are anonymous and assigned a random username.
 - **Naming:** Use `jeetSocial` for project-wide references. Posts should use random, non-identifiable usernames.
 - **Privacy:** Do not collect or store any personal data. No tracking, no analytics.
-- **Moderation:** All posts must pass a basic hate speech filter. Extend the filter as needed.
+- **Moderation:** All posts must pass a hate speech filter (see `app/utils.py` for the word/phrase list). Extend the filter as needed.
 - **Kindness Mission:** jeetSocial exists to spread and encourage kindness through anonymous sharing and support. All messaging, moderation, and user experience should promote positivity, support, and uplifting interactions.
+- **UI/UX:** Homepage and feed are designed to encourage uplifting, supportive interactions. The About page and feedback link promote the kindness mission.
 
 ## Feature Flags
 
-- Use feature flags (environment variables or config settings) to toggle moderation, experimental features, or third-party integrations.
+- Use feature flags (environment variables or config settings) to toggle moderation, rate limiting, experimental features, or third-party integrations.
 - Example: All posts are checked against a basic hate speech word list. No ML moderation is used.
+- See `.env.example` for all available flags.
 
 ## Agentic Coding Guidelines
 
@@ -46,16 +48,16 @@
 7. **Build, Lint, Test:**  
    - Document build/lint/test commands in README or here.  
    - Prefer running single tests for fast feedback.
-   - Build and test your changes and try to fix them if you get errors, you can use 'docker compose build' to see if your changes were good or created an error
+   - Build and test your changes and try to fix them if you get errors. Use `docker compose build` to verify your changes.
 
 8. **Documentation:**  
    - Document public APIs, functions, and modules.  
-   - Update docs with architectural changes.
+   - Update docs with architectural or UI changes.
 
 ## Build/Lint/Test Commands
 
 - **Backend (Python/Flask):**
-  - Run server: `python app.py`
+  - Run server: `python -m app`
   - Lint: `flake8 .`
   - Test all: `docker compose run web pytest`
   - Test single: `docker compose run web pytest tests/test_posts.py::test_create_post`
@@ -63,6 +65,8 @@
   - No build step; serve static files.
   - Lint: `eslint .` (if using JS)
   - Test: Add simple JS unit tests if needed.
+- **End-to-End (E2E):**
+  - Run Playwright E2E tests: `npm run e2e`
 
 - **Security:** Store any secrets in `.env` (if needed). Never commit `.env` to version control.
 

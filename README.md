@@ -1,13 +1,20 @@
 # jeetSocial
 
 ## Overview
-jeetSocial is a minimal, anonymous social platform designed for kindness and privacy. The app now uses Docker Compose for robust, production-grade deployment. The web container waits for the Postgres database to be ready using `wait-for-it.sh`, then runs migrations and starts Flask, ensuring reliable startup and schema consistency.
+jeetSocial is a minimal, anonymous social platform designed to encourage kindness and privacy. All posts are anonymous and assigned random usernames. No personal data is collected, and all posts are filtered for hate speech using an extensive word/phrase list. The app uses Docker Compose for robust, production-grade deployment. The web container waits for the Postgres database to be ready using `wait-for-db-healthy.sh`, then runs migrations and starts Flask, ensuring reliable startup and schema consistency.
+
+### Recent UI/UX Changes
+- Homepage banner and description updated for clarity and positivity.
+- Feed styling improved for readability and visual appeal.
+- Feedback/mission link now points to `/static/about.html`.
+- Posts display random usernames, timestamps, and message content.
+- Error messages and rate limiting feedback are clear and user-friendly.
 
 ## Setup & Development
 
 ### Requirements
 - Python 3.11+
-- Docker & Docker Compose (for production and local development)
+- Docker & Docker Compose (recommended for all environments)
 
 ### Installation (Local Development)
 1. **Create and activate a virtual environment:**
