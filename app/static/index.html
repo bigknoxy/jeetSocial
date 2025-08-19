@@ -37,6 +37,33 @@
       margin-bottom: 2em;
       color: #b3b3b3;
     }
+    .rainbow-link-gradient {
+      background: linear-gradient(90deg, #ff4b5c, #ffb26b, #ffe347, #43e97b, #3fa7d6, #7c4dff, #c86dd7);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      font-weight: bold;
+      font-size: 1.1em;
+      text-decoration: underline;
+      transition: text-shadow 0.2s;
+    }
+    .rainbow-link-gradient:hover {
+      text-shadow: 0 0 8px #43e97b;
+    }
+    .rainbow-link-underline {
+      color: #ffe347;
+      font-weight: bold;
+      font-size: 1.1em;
+      text-decoration: underline;
+      text-decoration-thickness: 3px;
+      text-decoration-color: transparent;
+      background-image: linear-gradient(90deg, #ff4b5c, #ffb26b, #ffe347, #43e97b, #3fa7d6, #7c4dff, #c86dd7);
+      background-size: 100% 3px;
+      background-repeat: no-repeat;
+      background-position: 0 100%;
+    }
+    .rainbow-link-underline:hover {
+      color: #fff;
+    }
     .post {
       background: #23232b;
       border-radius: 6px;
@@ -108,7 +135,9 @@
       All posts are anonymous and assigned a random username.<br>
       Please keep your messages kind, supportive, and uplifting!
       <br><br>
-      <a href="/static/about.html" style="color:#2d7a2d;text-decoration:underline;font-weight:bold;">Learn more about our kindness mission</a>
+      <div style="margin-bottom:1em;">
+  <a href="/static/about.html" class="rainbow-link-gradient">Learn more about our kindness mission</a>
+</div>
     </div>
     <!-- The rest of your app UI goes here -->
 <h2 style="margin-top:0;">Share a message</h2>
