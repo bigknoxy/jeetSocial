@@ -114,7 +114,7 @@
       font-size: 1em;
       margin-bottom: 0.5em;
       width: 100%;
-      resize: vertical;
+       resize: none;
     }
     textarea:focus {
       border-color: #ff4b5c;
@@ -125,7 +125,49 @@
       font-weight: bold;
       margin-bottom: 1em;
     }
-  </style>
+     .toggle-switch {
+      position: relative;
+      display: inline-flex;
+      align-items: center;
+      cursor: pointer;
+      gap: 0.5em;
+    }
+    .toggle-switch input {
+      display: none;
+    }
+    .slider {
+      width: 40px;
+      height: 20px;
+      background: #888;
+      border-radius: 20px;
+      position: relative;
+      transition: background 0.2s;
+      margin-right: 0.5em;
+    }
+    .slider:before {
+      content: "";
+      position: absolute;
+      left: 2px;
+      top: 2px;
+      width: 16px;
+      height: 16px;
+      background: #ffe347;
+      border-radius: 50%;
+      transition: left 0.2s, background 0.2s;
+    }
+    .toggle-switch input:checked + .slider {
+      background: #43e97b;
+    }
+    .toggle-switch input:checked + .slider:before {
+      left: 22px;
+      background: #ff4b5c;
+    }
+    .toggle-label {
+      font-size: 0.95em;
+      color: #ffe347;
+      margin-left: 0.5em;
+    }
+   </style>
 </head>
 <body>
   <div class="banner">
@@ -146,9 +188,22 @@
 <h2 style="margin-top:0;">Share a message</h2>
 <div id="error" style="color: red; margin-bottom: 1em;"></div>
 <form id="post-form" style="margin-bottom:2em;">
-  <textarea name="message" id="message" rows="3" style="width:100%;" placeholder="Share something kind or uplifting..."></textarea><br>
-  <button type="submit" style="margin-top:0.5em;">Post</button>
+  <div style="display: flex; align-items: center; gap: 0.5em;">
+    <textarea name="message" id="message" rows="3" style="width:100%;" placeholder="Share something kind or uplifting..."></textarea>
+    <button type="button" id="emoji-btn" title="Add emoji" style="font-size:1.5em; padding:0.5em; background: none; border: none; cursor: pointer;">😊</button>
+  </div>
+  <emoji-picker id="emoji-picker" style="display:none; position:absolute; z-index:2000;"></emoji-picker>
+  <div style="display: flex; align-items: center; gap: 1em; margin-top:0.5em;">
+    <button type="submit">Post</button>
+    <label class="toggle-switch" title="When enabled, pressing Enter will post your message. Shift+Enter always adds a new line.">
+      <input type="checkbox" id="enter-to-post" />
+      <span class="slider"></span>
+      <span class="toggle-label">Post on Enter</span>
+    </label>
+  </div>
 </form>
+<!-- Emoji Picker CDN -->
+<script type="module" src="https://cdn.jsdelivr.net/npm/emoji-picker-element@^1/index.js"></script>
 <h2 style="margin-top:2em;">Recent Posts</h2>
 <div id="feed"></div>
 <div style="font-size:0.9em;color:#888;margin-top:1em;">Showing the 50 most recent posts</div>

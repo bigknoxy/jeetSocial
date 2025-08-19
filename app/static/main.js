@@ -63,3 +63,62 @@ async function postMessage(e) {
 
 document.getElementById('post-form').addEventListener('submit', postMessage);
 window.addEventListener('DOMContentLoaded', fetchFeed);
+
+// Enter to Post Toggle Integration
+function setupEnterToPost() {
+  const textarea = document.getElementById('message');
+  const enterToggle = document.getElementById('enter-to-post');
+  const postForm = document.getElementById('post-form');
+
+  textarea.addEventListener('keydown', function(e) {
+    if (
+      enterToggle && enterToggle.checked &&
+      e.key === 'Enter' && !e.shiftKey && !e.ctrlKey
+    ) {
+      e.preventDefault();
+      postForm.requestSubmit();
+    }
+  });
+}
+window.addEventListener('DOMContentLoaded', setupEnterToPost);
+
+
+// Emoji Picker Integration
+window.addEventListener('DOMContentLoaded', function() {
+  const emojiBtn = document.getElementById('emoji-btn');
+  const emojiPicker = document.getElementById('emoji-picker');
+  const textarea = document.getElementById('message');
+
+  // Position picker below button
+  function positionPicker() {
+    const rect = emojiBtn.getBoundingClientRect();
+    emojiPicker.style.left = rect.left + 'px';
+    emojiPicker.style.top = (rect.bottom + window.scrollY) + 'px';
+  }
+
+  emojiBtn.addEventListener('click', function(e) {
+    e.preventDefault();
+    positionPicker();
+    emojiPicker.style.display = 'block';
+  });
+
+  emojiPicker.addEventListener('emoji-click', function(event) {
+    const emoji = event.detail.unicode;
+    // Insert emoji at cursor position
+    const start = textarea.selectionStart;
+    const end = textarea.selectionEnd;
+    const value = textarea.value;
+    textarea.value = value.slice(0, start) + emoji + value.slice(end);
+    textarea.focus();
+    textarea.selectionStart = textarea.selectionEnd = start + emoji.length;
+    emojiPicker.style.display = 'none';
+  });
+
+  // Hide picker if clicking outside
+  document.addEventListener('click', function(e) {
+    if (!emojiPicker.contains(e.target) && e.target !== emojiBtn) {
+      emojiPicker.style.display = 'none';
+    }
+  });
+});
+
