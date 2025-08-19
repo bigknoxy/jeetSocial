@@ -11,6 +11,29 @@
     .container { max-width: 600px; margin: 2em auto; background: #fff; border-radius: 8px; box-shadow: 0 2px 8px rgba(0,0,0,0.05); padding: 2em; }
     h1 { color: #2d7a2d; }
     .desc { margin-bottom: 2em; color: #444; }
+    .post {
+      background: #f9f9f9;
+      border-radius: 6px;
+      box-shadow: 0 1px 4px rgba(0,0,0,0.03);
+      margin-bottom: 1em;
+      padding: 1em;
+      border: 1px solid #eee;
+    }
+    .username {
+      font-weight: bold;
+      color: #2d7a2d;
+      margin-right: 1em;
+    }
+    .timestamp {
+      color: #888;
+      font-size: 0.9em;
+      margin-left: 0.5em;
+    }
+    .post div {
+      margin-top: 0.5em;
+      font-size: 1.1em;
+      color: #333;
+    }
   </style>
 </head>
 <body>
@@ -27,12 +50,16 @@
       <a href="/static/about.html" style="color:#2d7a2d;text-decoration:underline;font-weight:bold;">Learn more about our kindness mission</a>
     </div>
     <!-- The rest of your app UI goes here -->
-    <div id="feed"></div>
-    <form id="postForm">
-      <textarea name="message" rows="3" style="width:100%;" placeholder="Share something kind or uplifting..."></textarea><br>
-      <button type="submit">Post</button>
-    </form>
-    <script src="/static/main.js"></script>
+<h2 style="margin-top:0;">Share a message</h2>
+<div id="error" style="color: red; margin-bottom: 1em;"></div>
+<form id="post-form" style="margin-bottom:2em;">
+  <textarea name="message" id="message" rows="3" style="width:100%;" placeholder="Share something kind or uplifting..."></textarea><br>
+  <button type="submit" style="margin-top:0.5em;">Post</button>
+</form>
+<h2 style="margin-top:2em;">Recent Posts</h2>
+<div id="feed"></div>
+<div style="font-size:0.9em;color:#888;margin-top:1em;">Showing the 50 most recent posts</div>
+<script src="/static/main.js"></script>
   </div>
 </body>
 </html>
