@@ -1,3 +1,8 @@
+"""
+test_posts.py
+
+Unit tests for post creation, moderation, paging, and API responses in jeetSocial.
+"""
 import pytest
 from app import create_app, db
 from app.models import Post

@@ -1,3 +1,8 @@
+"""
+test_posts_integration.py
+
+Integration tests for post creation and DB error handling in jeetSocial.
+"""
 import pytest
 from app import create_app, db
 from app.models import Post

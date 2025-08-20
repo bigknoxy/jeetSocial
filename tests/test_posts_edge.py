@@ -1,3 +1,8 @@
+"""
+test_posts_edge.py
+
+Edge case tests for long posts, special characters, and obfuscated hate speech in jeetSocial.
+"""
 import pytest
 from app import create_app, db
 from app.models import Post

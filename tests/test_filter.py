@@ -1,3 +1,8 @@
+"""
+test_filter.py
+
+Unit tests for hate speech word/phrase filter in jeetSocial.
+"""
 import os
 import pytest
 from app.utils import is_hate_speech

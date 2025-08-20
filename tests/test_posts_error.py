@@ -1,3 +1,8 @@
+"""
+test_posts_error.py
+
+Unit tests for error handling in post creation (invalid JSON, missing fields) in jeetSocial.
+"""
 import pytest
 from app import create_app, db
 from app.models import Post

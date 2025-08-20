@@ -1,3 +1,13 @@
+/*
+main.js
+
+Frontend logic for jeetSocial:
+- Live feed polling and updates
+- Paging controls
+- Post submission and moderation
+- Kindness mission UI/UX
+- Emoji picker integration
+*/
 let latestTimestamp = null;
 
 async function fetchFeed(initial = false) {

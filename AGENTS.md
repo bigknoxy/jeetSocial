@@ -9,11 +9,19 @@
 - **Kindness Mission:** jeetSocial exists to spread and encourage kindness through anonymous sharing and support. All messaging, moderation, and user experience should promote positivity, support, and uplifting interactions.
 - **UI/UX:** Homepage and feed are designed to encourage uplifting, supportive interactions. The About page and feedback link promote the kindness mission.
 
-## Feature Flags
+## Feature Flags & Environment Variables
 
-- Use feature flags (environment variables or config settings) to toggle moderation, rate limiting, experimental features, or third-party integrations.
-- Example: All posts are checked against a basic hate speech word list. No ML moderation is used.
-- See `.env.example` for all available flags.
+| Variable              | Description                                 | Default/Example                        |
+|----------------------|---------------------------------------------|----------------------------------------|
+| DATABASE_URL         | Postgres connection URI                     | postgresql://postgres:...              |
+| SECRET_KEY           | Flask secret key                            | your-secret-key                        |
+| ENABLE_RATE_LIMITING | Enable rate limiting (1=on, 0=off)          | 1                                      |
+| ENABLE_MODERATION    | Enable hate speech filter (1=on, 0=off)     | 1                                      |
+| ...                  | See .env.example for all available flags    |                                        |
+
+- See `.env.example` for all available flags and usage.
+- **Do not commit secrets.**
+- For onboarding and setup, see [README.md](./README.md).
 
 ## Agentic Coding Guidelines
 

@@ -1,3 +1,7 @@
+# docker-compose.yml for jeetSocial
+# Defines web and db services, healthchecks, and environment setup.
+# See README.md for usage and troubleshooting.
+
 services:
   web:
     build: .

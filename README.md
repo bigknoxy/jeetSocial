@@ -1,152 +1,175 @@
 # jeetSocial
 
-## Overview
-jeetSocial is a minimal, anonymous social platform designed to encourage kindness and privacy. All posts are anonymous and assigned random usernames. No personal data is collected, and all posts are filtered for hate speech using an extensive word/phrase list. The app uses Docker Compose for robust, production-grade deployment. The web container waits for the Postgres database to be ready using `wait-for-db-healthy.sh`, then runs migrations and starts Flask, ensuring reliable startup and schema consistency.
+[![Build Status](https://img.shields.io/github/workflow/status/your-org/jeetSocial/CI)](https://github.com/your-org/jeetSocial/actions)
+[![Test Coverage](https://img.shields.io/codecov/c/github/your-org/jeetSocial)](https://codecov.io/gh/your-org/jeetSocial)
+[![License](https://img.shields.io/github/license/your-org/jeetSocial)](LICENSE)
 
-### Recent UI/UX Changes
-- Homepage banner and description updated for clarity and positivity.
-- Feed styling improved for readability and visual appeal.
-- Feedback/mission link now points to `/static/about.html`.
-- Posts display random usernames, timestamps, and message content.
-- Error messages and rate limiting feedback are clear and user-friendly.
+## Project Purpose & Kindness Mission
+jeetSocial is a minimal, anonymous social platform designed to encourage kindness and privacy. All posts are anonymous and assigned random usernames. No personal data is collected, and all posts are filtered for hate speech using an extensive word/phrase list. The platform exists to spread and encourage kindness through anonymous sharing and support.
 
-## Setup & Development
+## Features
+- Anonymous posting with random usernames
+- Hate speech filter (see `app/utils.py`)
+- No personal data collection or tracking
+- Rate limiting to prevent spam
+- Docker Compose for robust deployment
+- Kindness-focused UI/UX
+- Feature flags for moderation, rate limiting, and experimental features
+- Automated database migrations
+- Comprehensive test suite (unit, integration, E2E)
+
+## Quickstart / Onboarding
 
 ### Requirements
 - Python 3.11+
-- Docker & Docker Compose (recommended for all environments)
+- Docker & Docker Compose (recommended)
 
-### Installation (Local Development)
-1. **Create and activate a virtual environment:**
+### Setup (Local Development)
+1. **Clone the repo:**
+   ```bash
+   git clone https://github.com/your-org/jeetSocial.git
+   cd jeetSocial
+   ```
+2. **Create and activate a virtual environment:**
    ```bash
    python3 -m venv venv
    source venv/bin/activate
    ```
-2. **Install dependencies:**
+3. **Install dependencies:**
    ```bash
    pip install -r requirements.txt
    ```
+4. **Copy and edit .env.example:**
+   ```bash
+   cp .env.example .env
+   # Edit .env as needed
+   ```
+5. **Run the app:**
+   ```bash
+   python -m app
+   ```
 
-### Database Migrations (Local)
-- Migrations are managed with Flask-Migrate (Alembic).
-- To initialize and generate migrations:
-  ```bash
-  flask db init                # Only once, if migrations/ does not exist
-  flask db migrate -m "Describe your migration"
-  flask db upgrade
-  ```
-- **Commit migration files:** Always commit new migration files in `migrations/versions/` to version control.
+### Setup (Docker Compose)
+```bash
+docker compose up --build
+```
+- The web container waits for the Postgres database to be ready, runs migrations, and starts Flask.
 
-### Running Tests & Coverage
+## Project Structure
+```
+app/
+  __init__.py
+  models.py
+  routes.py
+  utils.py
+  static/
+    main.js
+    index.html
+    about.html
+migrations/
+  versions/
+  ...
+tests/
+  ...
+Dockerfile
+docker-compose.yml
+.env.example
+AGENTS.md
+README.md
+```
+- **app/**: Main Flask app and static frontend
+- **migrations/**: Database migration scripts
+- **tests/**: Unit, integration, and E2E tests
+- **Dockerfile, docker-compose.yml**: Containerization and orchestration
+- **AGENTS.md**: Project guidelines and coding standards
 
-#### Python (Backend)
-- Run all tests:
-  ```bash
-  PYTHONPATH=. ./venv/bin/pytest tests/
-  ```
-- Run tests with coverage:
-  ```bash
-  PYTHONPATH=. ./venv/bin/pytest --cov=app --cov-report=term-missing
-  ```
-- Minimum coverage threshold: **80%** (enforced in CI)
+## API Documentation
 
-#### JavaScript (Frontend)
-- Run all JS unit tests:
-  ```bash
-  npm test
-  ```
-- Run JS tests with coverage:
-  ```bash
-  npm run test:coverage
-  ```
-- Minimum coverage threshold: **80%** (enforced in CI)
+### Endpoints
+- `GET /api/posts`: Fetch posts (supports paging, `since` param)
+- `POST /api/posts`: Create a new post (body: `{ message: "..." }`)
+- `GET /feed`: Main feed page
+- `GET /about`: About/mission page
 
-#### End-to-End (E2E) Tests
-- Run Playwright E2E tests:
-  ```bash
-  npm run e2e
-  ```
+#### Example: Fetch Posts
+```bash
+curl -X GET 'http://localhost:5000/api/posts?page=1&limit=20'
+```
+Response:
+```json
+{
+  "posts": [
+    { "id": 1, "username": "RandomUser", "timestamp": "2025-08-20T12:34:56Z", "message": "Hello world!" },
+    ...
+  ],
+  "page": 1,
+  "total_count": 42
+}
+```
 
-### Expanding Test Coverage
-- Add tests for edge cases (long/empty/special char posts, moderation bypass attempts).
-- Add integration tests for API endpoints and error scenarios.
-- Add E2E tests for critical user flows (posting, moderation, error handling).
+#### Example: Create Post
+```bash
+curl -X POST 'http://localhost:5000/api/posts' -H 'Content-Type: application/json' -d '{"message": "Be kind!"}'
+```
+Response:
+```json
+{ "id": 43, "username": "RandomUser", "timestamp": "2025-08-20T12:35:00Z", "message": "Be kind!" }
+```
 
-### CI Integration
-- All tests and coverage checks are run automatically in CI (see `.github/workflows/ci.yml`).
-- Builds fail if coverage drops below threshold.
+## Feature Flags & Environment Variables
 
-### Running the App
+| Variable              | Description                                 | Default/Example                        |
+|----------------------|---------------------------------------------|----------------------------------------|
+| DATABASE_URL         | Postgres connection URI                     | postgresql://postgres:...              |
+| SECRET_KEY           | Flask secret key                            | your-secret-key                        |
+| ENABLE_RATE_LIMITING | Enable rate limiting (1=on, 0=off)          | 1                                      |
+| ENABLE_MODERATION    | Enable hate speech filter (1=on, 0=off)     | 1                                      |
+| ...                  | See .env.example for all available flags    |                                        |
 
-- **Development:**
-  ```bash
-  python -m app
-  ```
+- See `.env.example` for all available flags and usage.
+- **Do not commit secrets.**
 
-- **Production & Local (Docker Compose):**
-  ```bash
-  docker compose up --build
-  ```
-  - The web container waits for the Postgres database to be ready using `wait-for-it.sh`.
-  - Once ready, it runs migrations (`flask db upgrade`) and starts Flask.
-  - All endpoints (including `/feed`) are available once the app is running.
+## Build, Lint, Test Commands
 
-### Environment Variables
+### Backend (Python/Flask)
+- Run server: `python -m app`
+- Lint: `flake8 .`
+- Test all: `docker compose run web pytest`
+- Test single: `docker compose run web pytest tests/test_posts.py::test_create_post`
 
-- `.env` file is required. For Docker Compose and production, use a Postgres URI:
-  ```
-  DATABASE_URL=postgresql://postgres:postgres@db:5432/jeetsocial
-  SECRET_KEY=your-secret-key
-  ENABLE_RATE_LIMITING=1
-  ```
-- **Do not commit secrets.** Document required variables in README.
+### Frontend (JS/HTML)
+- Lint: `eslint .` (if using JS)
+- Test: `npm test`, `npm run e2e`
 
-### Migration Workflow (Automated in Docker)
-
-- Migration files are generated and committed to `migrations/versions/`.
-- The Dockerfile copies migrations into the image.
-- At container startup, migrations are applied automatically.
-- The web service command in `docker-compose.yml`:
-  ```
-  command: /bin/sh -c "chmod +x wait-for-it.sh && ./wait-for-it.sh db:5432 -- flask db upgrade && flask run --host=0.0.0.0"
-  ```
-- **Race condition protection:** The app is robust against race conditions between web and db startup.
-
-### Database Reset & Clean Migration
-
-- To reset the database and apply migrations from scratch:
-  ```bash
-  docker compose down -v
-  docker compose up --build
-  ```
-  This removes the database volume and ensures a clean migration.
-
-## Kindness Mission
-- All posts are anonymous and must pass a hate speech filter.
-- The About page and UI promote positivity and kindness.
-
-## Feature Flags
-- Moderation and rate limiting can be toggled via environment variables.
-
-## Docker Compose & Dockerfile Highlights
-- **wait-for-it.sh** is copied into the image and used to block the web service until the database is ready.
-- The web service runs:
-  ```
-  flask db upgrade && flask run --host=0.0.0.0
-  ```
-- The database volume is named `pgdata` and can be reset for clean migrations.
+### End-to-End (E2E)
+- Run Playwright E2E tests: `npm run e2e`
 
 ## Contributing
-- Use feature branches for new features.
-- Commit migration files with your changes.
-- Submit PRs to `main` after all tests pass.
-- See AGENTS.md for project guidelines.
+- Use feature branches for new features (`feature/<short-description>`)
+- Commit migration files with your changes
+- Submit PRs to `main` after all tests pass
+- See [AGENTS.md](./AGENTS.md) for project guidelines and coding standards
+
+## License
+This project is licensed under the MIT License. See [LICENSE](./LICENSE) for details.
 
 ## Troubleshooting
-- **Migration errors:** If migrations fail, check:
-  - The database is reachable (`db:5432`).
-  - Migration files are present and committed.
-  - The `.env` file uses the correct Postgres URI.
-  - Use `docker compose logs web` and `docker compose logs db` for details.
-- **Endpoint issues:** Ensure the app is running and migrations have completed. All routes (including `/feed`) are available once startup is complete.
-- **General:** Confirm `.env` uses the correct Postgres URI and secrets.
+- **Migration errors:**
+  - Ensure the database is reachable (`db:5432`)
+  - Migration files are present and committed
+  - `.env` uses the correct Postgres URI
+  - Use `docker compose logs web` and `docker compose logs db` for details
+- **Endpoint issues:**
+  - Ensure the app is running and migrations have completed
+  - All routes (including `/feed`) are available once startup is complete
+- **General:**
+  - Confirm `.env` uses the correct Postgres URI and secrets
+
+## About & Kindness Mission
+- All posts are anonymous and must pass a hate speech filter
+- The About page and UI promote positivity and kindness
+- See `/static/about.html` for more on our mission
+
+---
+
+For full coding guidelines, feature flag details, and workflow, see [AGENTS.md](./AGENTS.md).

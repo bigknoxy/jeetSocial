@@ -1,3 +1,7 @@
+# Dockerfile for jeetSocial
+# Builds the Flask app and runs migrations before starting the server.
+# See README.md for usage and troubleshooting.
+
 FROM python:3.10-slim
 WORKDIR /app
 # Install Postgres client for pg_isready
