@@ -54,7 +54,7 @@ jobs:
         run: |
           pytest --cov=app --cov-report=xml --cov-report=term-missing
       - name: Upload Python coverage report
-        uses: actions/upload-artifact@v3
+        uses: actions/upload-artifact@v4
         with:
           name: python-coverage
           path: coverage.xml
@@ -82,7 +82,7 @@ jobs:
         run: |
           npm run test:coverage
       - name: Upload JS coverage report
-        uses: actions/upload-artifact@v3
+        uses: actions/upload-artifact@v4
         with:
           name: js-coverage
           path: coverage/
@@ -107,7 +107,7 @@ jobs:
           npm run e2e
       - name: Upload Playwright test results
         if: always()
-        uses: actions/upload-artifact@v3
+        uses: actions/upload-artifact@v4
         with:
           name: playwright-results
           path: test-results/
@@ -116,7 +116,7 @@ jobs:
           docker compose build
       - name: Upload pytest results
         if: always()
-        uses: actions/upload-artifact@v3
+        uses: actions/upload-artifact@v4
         with:
           name: pytest-results
           path: .pytest_cache/
