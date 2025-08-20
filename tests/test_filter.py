@@ -1,11 +1,9 @@
 """
 test_filter.py
-
-Unit tests for hate speech word/phrase filter in jeetSocial.
 """
-import os
 import pytest
 from app.utils import is_hate_speech
+
 
 @pytest.mark.parametrize("text,expected,reason", [
     ("You are stupid", True, "word_list"),
@@ -42,17 +40,19 @@ def test_word_list_filter(text, expected, reason):
     assert is_hate == expected
     assert why == reason
 
+
 def test_punctuation_and_case():
     assert is_hate_speech("STUPID!")[0] is True
     assert is_hate_speech("bigot.")[0] is True
     assert is_hate_speech("You are a BiGoT!")[0] is True
+
 
 def test_edge_cases():
     assert is_hate_speech("I am a bigot")[0] is True
     assert is_hate_speech("You are a bigot!")[0] is True
     assert is_hate_speech("Nobody likes you.")[0] is True
 
+
 def test_non_hateful():
     assert is_hate_speech("You are awesome!")[0] is False
     assert is_hate_speech("Have a great day!")[0] is False
-

@@ -1,13 +1,9 @@
 """
 test_posts_error.py
-
-Unit tests for error handling in post creation (invalid JSON, missing fields) in jeetSocial.
 """
-import pytest
 from app import create_app, db
-from app.models import Post
 
-@pytest.fixture
+
 def client():
     config_override = {
         'TESTING': True,
@@ -22,9 +18,13 @@ def client():
         with app.app_context():
             db.drop_all()
 
+
 def test_invalid_json(client):
-    resp = client.post('/api/posts', data='not a json', content_type='application/json')
+    resp = client.post(
+        '/api/posts', data='not a json', content_type='application/json'
+    )
     assert resp.status_code in (400, 422)
+
 
 def test_missing_message_field(client):
     resp = client.post('/api/posts', json={})

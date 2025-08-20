@@ -1,5 +1,4 @@
 from app import create_app, db
-from app.models import Post
 
 if __name__ == "__main__":
     app = create_app()

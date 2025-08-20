@@ -6,34 +6,40 @@ Main Flask application factory and global objects for jeetSocial.
 - Initializes Flask, SQLAlchemy, Migrate, and optional rate limiting
 - Registers routes and error handlers
 """
+import os
 from dotenv import load_dotenv
-load_dotenv()
 from flask import Flask
 from flask_sqlalchemy import SQLAlchemy
 from flask_limiter import Limiter
 from flask_limiter.util import get_remote_address
 from flask_migrate import Migrate
-import os
+
+load_dotenv()
 
 db = SQLAlchemy()
 limiter = None
+
 
 def create_app(config_override=None):
     app = Flask(__name__)
     app.config['SQLALCHEMY_DATABASE_URI'] = os.getenv('DATABASE_URL')
     app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
     app.config['SECRET_KEY'] = os.getenv('SECRET_KEY', 'default-secret-key')
-    app.config['ENABLE_RATE_LIMITING'] = os.getenv('ENABLE_RATE_LIMITING', 'true').lower() == 'true'
+    app.config['ENABLE_RATE_LIMITING'] = (
+        os.getenv('ENABLE_RATE_LIMITING', 'true').lower() == 'true'
+    )
 
     if config_override:
         app.config.update(config_override)
 
     db.init_app(app)
-    migrate = Migrate(app, db)
+    Migrate(app, db)
 
     import logging
     logging.basicConfig(level=logging.INFO)
-    logging.info(f"Rate limiting enabled: {app.config['ENABLE_RATE_LIMITING']}")
+    logging.info(
+        f"Rate limiting enabled: {app.config['ENABLE_RATE_LIMITING']}"
+    )
 
     global limiter
     if app.config['ENABLE_RATE_LIMITING']:
@@ -49,6 +55,7 @@ def create_app(config_override=None):
     # Global error handler for all unhandled exceptions
     from flask import jsonify, current_app
     from werkzeug.exceptions import HTTPException
+
     @app.errorhandler(Exception)
     def handle_global_exception(e):
         code = 500
@@ -61,4 +68,3 @@ def create_app(config_override=None):
         }), code
 
     return app
-

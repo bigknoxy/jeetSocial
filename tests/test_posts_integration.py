@@ -1,11 +1,9 @@
 """
 test_posts_integration.py
-
-Integration tests for post creation and DB error handling in jeetSocial.
 """
 import pytest
 from app import create_app, db
-from app.models import Post
+
 
 @pytest.fixture
 def client():
@@ -22,15 +20,21 @@ def client():
         with app.app_context():
             db.drop_all()
 
+
 def test_post_and_fetch(client):
     # Create post
-    resp = client.post('/api/posts', json={'message': 'Integration test post'})
+    resp = client.post(
+        '/api/posts', json={'message': 'Integration test post'}
+    )
     assert resp.status_code == 201
     # Fetch posts
     resp = client.get('/api/posts')
     assert resp.status_code == 200
     data = resp.get_json()
-    assert any(post['message'] == 'Integration test post' for post in data['posts'])
+    assert any(
+        post['message'] == 'Integration test post' for post in data['posts']
+    )
+
 
 def test_db_error_handling(client, monkeypatch):
     # Simulate DB error

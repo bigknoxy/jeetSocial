@@ -7,6 +7,7 @@ Defines the Post model for anonymous social posts.
 from app import db
 from datetime import datetime
 
+
 class Post(db.Model):
     """
     SQLAlchemy model for a social post.

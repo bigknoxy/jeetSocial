@@ -2,28 +2,32 @@
 app/routes.py
 
 Flask routes and API endpoints for jeetSocial.
-Handles static files, feed, and post creation with moderation and rate limiting.
+Handles static files, feed, and post creation with moderation
+and rate limiting.
 """
 from flask import Blueprint, request, jsonify, send_from_directory, current_app
 from app import db, limiter
 from app.models import Post
-from app.utils import generate_username, is_hate_speech, is_kind
-
+from app.utils import generate_username, is_hate_speech
 bp = Blueprint('routes', __name__)
+
 
 @bp.route('/')
 def index():
     return send_from_directory('static', 'index.html')
 
+
 @bp.route('/static/<path:path>')
 def static_files(path):
     return send_from_directory('static', path)
+
 
 @bp.route('/api/posts', methods=['GET'])
 def get_posts():
     """
     GET /api/posts
-    Returns a paginated list of posts, optionally filtered by timestamp (since).
+    Returns a paginated list of posts, optionally filtered by timestamp
+    (since).
     Query params:
       - since: ISO8601 or timestamp (optional)
       - page: int (default 1)
@@ -45,7 +49,12 @@ def get_posts():
         except Exception:
             pass
     total_count = query.count()
-    posts = query.order_by(Post.timestamp.desc()).offset((page-1)*limit).limit(limit).all()
+    posts = (
+        query.order_by(Post.timestamp.desc())
+        .offset((page - 1) * limit)
+        .limit(limit)
+        .all()
+    )
     has_more = (page * limit) < total_count
     return jsonify({
         'posts': [
@@ -62,10 +71,12 @@ def get_posts():
         'has_more': has_more
     })
 
+
 def _create_post_impl():
     """
     Internal implementation for creating a post.
-    Validates message, checks for hate speech, generates username, and saves post.
+    Validates message, checks for hate speech, generates username,
+    and saves post.
     Returns JSON response with post or error.
     """
     data = request.get_json()
@@ -74,16 +85,22 @@ def _create_post_impl():
         return jsonify({'error': 'Message required'}), 400
     is_hate, reason, details = is_hate_speech(message)
     if is_hate:
-        return jsonify({'error': f'Hateful content not allowed (detected by {reason}: {details})'}), 403
+        return jsonify({'error': (
+            f'Hateful content not allowed (detected by {reason}: {details})'
+        )}), 403
     username = generate_username()
     post = Post(username=username, message=message)
     db.session.add(post)
     try:
         db.session.commit()
     except Exception as e:
-        current_app.logger.error(f"DB commit failed: {e}")
+        current_app.logger.error(
+            f"DB commit failed: {e}"
+        )
         db.session.rollback()
-        return jsonify({'error': 'Database error. Please try again later.'}), 500
+        return jsonify({
+            'error': 'Database error. Please try again later.'
+        }), 500
     return jsonify({
         'id': post.id,
         'username': post.username,
@@ -92,18 +109,26 @@ def _create_post_impl():
     }), 201
 
 # Dynamically apply rate limiting if enabled
-if limiter is not None:
-    @bp.route('/api/posts', methods=['POST'])
-    @limiter.shared_limit(
-        "1/minute",
-        scope="post",
-        deduct_when=lambda response: response.status_code == 201,
-        error_message="You are posting too quickly. Please wait a minute before posting again. This helps keep jeetSocial spam-free and fair for everyone."
-    )
-    def create_post():
-        return _create_post_impl()
-else:
-    @bp.route('/api/posts', methods=['POST'])
-    def create_post():
-        return _create_post_impl()
 
+
+def create_post():
+    return _create_post_impl()
+
+
+if limiter is not None:
+    bp.add_url_rule(
+        '/api/posts',
+        view_func=limiter.shared_limit(
+            "1/minute",
+            scope="post",
+            deduct_when=lambda response: response.status_code == 201,
+            error_message=(
+                "You are posting too quickly. Please wait a minute before "
+                "posting again. This helps keep jeetSocial spam-free and fair "
+                "for everyone."
+            )
+        )(create_post),
+        methods=['POST']
+    )
+else:
+    bp.add_url_rule('/api/posts', view_func=create_post, methods=['POST'])

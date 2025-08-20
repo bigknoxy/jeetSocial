@@ -54,9 +54,11 @@
    - Use mocks/stubs for external dependencies.
 
 7. **Build, Lint, Test:**  
-   - Document build/lint/test commands in README or here.  
-   - Prefer running single tests for fast feedback.
-   - Build and test your changes and try to fix them if you get errors. Use `docker compose build` to verify your changes.
+    - Document build/lint/test commands in README or here.  
+    - Prefer running single tests for fast feedback.
+    - **All Python code must be verified with `flake8` before completion.** Run `flake8` on every file you write or modify, and fix all errors before marking a task complete or submitting code for review. The CI pipeline enforces this, so do not leave linting issues for CI to catch.
+    - Build and test your changes and try to fix them if you get errors. Use `docker compose build` to verify your changes.
+
 
 8. **Documentation:**  
    - Document public APIs, functions, and modules.  
