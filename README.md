@@ -23,31 +23,78 @@ jeetSocial is a minimal, anonymous social platform designed to encourage kindnes
 ### Requirements
 - Python 3.10.12
 - Docker & Docker Compose (recommended)
+- **Linux users:** You may need to run the following command before running `setup.sh` to install required build dependencies for Python:
+  ```bash
+  sudo apt-get install -y make build-essential libssl-dev zlib1g-dev \
+    libbz2-dev libreadline-dev libsqlite3-dev wget curl llvm \
+    libncurses5-dev libncursesw5-dev xz-utils tk-dev libffi-dev \
+    liblzma-dev git
+  ```
 
 ### Setup (Local Development)
+You can set up your environment automatically with the provided script, or manually as before.
+
+#### Option 1: Automated Setup (Recommended)
+**Preferred for all new contributors.**
+
 1. **Clone the repo:**
    ```bash
    git clone https://github.com/your-org/jeetSocial.git
    cd jeetSocial
    ```
-2. **Create and activate a virtual environment:**
+2. **Run the setup script:**
+   ```bash
+   bash setup.sh
+   ```
+   - The script will check for [pyenv](https://github.com/pyenv/pyenv), prompt to install if missing, and set up the correct Python version (3.10.12).
+   - It will create and activate a virtual environment, install all dependencies, and set up pre-commit hooks.
+   - Your environment will match CI and Docker for maximum consistency.
+
+**Troubleshooting pyenv/Python installation:**
+- If you see errors about missing libraries or build failures:
+  - **Linux (Debian/Ubuntu):** Run:
+    ```bash
+    sudo apt-get update
+    sudo apt-get install -y make build-essential libssl-dev zlib1g-dev libbz2-dev libreadline-dev libsqlite3-dev wget curl llvm libncurses5-dev libncursesw5-dev xz-utils tk-dev libffi-dev liblzma-dev git
+    ```
+  - **macOS:** Install Xcode Command Line Tools:
+    ```bash
+    xcode-select --install
+    ```
+  - **WSL:** Ensure all Linux build dependencies are installed and restart your shell.
+- If pyenv is not found after install, restart your shell or run:
+  ```bash
+  export PATH="$HOME/.pyenv/bin:$PATH"
+  eval "$(pyenv init -)"
+  eval "$(pyenv virtualenv-init -)"
+  ```
+- For more help, see [pyenv wiki](https://github.com/pyenv/pyenv/wiki/Common-build-problems).
+
+#### Option 2: Manual Setup
+1. **Create and activate a virtual environment:**
    ```bash
    python3 -m venv venv
    source venv/bin/activate
    ```
-3. **Install dependencies:**
+2. **Install dependencies:**
    ```bash
    pip install -r requirements.txt
    ```
-4. **Copy and edit .env.example:**
+3. **Copy and edit .env.example:**
    ```bash
    cp .env.example .env
    # Edit .env as needed
    ```
-5. **Run the app:**
+4. **Run the app:**
    ```bash
    python -m app
    ```
+
+#### Option 3: Run in Docker (Recommended for containers)
+```bash
+   docker compose up --build
+```
+- The web container waits for the Postgres database to be ready, runs migrations, and starts Flask.
 
 ### Setup (Docker Compose)
 ```bash

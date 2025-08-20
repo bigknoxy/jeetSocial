@@ -22,6 +22,13 @@
 - See `.env.example` for all available flags and usage.
 - **Do not commit secrets.**
 - For onboarding and setup, see [README.md](./README.md).
+- **Linux users:** You may need to run the following command before running `setup.sh` to install required build dependencies for Python:
+  ```bash
+  sudo apt-get install -y make build-essential libssl-dev zlib1g-dev \
+    libbz2-dev libreadline-dev libsqlite3-dev wget curl llvm \
+    libncurses5-dev libncursesw5-dev xz-utils tk-dev libffi-dev \
+    liblzma-dev git
+  ```
 
 ## Agentic Coding Guidelines
 
