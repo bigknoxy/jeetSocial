@@ -22,11 +22,11 @@ limiter = None
 
 def create_app(config_override=None):
     app = Flask(__name__)
-    app.config['SQLALCHEMY_DATABASE_URI'] = os.getenv('DATABASE_URL')
-    app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
-    app.config['SECRET_KEY'] = os.getenv('SECRET_KEY', 'default-secret-key')
-    app.config['ENABLE_RATE_LIMITING'] = (
-        os.getenv('ENABLE_RATE_LIMITING', 'true').lower() == 'true'
+    app.config["SQLALCHEMY_DATABASE_URI"] = os.getenv("DATABASE_URL")
+    app.config["SQLALCHEMY_TRACK_MODIFICATIONS"] = False
+    app.config["SECRET_KEY"] = os.getenv("SECRET_KEY", "default-secret-key")
+    app.config["ENABLE_RATE_LIMITING"] = (
+        os.getenv("ENABLE_RATE_LIMITING", "true").lower() == "true"
     )
 
     if config_override:
@@ -36,13 +36,12 @@ def create_app(config_override=None):
     Migrate(app, db)
 
     import logging
+
     logging.basicConfig(level=logging.INFO)
-    logging.info(
-        f"Rate limiting enabled: {app.config['ENABLE_RATE_LIMITING']}"
-    )
+    logging.info(f"Rate limiting enabled: {app.config['ENABLE_RATE_LIMITING']}")
 
     global limiter
-    if app.config['ENABLE_RATE_LIMITING']:
+    if app.config["ENABLE_RATE_LIMITING"]:
         limiter = Limiter(key_func=get_remote_address)
         limiter.init_app(app)
     else:
@@ -50,6 +49,7 @@ def create_app(config_override=None):
 
     # Register blueprints/routes here
     from app.routes import bp as routes_bp
+
     app.register_blueprint(routes_bp)
 
     # Global error handler for all unhandled exceptions
@@ -61,10 +61,11 @@ def create_app(config_override=None):
         code = 500
         if isinstance(e, HTTPException):
             code = e.code
-        if hasattr(current_app, 'logger'):
+        if hasattr(current_app, "logger"):
             current_app.logger.error(f"Unhandled exception: {e}")
-        return jsonify({
-            "error": "Sorry, something went wrong. Please try again later."
-        }), code
+        return (
+            jsonify({"error": "Sorry, something went wrong. Please try again later."}),
+            code,
+        )
 
     return app

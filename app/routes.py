@@ -9,20 +9,21 @@ from flask import Blueprint, request, jsonify, send_from_directory, current_app
 from app import db, limiter
 from app.models import Post
 from app.utils import generate_username, is_hate_speech
-bp = Blueprint('routes', __name__)
+
+bp = Blueprint("routes", __name__)
 
 
-@bp.route('/')
+@bp.route("/")
 def index():
-    return send_from_directory('static', 'index.html')
+    return send_from_directory("static", "index.html")
 
 
-@bp.route('/static/<path:path>')
+@bp.route("/static/<path:path>")
 def static_files(path):
-    return send_from_directory('static', path)
+    return send_from_directory("static", path)
 
 
-@bp.route('/api/posts', methods=['GET'])
+@bp.route("/api/posts", methods=["GET"])
 def get_posts():
     """
     GET /api/posts
@@ -34,12 +35,13 @@ def get_posts():
       - limit: int (default 50)
     Response: JSON with posts, total_count, page, limit, has_more
     """
-    since = request.args.get('since')
-    page = int(request.args.get('page', 1))
-    limit = int(request.args.get('limit', 50))
+    since = request.args.get("since")
+    page = int(request.args.get("page", 1))
+    limit = int(request.args.get("limit", 50))
     query = Post.query
     if since:
         from datetime import datetime
+
         try:
             try:
                 since_dt = datetime.fromisoformat(since)
@@ -56,20 +58,23 @@ def get_posts():
         .all()
     )
     has_more = (page * limit) < total_count
-    return jsonify({
-        'posts': [
-            {
-                'id': p.id,
-                'username': p.username,
-                'message': p.message,
-                'timestamp': p.timestamp.isoformat()
-            } for p in posts
-        ],
-        'total_count': total_count,
-        'page': page,
-        'limit': limit,
-        'has_more': has_more
-    })
+    return jsonify(
+        {
+            "posts": [
+                {
+                    "id": p.id,
+                    "username": p.username,
+                    "message": p.message,
+                    "timestamp": p.timestamp.isoformat(),
+                }
+                for p in posts
+            ],
+            "total_count": total_count,
+            "page": page,
+            "limit": limit,
+            "has_more": has_more,
+        }
+    )
 
 
 def _create_post_impl():
@@ -80,33 +85,42 @@ def _create_post_impl():
     Returns JSON response with post or error.
     """
     data = request.get_json()
-    message = data.get('message', '').strip()
+    message = data.get("message", "").strip()
     if not message:
-        return jsonify({'error': 'Message required'}), 400
+        return jsonify({"error": "Message required"}), 400
     is_hate, reason, details = is_hate_speech(message)
     if is_hate:
-        return jsonify({'error': (
-            f'Hateful content not allowed (detected by {reason}: {details})'
-        )}), 403
+        return (
+            jsonify(
+                {
+                    "error": (
+                        f"Hateful content not allowed (detected by {reason}: {details})"
+                    )
+                }
+            ),
+            403,
+        )
     username = generate_username()
     post = Post(username=username, message=message)
     db.session.add(post)
     try:
         db.session.commit()
     except Exception as e:
-        current_app.logger.error(
-            f"DB commit failed: {e}"
-        )
+        current_app.logger.error(f"DB commit failed: {e}")
         db.session.rollback()
-        return jsonify({
-            'error': 'Database error. Please try again later.'
-        }), 500
-    return jsonify({
-        'id': post.id,
-        'username': post.username,
-        'message': post.message,
-        'timestamp': post.timestamp.isoformat()
-    }), 201
+        return jsonify({"error": "Database error. Please try again later."}), 500
+    return (
+        jsonify(
+            {
+                "id": post.id,
+                "username": post.username,
+                "message": post.message,
+                "timestamp": post.timestamp.isoformat(),
+            }
+        ),
+        201,
+    )
+
 
 # Dynamically apply rate limiting if enabled
 
@@ -117,7 +131,7 @@ def create_post():
 
 if limiter is not None:
     bp.add_url_rule(
-        '/api/posts',
+        "/api/posts",
         view_func=limiter.shared_limit(
             "1/minute",
             scope="post",
@@ -126,9 +140,9 @@ if limiter is not None:
                 "You are posting too quickly. Please wait a minute before "
                 "posting again. This helps keep jeetSocial spam-free and fair "
                 "for everyone."
-            )
+            ),
         )(create_post),
-        methods=['POST']
+        methods=["POST"],
     )
 else:
-    bp.add_url_rule('/api/posts', view_func=create_post, methods=['POST'])
+    bp.add_url_rule("/api/posts", view_func=create_post, methods=["POST"])

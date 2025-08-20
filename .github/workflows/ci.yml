@@ -45,8 +45,8 @@ jobs:
           pip install flake8 black pip-audit
       - name: Lint Python
         run: |
-          flake8 .
           black --check .
+          flake8 .
       - name: Audit Python dependencies
         run: |
           pip-audit

@@ -17,6 +17,7 @@ class Post(db.Model):
       - message: Post content
       - timestamp: UTC datetime of post creation
     """
+
     id = db.Column(db.Integer, primary_key=True)
     username = db.Column(db.String(32), nullable=False)
     message = db.Column(db.Text, nullable=False)
