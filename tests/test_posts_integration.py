@@ -30,7 +30,7 @@ def test_post_and_fetch(client):
     resp = client.get('/api/posts')
     assert resp.status_code == 200
     data = resp.get_json()
-    assert any(post['message'] == 'Integration test post' for post in data)
+    assert any(post['message'] == 'Integration test post' for post in data['posts'])
 
 def test_db_error_handling(client, monkeypatch):
     # Simulate DB error

@@ -5,8 +5,11 @@
     "nyc": "^15.1.0"
   },
   "scripts": {
-    "test": "jest",
-    "test:coverage": "nyc jest",
-    "e2e": "npx playwright test"
+    "test": "jest tests/",
+    "test:coverage": "nyc jest tests/",
+    "e2e": "npx playwright test e2e/"
+  },
+  "dependencies": {
+    "@eslint/js": "^9.33.0"
   }
 }
