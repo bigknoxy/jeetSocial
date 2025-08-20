@@ -21,7 +21,7 @@ jeetSocial is a minimal, anonymous social platform designed to encourage kindnes
 ## Quickstart / Onboarding
 
 ### Requirements
-- Python 3.11+
+- Python 3.10.12
 - Docker & Docker Compose (recommended)
 
 ### Setup (Local Development)

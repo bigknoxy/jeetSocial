@@ -2,7 +2,7 @@
 # Builds the Flask app and runs migrations before starting the server.
 # See README.md for usage and troubleshooting.
 
-FROM python:3.10-slim
+FROM python:3.10.12-slim
 WORKDIR /app
 # Install Postgres client for pg_isready
 RUN apt-get update && apt-get install -y postgresql-client && rm -rf /var/lib/apt/lists/*
