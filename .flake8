@@ -1,0 +1,3 @@
+[flake8]
+exclude = venv,.venv,site-packages,build,dist,migrations
+max-line-length = 88

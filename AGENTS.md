@@ -5,12 +5,30 @@
 - **Project Purpose:** jeetSocial is a minimal, anonymous social platform. All posts are anonymous and assigned a random username.
 - **Naming:** Use `jeetSocial` for project-wide references. Posts should use random, non-identifiable usernames.
 - **Privacy:** Do not collect or store any personal data. No tracking, no analytics.
-- **Moderation:** All posts must pass a basic hate speech filter. Extend the filter as needed.
+- **Moderation:** All posts must pass a hate speech filter (see `app/utils.py` for the word/phrase list). Extend the filter as needed.
+- **Kindness Mission:** jeetSocial exists to spread and encourage kindness through anonymous sharing and support. All messaging, moderation, and user experience should promote positivity, support, and uplifting interactions.
+- **UI/UX:** Homepage and feed are designed to encourage uplifting, supportive interactions. The About page and feedback link promote the kindness mission.
 
-## Feature Flags
+## Feature Flags & Environment Variables
 
-- Use feature flags (environment variables or config settings) to toggle moderation, experimental features, or third-party integrations.
-- Example: `USE_HATESONAR` enables ML-based hate speech detection; fallback to basic word list if disabled.
+| Variable              | Description                                 | Default/Example                        |
+|----------------------|---------------------------------------------|----------------------------------------|
+| DATABASE_URL         | Postgres connection URI                     | postgresql://postgres:...              |
+| SECRET_KEY           | Flask secret key                            | your-secret-key                        |
+| ENABLE_RATE_LIMITING | Enable rate limiting (1=on, 0=off)          | 1                                      |
+| ENABLE_MODERATION    | Enable hate speech filter (1=on, 0=off)     | 1                                      |
+| ...                  | See .env.example for all available flags    |                                        |
+
+- See `.env.example` for all available flags and usage.
+- **Do not commit secrets.**
+- For onboarding and setup, see [README.md](./README.md).
+- **Linux users:** You may need to run the following command before running `setup.sh` to install required build dependencies for Python:
+  ```bash
+  sudo apt-get install -y make build-essential libssl-dev zlib1g-dev \
+    libbz2-dev libreadline-dev libsqlite3-dev wget curl llvm \
+    libncurses5-dev libncursesw5-dev xz-utils tk-dev libffi-dev \
+    liblzma-dev git
+  ```
 
 ## Agentic Coding Guidelines
 
@@ -43,24 +61,52 @@
    - Use mocks/stubs for external dependencies.
 
 7. **Build, Lint, Test:**  
-   - Document build/lint/test commands in README or here.  
-   - Prefer running single tests for fast feedback.
-   - Build and test your changes and try to fix them if you get errors, you can use "docker compose build" to see if your changes were good or created an error
+    - Document build/lint/test commands in README or here.  
+    - Prefer running single tests for fast feedback.
+    - **All Python code must be verified with `flake8` before completion.** Run `flake8` on every file you write or modify, and fix all errors before marking a task complete or submitting code for review. The CI pipeline enforces this, so do not leave linting issues for CI to catch.
+    - Build and test your changes and try to fix them if you get errors. Use `docker compose build` to verify your changes.
+
 
 8. **Documentation:**  
    - Document public APIs, functions, and modules.  
-   - Update docs with architectural changes.
+   - Update docs with architectural or UI changes.
 
 ## Build/Lint/Test Commands
 
 - **Backend (Python/Flask):**
-  - Run server: `python app.py`
+  - Run server: `python -m app`
   - Lint: `flake8 .`
-  - Test all: `pytest`
-  - Test single: `pytest tests/test_posts.py::test_create_post`
+  - Test all: `docker compose run web pytest`
+  - Test single: `docker compose run web pytest tests/test_posts.py::test_create_post`
 - **Frontend (JS/HTML):**
   - No build step; serve static files.
   - Lint: `eslint .` (if using JS)
   - Test: Add simple JS unit tests if needed.
+- **End-to-End (E2E):**
+  - Run Playwright E2E tests: `npm run e2e`
 
 - **Security:** Store any secrets in `.env` (if needed). Never commit `.env` to version control.
+
+---
+
+## Git Branching and Feature Development Workflow
+
+- **Branching:**
+  - For any new feature or significant update, create a new git branch from `main`.
+  - Use the naming convention: `feature/<short-description>`. Example: `feature/updating-navigation`.
+  - Do all work for the feature in this branch.
+
+- **Main Branch Stability:**
+  - The `main` branch must always remain fully functional and deployable.
+  - Do not commit incomplete or experimental features directly to `main`.
+
+- **Pull Requests (PRs):**
+  - When feature work is complete, submit a pull request (PR) from your feature branch to `main` for review.
+  - Ensure all tests pass and the feature is documented before submitting the PR.
+  - The PR should include a summary of changes and any relevant context for reviewers.
+
+- **Review and Merge:**
+  - Feature branches are merged into `main` only after review and approval.
+  - Resolve any conflicts and ensure the codebase remains stable after merging.
+
+---

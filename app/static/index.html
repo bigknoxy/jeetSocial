@@ -3,85 +3,214 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>jeetSocial</title>
-  <link rel="icon" type="image/svg+xml" href="/static/favicon.svg">
+  <title>jeetSocial – Anonymous, but always kind.</title>
+  <link rel="icon" href="/static/favicon.svg">
   <style>
     body {
-      font-family: 'Segoe UI', Arial, sans-serif;
-      max-width: 500px;
+      font-family: sans-serif;
+      background: #18181b;
+      color: #f5f5f5;
+      margin: 0;
+    }
+  .banner {
+       background: #222;
+       color: #fff;
+       padding: 1em;
+       text-align: center;
+       font-size: 1.2em;
+       font-weight: bold;
+       border-bottom: 4px solid;
+       border-image: linear-gradient(90deg, #ff4b5c, #ffb26b, #ffe347, #43e97b, #3fa7d6, #7c4dff, #c86dd7) 1;
+       position: sticky;
+       top: 0;
+       z-index: 1000;
+     }
+    .container {
+      max-width: 600px;
       margin: 2em auto;
-      background: #181a20;
-      color: #f4f4f4;
+      background: #222;
+      border-radius: 8px;
+      box-shadow: 0 2px 8px rgba(0,0,0,0.2);
+      padding: 2em;
     }
-    h1 {
-      text-align: center;
-      color: #7ec4fa;
-      letter-spacing: 1px;
+    h1, h2 {
+      color: #ffe347;
     }
-    #post-form {
-      display: flex;
-      flex-direction: column;
-      gap: 0.5em;
+    .desc {
       margin-bottom: 2em;
+      color: #b3b3b3;
     }
-    #message {
-      font-size: 1em;
-      padding: 0.5em;
-      background: #23263a;
-      color: #f4f4f4;
-      border: 1px solid #333a4d;
-      border-radius: 6px;
-      resize: vertical;
-    }
-    #submit {
-      font-size: 1em;
-      padding: 0.5em;
-      background: #7ec4fa;
-      color: #181a20;
-      border: none;
-      border-radius: 6px;
-      cursor: pointer;
+    .rainbow-link-gradient {
+      background: linear-gradient(90deg, #ff4b5c, #ffb26b, #ffe347, #43e97b, #3fa7d6, #7c4dff, #c86dd7);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
       font-weight: bold;
-      transition: background 0.2s;
+      font-size: 1.1em;
+      text-decoration: underline;
+      transition: text-shadow 0.2s;
     }
-    #submit:hover {
-      background: #5baee6;
+    .rainbow-link-gradient:hover {
+      text-shadow: 0 0 8px #43e97b;
     }
-    #error {
-      color: #ff6b6b;
-      margin-bottom: 1em;
+    .rainbow-link-underline {
+      color: #ffe347;
+      font-weight: bold;
+      font-size: 1.1em;
+      text-decoration: underline;
+      text-decoration-thickness: 3px;
+      text-decoration-color: transparent;
+      background-image: linear-gradient(90deg, #ff4b5c, #ffb26b, #ffe347, #43e97b, #3fa7d6, #7c4dff, #c86dd7);
+      background-size: 100% 3px;
+      background-repeat: no-repeat;
+      background-position: 0 100%;
+    }
+    .rainbow-link-underline:hover {
+      color: #fff;
     }
     .post {
-      background: #23263a;
+      background: #23232b;
       border-radius: 6px;
-      box-shadow: 0 1px 3px #222;
+      box-shadow: 0 1px 4px rgba(0,0,0,0.08);
       margin-bottom: 1em;
       padding: 1em;
-      border: 1px solid #333a4d;
+      border-left: 6px solid #43e97b;
+      color: #f5f5f5;
     }
     .username {
       font-weight: bold;
-      color: #7ec4fa;
+      color: #ff4b5c;
+      margin-right: 1em;
     }
     .timestamp {
+      color: #888;
       font-size: 0.9em;
-      color: #b0b8c1;
-      float: right;
+      margin-left: 0.5em;
     }
-    @media (max-width: 600px) {
-      body { margin: 1em; }
-      .post { padding: 0.7em; }
+    .post div {
+      margin-top: 0.5em;
+      font-size: 1.1em;
+      color: #ffe347;
     }
-  </style>
+    button {
+      background: linear-gradient(90deg, #ff4b5c, #ffb26b, #ffe347, #43e97b, #3fa7d6, #7c4dff, #c86dd7);
+      color: #fff;
+      border: none;
+      border-radius: 4px;
+      padding: 0.5em 1.5em;
+      font-weight: bold;
+      cursor: pointer;
+      transition: box-shadow 0.2s;
+      font-size: 1em;
+    }
+    button:hover {
+      box-shadow: 0 0 8px #43e97b;
+    }
+    textarea {
+      background: #23232b;
+      color: #f5f5f5;
+      border: 2px solid #3fa7d6;
+      border-radius: 4px;
+      padding: 0.5em;
+      font-size: 1em;
+      margin-bottom: 0.5em;
+      width: 100%;
+       resize: none;
+    }
+    textarea:focus {
+      border-color: #ff4b5c;
+      outline: none;
+    }
+    #error {
+      color: #ff4b5c;
+      font-weight: bold;
+      margin-bottom: 1em;
+    }
+     .toggle-switch {
+      position: relative;
+      display: inline-flex;
+      align-items: center;
+      cursor: pointer;
+      gap: 0.5em;
+    }
+    .toggle-switch input {
+      display: none;
+    }
+    .slider {
+      width: 40px;
+      height: 20px;
+      background: #888;
+      border-radius: 20px;
+      position: relative;
+      transition: background 0.2s;
+      margin-right: 0.5em;
+    }
+    .slider:before {
+      content: "";
+      position: absolute;
+      left: 2px;
+      top: 2px;
+      width: 16px;
+      height: 16px;
+      background: #ffe347;
+      border-radius: 50%;
+      transition: left 0.2s, background 0.2s;
+    }
+    .toggle-switch input:checked + .slider {
+      background: #43e97b;
+    }
+    .toggle-switch input:checked + .slider:before {
+      left: 22px;
+      background: #ff4b5c;
+    }
+    .toggle-label {
+      font-size: 0.95em;
+      color: #ffe347;
+      margin-left: 0.5em;
+    }
+   </style>
 </head>
 <body>
-  <h1>jeetSocial</h1>
-  <div id="error"></div>
-  <form id="post-form">
-    <textarea id="message" rows="3" placeholder="How are you feeling?" required></textarea>
-    <button id="submit" type="submit">Post</button>
-  </form>
-  <div id="feed"></div>
-  <script src="/static/main.js"></script>
+  <div class="banner">
+    <a href="/static/index.html" class="rainbow-link-gradient" aria-label="Go to homepage">jeetSocial</a> exists to spread and encourage kindness. Share something uplifting or supportive today!
+  </div>
+  <div class="container">
+    <h1>jeetSocial</h1>
+    <div class="desc">
+      Welcome to a safe, anonymous space for sharing kindness and positivity.<br>
+      All posts are anonymous and assigned a random username.<br>
+      Please keep your messages kind, supportive, and uplifting!
+      <br><br>
+      <div style="margin-bottom:1em;">
+  <a href="/static/about.html" class="rainbow-link-gradient">Learn more about our kindness mission</a>
+</div>
+    </div>
+    <!-- The rest of your app UI goes here -->
+<h2 style="margin-top:0;">Share a message</h2>
+<div id="error" style="color: red; margin-bottom: 1em;"></div>
+<form id="post-form" style="margin-bottom:2em;">
+  <div style="display: flex; align-items: center; gap: 0.5em;">
+    <textarea name="message" id="message" rows="3" style="width:100%;" placeholder="Share something kind or uplifting..."></textarea>
+    <button type="button" id="emoji-btn" title="Add emoji" style="font-size:1.5em; padding:0.5em; background: none; border: none; cursor: pointer;">😊</button>
+  </div>
+  <emoji-picker id="emoji-picker" style="display:none; position:absolute; z-index:2000;"></emoji-picker>
+  <div style="display: flex; align-items: center; gap: 1em; margin-top:0.5em;">
+    <button type="submit">Post</button>
+    <label class="toggle-switch" title="When enabled, pressing Enter will post your message. Shift+Enter always adds a new line.">
+      <input type="checkbox" id="enter-to-post" />
+      <span class="slider"></span>
+      <span class="toggle-label">Post on Enter</span>
+    </label>
+  </div>
+</form>
+<!-- Emoji Picker CDN -->
+<script type="module" src="https://cdn.jsdelivr.net/npm/emoji-picker-element@^1/index.js"></script>
+<h2 style="margin-top:2em;">Recent Posts</h2>
+<div id="feed"></div>
+<div style="font-size:0.9em;color:#888;margin-top:1em;">Showing the 50 most recent posts</div>
+<script src="/static/main.js"></script>
+  </div>
+  <footer style="text-align:center;font-size:0.9em;color:#888;background:#23232b;padding:1em 0;margin-top:2em;">
+    &copy; 2025 jeetSocial | <a href="https://github.com/bigknoxy/jeetSocial" target="_blank" style="color:#ffe347;text-decoration:underline;">GitHub</a>
+  </footer>
 </body>
 </html>
