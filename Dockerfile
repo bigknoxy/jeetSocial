@@ -22,6 +22,8 @@ COPY wait-for-db-healthy.sh wait-for-db-healthy.sh
 COPY tests tests
 COPY init_db.py init_db.py
 COPY app/static static
+# Set executable permissions before switching to non-root user
+RUN chmod +x wait-for-it.sh wait-for-db-healthy.sh
 ENV PYTHONPATH=/app
 EXPOSE 5000
 USER jeetuser
