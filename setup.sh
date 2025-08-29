@@ -12,11 +12,25 @@ if ! command -v pyenv &> /dev/null; then
   echo "pyenv is not installed."
   read -p "Would you like to install pyenv now? (y/n): " install_pyenv
   if [[ "$install_pyenv" =~ ^[Yy]$ ]]; then
+    # Check for leftover .pyenv directory
+    if [ -d "$HOME/.pyenv" ]; then
+      echo "WARNING: The directory $HOME/.pyenv already exists."
+      echo "This may be from a previous failed or partial pyenv installation."
+      echo "The pyenv installer cannot proceed until this directory is removed."
+      read -p "Would you like to remove $HOME/.pyenv and continue? (y/n): " remove_pyenv
+      if [[ "$remove_pyenv" =~ ^[Yy]$ ]]; then
+        rm -rf "$HOME/.pyenv"
+        echo "$HOME/.pyenv has been removed. Proceeding with pyenv installation..."
+      else
+        echo "Please remove $HOME/.pyenv manually and re-run setup.sh."
+        exit 1
+      fi
+    fi
     # Install system build dependencies for Python (Debian/Ubuntu)
     if [ -x "$(command -v apt-get)" ]; then
       echo "Installing system build dependencies for Python..."
-      sudo apt-get update
-      sudo apt-get install -y make build-essential libssl-dev zlib1g-dev \
+      apt-get update
+      apt-get install -y make build-essential libssl-dev zlib1g-dev \
         libbz2-dev libreadline-dev libsqlite3-dev wget curl llvm \
         libncurses5-dev libncursesw5-dev xz-utils tk-dev libffi-dev \
         liblzma-dev git
@@ -31,14 +45,14 @@ if ! command -v pyenv &> /dev/null; then
       exit 1
     fi
     curl https://pyenv.run | bash
-    export PATH="$HOME/.pyenv/bin:$PATH"
-    eval "$(pyenv init -)"
-    eval "$(pyenv virtualenv-init -)"
-    echo "pyenv installed. You may need to restart your shell for full functionality."
-  else
-    echo "pyenv is required for automatic Python version management. Please install it manually."
-    exit 1
   fi
+fi
+
+# Ensure pyenv is initialized for this shell session
+if [ -d "$HOME/.pyenv" ]; then
+  export PATH="$HOME/.pyenv/bin:$PATH"
+  eval "$(pyenv init -)"
+  eval "$(pyenv virtualenv-init -)"
 fi
 
 # Use pyenv to install and activate required Python version
