@@ -267,7 +267,11 @@ async function postMessage(e) {
       body: JSON.stringify({ message })
     });
     if (resp.status === 201) {
-      document.getElementById('message').value = '';
+      const textarea = document.getElementById('message');
+      textarea.value = '';
+      // Reset character counter after post
+      const counter = document.getElementById('char-count');
+      if (counter) counter.textContent = '0/280';
       fetchFeedPage(currentPage);
       butterSmoothLiveUpdate();
     } else {
