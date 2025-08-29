@@ -1,0 +1,12 @@
+# Ignore secrets and sensitive files
+.env
+.env.*
+.git
+__pycache__/
+*.pyc
+*.pyo
+*.pyd
+instance/
+.coverage
+coverage.xml
+*.db

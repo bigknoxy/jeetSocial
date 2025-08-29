@@ -147,6 +147,34 @@ docker exec jeet-web-1 python cleanup_long_posts.py --dry-run
 
 ---
 
+## CI/CD Agent and Commands
+
+### CI/CD Agent
+The project includes a specialized CI/CD agent for GitHub workflows and DevOps automation:
+
+**Usage:**
+- `@cicd-agent analyze my workflow` - General CI/CD analysis
+- `@cicd-agent help me optimize this pipeline` - Pipeline optimization
+- `@cicd-agent what security tools should I add?` - Security recommendations
+
+### CI/CD Commands
+For common CI/CD tasks, use these dedicated commands:
+
+- `/cicd-analyze` - Analyze current CI/CD setup and suggest improvements
+- `/cicd-optimize` - Optimize GitHub Actions workflow for better performance
+- `/cicd-security` - Add security scanning to CI/CD pipeline
+- `/cicd-deploy` - Set up automated deployment workflow
+
+**Example Usage:**
+```bash
+/cicd-analyze    # Analyze current pipeline
+/cicd-optimize   # Get optimized workflow
+/cicd-security   # Add security scanning
+/cicd-deploy     # Set up deployment workflow
+```
+
+These commands automatically use the specialized CI/CD agent and provide structured, actionable outputs for specific DevOps tasks.
+
 ## Git Branching and Feature Development Workflow
 
 - **Branching:**
