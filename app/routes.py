@@ -5,6 +5,7 @@ Flask routes and API endpoints for jeetSocial.
 Handles static files, feed, and post creation with moderation
 and rate limiting.
 """
+
 from flask import Blueprint, request, jsonify, send_from_directory, current_app
 from app import db, limiter
 from app.models import Post
@@ -88,6 +89,8 @@ def _create_post_impl():
     message = data.get("message", "").strip()
     if not message:
         return jsonify({"error": "Message required"}), 400
+    if len(message) > 280:
+        return jsonify({"error": "Message exceeds 280 character limit"}), 400
     is_hate, reason, details = is_hate_speech(message)
     if is_hate:
         return (
