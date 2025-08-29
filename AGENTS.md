@@ -36,7 +36,7 @@
 
 **File:** `cleanup_long_posts.py`
 
-This script helps clean up existing posts that exceed the 280 character limit (introduced in a recent feature update). It provides safe, reversible operations for database maintenance.
+This script helps clean up existing posts that exceed the 280 character limit (introduced in a recent feature update). The character limit is enforced in both the frontend (UI input and live counter) and backend (API validation). It provides safe, reversible operations for database maintenance.
 
 #### Usage
 
@@ -67,6 +67,9 @@ python cleanup_long_posts.py --truncate --force
 - After deploying the character limit feature to clean up existing long posts
 - During database maintenance or migration tasks
 - When you need to ensure all posts comply with the new character limit
+
+## UI/UX Note
+- The homepage and feed include a live character counter for post input, which updates as you type and enforces the 280 character limit visually. Error messages for moderation, rate limiting, and character limit are shown clearly to users.
 
 #### Docker Usage
 
