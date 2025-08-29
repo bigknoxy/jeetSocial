@@ -1,6 +1,7 @@
 """
 test_posts_integration.py
 """
+
 import pytest
 from app import create_app, db
 
@@ -40,3 +41,41 @@ def test_db_error_handling(client, monkeypatch):
     monkeypatch.setattr(db.session, "commit", fail_commit)
     resp = client.post("/api/posts", json={"message": "Should fail"})
     assert resp.status_code in (500, 400, 403)
+
+
+def test_message_character_limit_exact(client):
+    """Test message with exactly 280 characters is accepted"""
+    message = "a" * 280
+    resp = client.post("/api/posts", json={"message": message})
+    assert resp.status_code == 201
+    data = resp.get_json()
+    assert data["message"] == message
+
+
+def test_message_character_limit_exceeded(client):
+    """Test message over 280 characters is rejected"""
+    message = "a" * 281
+    resp = client.post("/api/posts", json={"message": message})
+    assert resp.status_code == 400
+    data = resp.get_json()
+    assert "error" in data
+    assert "exceeds 280 character limit" in data["error"]
+
+
+def test_message_character_limit_under_limit(client):
+    """Test message under 280 characters is accepted"""
+    message = "This is a valid message under the limit!"
+    resp = client.post("/api/posts", json={"message": message})
+    assert resp.status_code == 201
+    data = resp.get_json()
+    assert data["message"] == message
+
+
+def test_message_character_limit_boundary_plus_one(client):
+    """Test message with 281 characters is rejected"""
+    message = "a" * 281
+    resp = client.post("/api/posts", json={"message": message})
+    assert resp.status_code == 400
+    data = resp.get_json()
+    assert "error" in data
+    assert "exceeds 280 character limit" in data["error"]

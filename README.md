@@ -9,11 +9,12 @@ jeetSocial is a minimal, anonymous social platform designed to encourage kindnes
 
 ## Features
 - Anonymous posting with random usernames
+- 280 character limit per post (enforced in both frontend and backend)
 - Hate speech filter (see `app/utils.py`)
 - No personal data collection or tracking
 - Rate limiting to prevent spam
 - Docker Compose for robust deployment
-- Kindness-focused UI/UX
+- Kindness-focused UI/UX (includes live character counter and clear error messages for moderation, rate limiting, and character limit)
 - Feature flags for moderation, rate limiting, and experimental features
 - Automated database migrations
 - Comprehensive test suite (unit, integration, E2E)
@@ -135,6 +136,7 @@ README.md
 ### Endpoints
 - `GET /api/posts`: Fetch posts (supports paging, `since` param)
 - `POST /api/posts`: Create a new post (body: `{ message: "..." }`)
+    - **Note:** Message must be 280 characters or fewer. If exceeded, returns 400 with `{ "error": "Message exceeds 280 character limit" }`.
 - `GET /feed`: Main feed page
 - `GET /about`: About/mission page
 

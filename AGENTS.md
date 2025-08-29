@@ -30,6 +30,64 @@
     liblzma-dev git
   ```
 
+## Database Maintenance Scripts
+
+### Cleanup Long Posts Script
+
+**File:** `cleanup_long_posts.py`
+
+This script helps clean up existing posts that exceed the 280 character limit (introduced in a recent feature update). The character limit is enforced in both the frontend (UI input and live counter) and backend (API validation). It provides safe, reversible operations for database maintenance.
+
+#### Usage
+
+```bash
+# Preview what will be changed (recommended first step)
+python cleanup_long_posts.py
+
+# Delete posts that exceed 280 characters
+python cleanup_long_posts.py --delete
+
+# Truncate posts to 280 characters (preserves posts but shortens them)
+python cleanup_long_posts.py --truncate
+
+# Skip confirmation prompts (use with caution!)
+python cleanup_long_posts.py --truncate --force
+```
+
+#### Safety Features
+
+- **Dry-run mode** (default): Shows exactly what will be changed without making modifications
+- **Confirmation prompts**: Requires explicit user confirmation before making changes
+- **Detailed logging**: Shows post IDs, usernames, and content previews
+- **Database transactions**: Uses proper rollback on errors
+- **Backup warnings**: Reminds users to backup their database
+
+#### When to Use
+
+- After deploying the character limit feature to clean up existing long posts
+- During database maintenance or migration tasks
+- When you need to ensure all posts comply with the new character limit
+
+## UI/UX Note
+- The homepage and feed include a live character counter for post input, which updates as you type and enforces the 280 character limit visually. Error messages for moderation, rate limiting, and character limit are shown clearly to users.
+
+#### Docker Usage
+
+```bash
+# Copy script to container (if running in Docker)
+docker cp cleanup_long_posts.py jeet-web-1:/app/cleanup_long_posts.py
+
+# Run from within the container
+docker exec jeet-web-1 python cleanup_long_posts.py --dry-run
+```
+
+#### Important Notes
+
+- **Always backup your database** before running with `--delete` or `--truncate`
+- The script requires the Flask application to be properly configured
+- Run with `--dry-run` first to see what will be affected
+- The script will show detailed information about each post that will be modified
+
 ## Agentic Coding Guidelines
 
 1. **Think Big Picture:**  

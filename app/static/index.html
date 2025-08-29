@@ -90,6 +90,9 @@
       margin-top: 0.5em;
       font-size: 1.1em;
       color: #ffe347;
+      overflow-wrap: anywhere;
+      word-break: break-word;
+      white-space: pre-wrap;
     }
     button {
       background: linear-gradient(90deg, #ff4b5c, #ffb26b, #ffe347, #43e97b, #3fa7d6, #7c4dff, #c86dd7);
@@ -189,7 +192,8 @@
 <div id="error" style="color: red; margin-bottom: 1em;"></div>
 <form id="post-form" style="margin-bottom:2em;">
   <div style="display: flex; align-items: center; gap: 0.5em;">
-    <textarea name="message" id="message" rows="3" style="width:100%;" placeholder="Share something kind or uplifting..."></textarea>
+     <textarea name="message" id="message" rows="3" maxlength="280" style="width:100%;" placeholder="Share something kind or uplifting..."></textarea>
+     <div id="char-count" style="font-size:0.9em; color:#888; text-align:right; margin-bottom:0.5em;">0/280</div>
     <button type="button" id="emoji-btn" title="Add emoji" style="font-size:1.5em; padding:0.5em; background: none; border: none; cursor: pointer;">😊</button>
   </div>
   <emoji-picker id="emoji-picker" style="display:none; position:absolute; z-index:2000;"></emoji-picker>
@@ -204,9 +208,8 @@
 </form>
 <!-- Emoji Picker CDN -->
 <script type="module" src="https://cdn.jsdelivr.net/npm/emoji-picker-element@^1/index.js"></script>
-<h2 style="margin-top:2em;">Recent Posts</h2>
-<div id="feed"></div>
-<div style="font-size:0.9em;color:#888;margin-top:1em;">Showing the 50 most recent posts</div>
+ <h2 style="margin-top:2em;">Recent Posts</h2>
+ <div id="feed"></div>
 <script src="/static/main.js"></script>
   </div>
   <footer style="text-align:center;font-size:0.9em;color:#888;background:#23232b;padding:1em 0;margin-top:2em;">

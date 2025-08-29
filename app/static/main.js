@@ -267,7 +267,11 @@ async function postMessage(e) {
       body: JSON.stringify({ message })
     });
     if (resp.status === 201) {
-      document.getElementById('message').value = '';
+      const textarea = document.getElementById('message');
+      textarea.value = '';
+      // Reset character counter after post
+      const counter = document.getElementById('char-count');
+      if (counter) counter.textContent = '0/280';
       fetchFeedPage(currentPage);
       butterSmoothLiveUpdate();
     } else {
@@ -307,6 +311,22 @@ function setupEnterToPost() {
   });
 }
 window.addEventListener('DOMContentLoaded', setupEnterToPost);
+
+// Character Counter
+function setupCharacterCounter() {
+  const textarea = document.getElementById('message');
+  const counter = document.getElementById('char-count');
+
+  function updateCounter() {
+    const length = textarea.value.length;
+    counter.textContent = `${length}/280`;
+    counter.style.color = length > 280 ? '#ff4b5c' : '#888';
+  }
+
+  textarea.addEventListener('input', updateCounter);
+  updateCounter(); // Initial update
+}
+window.addEventListener('DOMContentLoaded', setupCharacterCounter);
 
 
 // Emoji Picker Integration
