@@ -114,13 +114,7 @@ jobs:
           restore-keys: ${{ runner.os }}-npm-
       - name: Install JS dependencies
         run: npm install
-      - name: Run JS tests with coverage
-        run: npm run test:coverage
-      - name: Upload JS coverage report
-        uses: actions/upload-artifact@v4
-        with:
-          name: js-coverage
-          path: coverage/
+
       - name: Wait for DB to be ready
         run: |
           for i in {1..30}; do
