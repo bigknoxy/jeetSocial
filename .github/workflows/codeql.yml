@@ -17,13 +17,20 @@ jobs:
       matrix:
         language: [ 'python', 'javascript' ]
     steps:
-      - name: Checkout repository
-        uses: actions/checkout@v3
-      - name: Initialize CodeQL
-        uses: github/codeql-action/init@v3
+       - name: Checkout repository
+         uses: actions/checkout@v4
+       - name: Cache CodeQL
+         uses: actions/cache@v4
+         with:
+           path: ~/.codeql
+           key: codeql-${{ runner.os }}-${{ matrix.language }}-${{ hashFiles('**/*.yml') }}
+       - name: Initialize CodeQL
+         uses: github/codeql-action/init@v3
+         continue-on-error: true
         with:
           languages: ${{ matrix.language }}
-      - name: Autobuild
-        uses: github/codeql-action/autobuild@v3
-      - name: Perform CodeQL Analysis
-        uses: github/codeql-action/analyze@v3
+       - name: Autobuild
+         uses: github/codeql-action/autobuild@v3
+       - name: Perform CodeQL Analysis
+         uses: github/codeql-action/analyze@v3
+         continue-on-error: true

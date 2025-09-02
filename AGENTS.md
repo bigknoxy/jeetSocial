@@ -142,6 +142,12 @@ docker exec jeet-web-1 python cleanup_long_posts.py --dry-run
   - Test: Add simple JS unit tests if needed.
 - **End-to-End (E2E):**
   - Run Playwright E2E tests: `npm run e2e`
+- **CI/CD Testing:**
+  - Test CI changes locally: `act`
+  - Test specific workflow: `act -W .github/workflows/ci.yml`
+  - Pass secrets: `act -s SECRET_KEY=value -s DATABASE_URL=...`
+  - Iterate: Run `act`, review output, fix issues in workflow or code, repeat until passing.
+  - Full usage guide: https://nektosact.com/usage/index.html
 
 - **Security:** Store any secrets in `.env` (if needed). Never commit `.env` to version control.
 
@@ -174,6 +180,23 @@ For common CI/CD tasks, use these dedicated commands:
 ```
 
 These commands automatically use the specialized CI/CD agent and provide structured, actionable outputs for specific DevOps tasks.
+
+**Local Testing with Act:**
+
+Before pushing CI/CD changes to GitHub, test them locally using `act` to catch issues early:
+
+```bash
+# Test default workflow
+act
+
+# Test specific workflow
+act -W .github/workflows/ci.yml
+
+# Pass environment variables
+act -e .env.example
+```
+
+This ensures your workflow runs correctly before triggering GitHub Actions.
 
 ## Git Branching and Feature Development Workflow
 

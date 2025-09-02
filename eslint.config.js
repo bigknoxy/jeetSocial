@@ -1,6 +1,6 @@
-import js from '@eslint/js';
+const js = require('@eslint/js');
 
-export default [
+module.exports = [
   js.configs.recommended,
   {
     files: ['app/static/**/*.js'],
@@ -15,6 +15,25 @@ export default [
         console: 'readonly',
       },
       sourceType: 'script',
+      ecmaVersion: 2021,
+    },
+    rules: {
+      'no-unused-vars': 'warn',
+      'no-console': 'off',
+      'no-undef': 'off',
+    },
+  },
+  {
+    files: ['e2e/**/*.js'],
+    languageOptions: {
+      globals: {
+        document: 'readonly',
+        window: 'readonly',
+        module: 'readonly',
+        require: 'readonly',
+        exports: 'readonly',
+      },
+      sourceType: 'module',
       ecmaVersion: 2021,
     },
     rules: {

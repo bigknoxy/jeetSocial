@@ -193,9 +193,17 @@ Response:
 ### End-to-End (E2E)
 - Run Playwright E2E tests: `npm run e2e`
 
+### CI/CD Testing
+- Test CI changes locally: `act`
+- Test specific workflow: `act -W .github/workflows/ci.yml`
+- Pass secrets: `act -s SECRET_KEY=value -s DATABASE_URL=...`
+- Iterate: Run `act`, review output, fix issues, repeat until passing.
+- Full usage guide: https://nektosact.com/usage/index.html
+
 ## Contributing
 - Use feature branches for new features (`feature/<short-description>`)
 - Commit migration files with your changes
+- Test CI/CD changes locally with `act` before pushing to ensure workflows work correctly
 - Submit PRs to `main` after all tests pass
 - See [AGENTS.md](./AGENTS.md) for project guidelines and coding standards
 
