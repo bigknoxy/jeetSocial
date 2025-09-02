@@ -3,10 +3,10 @@
 # See README.md for usage and troubleshooting.
 
 services:
-   web:
-     build: .
-     command: ./wait-for-db-healthy.sh
-     ports:
+  web:
+    build: .
+    command: ./wait-for-db-healthy.sh
+    ports:
       - "5000:5000"
     env_file:
       - .env
