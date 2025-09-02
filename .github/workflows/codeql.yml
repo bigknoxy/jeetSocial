@@ -1,36 +1,75 @@
 name: "CodeQL"
+
 on:
   push:
-    branches: [ main, feature/* ]
+    branches: [main, master]
   pull_request:
-    branches: [ main ]
+    branches: [main, master]
+  schedule:
+    - cron: '0 3 * * 0' # Weekly Sunday 3am UTC
+
 jobs:
   analyze:
-    name: Analyze
+    name: Analyze (CodeQL)
     runs-on: ubuntu-latest
-    permissions:
-      actions: read
-      contents: read
-      security-events: write
-    strategy:
-      fail-fast: true
-      matrix:
-        language: [ 'python', 'javascript' ]
+    timeout-minutes: 30
+
     steps:
-       - name: Checkout repository
-         uses: actions/checkout@v4
-       - name: Cache CodeQL
-         uses: actions/cache@v4
-         with:
-           path: ~/.codeql
-           key: codeql-${{ runner.os }}-${{ matrix.language }}-${{ hashFiles('**/*.yml') }}
-       - name: Initialize CodeQL
-         uses: github/codeql-action/init@v3
-         continue-on-error: true
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      # Python cache
+      - name: Cache Python dependencies
+        uses: actions/cache@v4
         with:
-          languages: ${{ matrix.language }}
-       - name: Autobuild
-         uses: github/codeql-action/autobuild@v3
-       - name: Perform CodeQL Analysis
-         uses: github/codeql-action/analyze@v3
-         continue-on-error: true
+          path: |
+            ~/.cache/pip
+          key: ${{ runner.os }}-pip-${{ hashFiles('requirements.txt', 'pyproject.toml') }}
+          restore-keys: |
+            ${{ runner.os }}-pip-
+
+      # Node.js cache
+      - name: Cache Node.js dependencies
+        uses: actions/cache@v4
+        with:
+          path: |
+            ~/.npm
+          key: ${{ runner.os }}-npm-${{ hashFiles('package-lock.json', 'package.json') }}
+          restore-keys: |
+            ${{ runner.os }}-npm-
+
+      # Set up Python
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+
+      - name: Install Python dependencies
+        run: |
+          pip install --upgrade pip
+          pip install -r requirements.txt
+
+      # Set up Node.js
+      - name: Set up Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+
+      - name: Install Node.js dependencies
+        run: npm ci
+
+      # Initialize CodeQL
+      - name: Initialize CodeQL
+        uses: github/codeql-action/init@v3
+        with:
+          languages: python, javascript
+
+      # Autobuild (for supported languages)
+      - name: Autobuild
+        uses: github/codeql-action/autobuild@v3
+
+      # Run CodeQL Analysis
+      - name: Perform CodeQL Analysis
+        uses: github/codeql-action/analyze@v3
+        with:
+          category: "/language:python,/language:javascript"
