@@ -1,0 +1,17 @@
+{
+  "ref": "refs/heads/feature/cicd-phase-1",
+  "repository": {
+    "full_name": "bigknoxy/jeet",
+    "name": "jeet",
+    "owner": {
+      "name": "bigknoxy"
+    }
+  },
+  "head_commit": {
+    "id": "abc123def456",
+    "message": "Test commit for CodeQL workflow"
+  },
+  "pusher": {
+    "name": "test-user"
+  }
+}

@@ -1,0 +1,17 @@
+{
+  "ref": "refs/heads/main",
+  "repository": {
+    "full_name": "bigknoxy/jeet",
+    "name": "jeet",
+    "owner": {
+      "name": "bigknoxy"
+    }
+  },
+  "head_commit": {
+    "id": "def456abc789",
+    "message": "Test commit for main branch CodeQL workflow"
+  },
+  "pusher": {
+    "name": "test-user"
+  }
+}
