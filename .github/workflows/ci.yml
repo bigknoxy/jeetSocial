@@ -127,7 +127,7 @@ jobs:
         run: |
           flask run --host=0.0.0.0 --port=5000 &
           sleep 5
-          ./wait-for-it.sh localhost:5000 --timeout=30
+          bash wait-for-it.sh localhost:5000 --timeout=30
       - name: Run Playwright E2E tests
         run: |
           npx playwright install
