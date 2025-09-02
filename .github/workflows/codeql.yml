@@ -2,18 +2,24 @@ name: "CodeQL"
 
 on:
   push:
-    branches: [main, master, 'feature/*']
+    branches: [main, master, 'feature/*', 'release/*']
   pull_request:
-    branches: [main, master]
+    branches: [main, master, 'release/*']
   schedule:
     - cron: '0 3 * * 0' # Weekly Sunday 3am UTC
   workflow_dispatch:
+
+permissions:
+  actions: read
+  contents: read
+  security-events: write
 
 jobs:
   analyze:
     name: Analyze (CodeQL)
     runs-on: ubuntu-latest
     timeout-minutes: 30
+    concurrency: codeql-${{ github.ref }}
 
     steps:
       - name: Checkout repository
@@ -25,8 +31,8 @@ jobs:
           echo "Branch: ${{ github.ref }}"
           echo "Repository: ${{ github.repository }}"
           echo "Actor: ${{ github.actor }}"
-          if [[ "${{ github.ref }}" == refs/heads/main || "${{ github.ref }}" == refs/heads/master ]]; then
-            echo "🔒 Protected branch - SARIF results will be uploaded"
+          if [[ "${{ github.ref }}" == refs/heads/main || "${{ github.ref }}" == refs/heads/master ]] || [[ "${{ github.ref }}" == refs/heads/release/* ]]; then
+            echo "🔒 Protected/Release branch - SARIF results will be uploaded"
           else
             echo "🌿 Feature branch - Analysis only, no SARIF upload"
           fi
@@ -89,5 +95,5 @@ jobs:
 
       # Upload results only for protected branches
       - name: Upload CodeQL results
-        if: github.ref == 'refs/heads/main' || github.ref == 'refs/heads/master'
+        if: github.ref == 'refs/heads/main' || github.ref == 'refs/heads/master' || startsWith(github.ref, 'refs/heads/release/')
         uses: github/codeql-action/upload-sarif@v3
