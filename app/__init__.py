@@ -6,6 +6,7 @@ Main Flask application factory and global objects for jeetSocial.
 - Initializes Flask, SQLAlchemy, Migrate, and optional rate limiting
 - Registers routes and error handlers
 """
+
 import os
 from dotenv import load_dotenv
 from flask import Flask

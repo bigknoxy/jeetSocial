@@ -4,6 +4,7 @@ app/models.py
 SQLAlchemy models for jeetSocial.
 Defines the Post model for anonymous social posts.
 """
+
 from app import db
 from datetime import datetime
 
