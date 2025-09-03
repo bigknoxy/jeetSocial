@@ -8,59 +8,7 @@ Frontend logic for jeetSocial:
 - Kindness mission UI/UX
 - Emoji picker integration
 */
-let latestTimestamp = null;
 
-async function fetchFeed(initial = false) {
-  console.log('[LiveFeed] fetchFeed called. initial:', initial, 'latestTimestamp:', latestTimestamp);
-
-  const feed = document.getElementById('feed');
-  if (initial) feed.innerHTML = '<em>Loading...</em>';
-  try {
-    let url = '/api/posts';
-    if (!initial && latestTimestamp) {
-      url += `?since=${encodeURIComponent(latestTimestamp)}`;
-    }
-    console.log('[LiveFeed] Fetching URL:', url);
-    const resp = await fetch(url);
-    const posts = await resp.json();
-    console.log('[LiveFeed] API response:', posts);
-    const accentColors = ["#ff4b5c", "#ffb26b", "#ffe347", "#43e97b", "#3fa7d6", "#7c4dff", "#c86dd7"];
-    if (initial) {
-      feed.innerHTML = posts.map((post, i) => {
-        const color = accentColors[i % accentColors.length];
-        return `
-          <div class="post" style="border-left: 6px solid ${color};">
-            <span class="username" style="color:${color}">${post.username}</span>
-            <span class="timestamp">${new Date(post.timestamp).toLocaleString()}</span>
-            <div>${escapeHtml(post.message)}</div>
-          </div>
-        `;
-      }).join('');
-      if (posts.length > 0) {
-        latestTimestamp = posts[0].timestamp;
-      }
-    } else {
-      // Only append new posts
-      if (posts.length > 0) {
-        latestTimestamp = posts[0].timestamp;
-        const newPostsHtml = posts.map((post, i) => {
-          const color = accentColors[Math.floor(Math.random() * accentColors.length)];
-          return `
-            <div class="post new-post" style="border-left: 6px solid ${color}; animation: fadeIn 1s;" data-id="${post.id}">
-              <span class="username" style="color:${color}">${post.username}</span>
-              <span class="timestamp">${new Date(post.timestamp).toLocaleString()}</span>
-              <div>${escapeHtml(post.message)}</div>
-            </div>
-          `;
-        }).join('');
-        console.log('[LiveFeed] Inserting new posts:', posts);
-        feed.insertAdjacentHTML('afterbegin', newPostsHtml);
-      }
-    }
-  } catch (e) {
-    if (initial) feed.innerHTML = '<em>Error loading feed.</em>';
-  }
-}
 
 // Paging state
 let currentPage = 1;
@@ -93,7 +41,7 @@ async function butterSmoothLiveUpdate() {
     // Get existing post IDs in DOM
     const existingIds = Array.from(feed.children).map(node => node.dataset && node.dataset.id);
     let inserted = false;
-    newPosts.forEach((post, i) => {
+    newPosts.forEach((post) => {
       if (!existingIds.includes(post.id.toString())) {
         // Create post node
         const div = document.createElement('div');
@@ -118,8 +66,8 @@ div.style.animation = 'fadeIn 1s';
         showNewPostsBanner();
       }
     }
-  } catch (e) {
-    console.log('[LiveFeed] Butter-smooth update error:', e);
+  } catch {
+    console.log('[LiveFeed] Butter-smooth update error');
   }
 }
 
@@ -196,8 +144,8 @@ async function fetchFeedPage(page) {
     const data = await resp.json();
     const posts = data.posts;
     const accentColors = ["#ff4b5c", "#ffb26b", "#ffe347", "#43e97b", "#3fa7d6", "#7c4dff", "#c86dd7"];
-    feed.innerHTML = posts.map((post, i) => {
-      const color = accentColors[i % accentColors.length];
+    feed.innerHTML = posts.map((post, index) => {
+      const color = accentColors[index % accentColors.length];
       return `
         <div class="post" style="border-left: 6px solid ${color};" data-id="${post.id}">
           <span class="username" style="color:${color}">${post.username}</span>
@@ -212,7 +160,7 @@ if (banner) banner.remove();
     currentPage = data.page;
     totalPages = Math.max(1, Math.ceil(data.total_count / pageLimit));
     renderPagingControls();
-  } catch (e) {
+  } catch {
     feed.innerHTML = '<em>Error loading feed.</em>';
   }
 }
@@ -278,7 +226,7 @@ async function postMessage(e) {
       try {
         const data = await resp.json();
         errorDiv.textContent = data.error || `Error posting (status ${resp.status}).`;
-      } catch (err) {
+      } catch {
         if (resp.status === 429) {
           errorDiv.textContent = 'You are posting too quickly. Please wait a minute before posting again. This helps keep jeetSocial spam-free and fair for everyone.';
         } else {
@@ -286,7 +234,7 @@ async function postMessage(e) {
         }
       }
     }
-  } catch (e) {
+  } catch {
     errorDiv.textContent = 'Network error.';
   }
 }

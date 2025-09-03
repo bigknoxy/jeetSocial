@@ -3,6 +3,18 @@ const js = require('@eslint/js');
 module.exports = [
   js.configs.recommended,
   {
+    files: ['eslint.config.js'],
+    languageOptions: {
+      globals: {
+        require: 'readonly',
+        module: 'readonly',
+        exports: 'readonly',
+      },
+      sourceType: 'module',
+      ecmaVersion: 2021,
+    },
+  },
+  {
     files: ['app/static/**/*.js'],
     languageOptions: {
       globals: {

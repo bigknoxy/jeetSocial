@@ -1,5 +1,5 @@
 const { test, expect } = require('@playwright/test');
-const { TestDataManager, TestFixtures, DatabaseHelpers, TestIsolation } = require('./test-data/test-data-manager');
+const { TestDataManager, TestFixtures } = require('./test-data/test-data-manager');
 const JeetSocialPage = require('./page-objects/jeet-social.page');
 
 test.describe('Test Data Management and Isolation', () => {
@@ -97,7 +97,7 @@ test.describe('Test Data Management and Isolation', () => {
 
       const errorMessage = await jeetPage.getErrorMessage();
       expect(errorMessage).toContain('Message exceeds 280 character limit');
-    } catch (e) {
+    } catch {
       // If no error appears, the test might be running too fast
       // Let's check what actually happened
       const errorMessage = await jeetPage.getErrorMessage();

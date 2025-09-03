@@ -91,7 +91,7 @@ class TestDataManager {
     // 3. Reset any modified application state
 
     // For demonstration, we'll just log what would be cleaned up
-    for (const [testId, post] of this.testPosts) {
+    for (const [, post] of this.testPosts) {
       console.log(`Would delete post: ${post.message}`);
     }
 

@@ -1,13 +1,8 @@
 const { test, expect } = require('@playwright/test');
-const { TestDataManager } = require('./test-data/test-data-manager');
-
 const BASE_URL = 'http://localhost:5000';
 
 test.describe('Anonymous Username Generation', () => {
-  let dataManager;
-
   test.beforeEach(async ({ page }) => {
-    dataManager = new TestDataManager(page);
     await page.goto(BASE_URL, { waitUntil: 'networkidle' });
 
     // Ensure the page is fully loaded
@@ -198,7 +193,7 @@ test.describe('Anonymous Username Generation', () => {
           foundUsername = await posts.nth(i).locator('.username').textContent();
           break;
         }
-      } catch (e) {
+      } catch {
         // Post might not exist after reload, continue
         continue;
       }
