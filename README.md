@@ -15,9 +15,42 @@ jeetSocial is a minimal, anonymous social platform designed to encourage kindnes
 - Rate limiting to prevent spam
 - Docker Compose for robust deployment
 - Kindness-focused UI/UX (includes live character counter and clear error messages for moderation, rate limiting, and character limit)
+- **Fully responsive mobile UI** (optimized for touch, adapts to all screen sizes, accessible navigation and posting workflows)
 - Feature flags for moderation, rate limiting, and experimental features
 - Automated database migrations
 - Comprehensive test suite (unit, integration, E2E)
+
+## Post Form UI/UX & Accessibility
+
+The jeetSocial post form is designed for mobile-first, accessible, and uplifting interactions:
+
+- **Post Button:**  
+  - Prominently placed below the textarea, right-aligned on desktop, full-width on mobile.
+  - Large tap area (≥44x44px), bold accent color, high contrast text, subtle shadow and rounded corners.
+  - Disabled if input is empty or exceeds 280 characters, with clear feedback.
+
+- **Textarea:**  
+  - 120px tall (approx. 4 lines), full-width, 18px horizontal padding, rounded corners, clear focus state.
+  - Accessible placeholder: “Share something kind…”, font size ≥16px, high color contrast.
+
+- **Character Counter:**  
+  - Positioned bottom-right inside the textarea container.
+  - Font: 13px, muted color until near limit, then highlights orange, turns red if limit exceeded.
+  - Live updates as you type, with error state if limit exceeded.
+
+- **Spacing & Alignment:**  
+  - 18px vertical spacing between elements, 18px horizontal padding.
+  - Left-aligned text/labels; button right-aligned or full-width on mobile.
+
+- **Touch Target & Usability:**  
+  - All interactive elements ≥44x44px.
+  - No overlapping elements.
+  - Friendly, uplifting error messages and microcopy.
+
+- **Mobile Usability:**  
+  - Form remains visible when keyboard is open.
+  - Subtle transitions for button and error states.
+  - Fully responsive for all screen sizes.
 
 ## Quickstart / Onboarding
 
@@ -226,6 +259,7 @@ This project is licensed under the MIT License. See [LICENSE](./LICENSE) for det
 - All posts are anonymous and must pass a hate speech filter
 - The About page and UI promote positivity and kindness
 - See `/static/about.html` for more on our mission
+- **Mobile support:** All main pages and components are fully responsive and optimized for mobile devices. Buttons, forms, and interactive elements are sized and spaced for touch input. Layout adapts seamlessly to different screen sizes. For details, see the [Mobile UI Improvement](https://github.com/bigknoxy/jeetSocial/issues/4) enhancement.
 
 ---
 

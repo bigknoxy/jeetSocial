@@ -5,172 +5,359 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>jeetSocial – Anonymous, but always kind.</title>
   <link rel="icon" href="/static/favicon.svg">
-  <style>
-    body {
-      font-family: sans-serif;
-      background: #18181b;
-      color: #f5f5f5;
-      margin: 0;
-    }
-  .banner {
-       background: #222;
-       color: #fff;
-       padding: 1em;
-       text-align: center;
-       font-size: 1.2em;
-       font-weight: bold;
-       border-bottom: 4px solid;
-       border-image: linear-gradient(90deg, #ff4b5c, #ffb26b, #ffe347, #43e97b, #3fa7d6, #7c4dff, #c86dd7) 1;
-       position: sticky;
-       top: 0;
-       z-index: 1000;
+   <style>
+     body {
+       font-family: sans-serif;
+       background: #18181b;
+       color: #f5f5f5;
+       margin: 0;
      }
-    .container {
-      max-width: 600px;
-      margin: 2em auto;
-      background: #222;
-      border-radius: 8px;
-      box-shadow: 0 2px 8px rgba(0,0,0,0.2);
-      padding: 2em;
-    }
-    h1, h2 {
-      color: #ffe347;
-    }
-    .desc {
-      margin-bottom: 2em;
-      color: #b3b3b3;
-    }
-    .rainbow-link-gradient {
-      background: linear-gradient(90deg, #ff4b5c, #ffb26b, #ffe347, #43e97b, #3fa7d6, #7c4dff, #c86dd7);
-      -webkit-background-clip: text;
-      -webkit-text-fill-color: transparent;
-      font-weight: bold;
-      font-size: 1.1em;
-      text-decoration: underline;
-      transition: text-shadow 0.2s;
-    }
-    .rainbow-link-gradient:hover {
-      text-shadow: 0 0 8px #43e97b;
-    }
-    .rainbow-link-underline {
-      color: #ffe347;
-      font-weight: bold;
-      font-size: 1.1em;
-      text-decoration: underline;
-      text-decoration-thickness: 3px;
-      text-decoration-color: transparent;
-      background-image: linear-gradient(90deg, #ff4b5c, #ffb26b, #ffe347, #43e97b, #3fa7d6, #7c4dff, #c86dd7);
-      background-size: 100% 3px;
-      background-repeat: no-repeat;
-      background-position: 0 100%;
-    }
-    .rainbow-link-underline:hover {
-      color: #fff;
-    }
-    .post {
-      background: #23232b;
-      border-radius: 6px;
-      box-shadow: 0 1px 4px rgba(0,0,0,0.08);
-      margin-bottom: 1em;
-      padding: 1em;
-      border-left: 6px solid #43e97b;
-      color: #f5f5f5;
-    }
-    .username {
-      font-weight: bold;
-      color: #ff4b5c;
-      margin-right: 1em;
-    }
-    .timestamp {
-      color: #888;
-      font-size: 0.9em;
-      margin-left: 0.5em;
-    }
-    .post div {
-      margin-top: 0.5em;
-      font-size: 1.1em;
-      color: #ffe347;
-      overflow-wrap: anywhere;
-      word-break: break-word;
-      white-space: pre-wrap;
-    }
-    button {
-      background: linear-gradient(90deg, #ff4b5c, #ffb26b, #ffe347, #43e97b, #3fa7d6, #7c4dff, #c86dd7);
-      color: #fff;
-      border: none;
-      border-radius: 4px;
-      padding: 0.5em 1.5em;
-      font-weight: bold;
-      cursor: pointer;
-      transition: box-shadow 0.2s;
-      font-size: 1em;
-    }
-    button:hover {
-      box-shadow: 0 0 8px #43e97b;
-    }
-    textarea {
-      background: #23232b;
-      color: #f5f5f5;
-      border: 2px solid #3fa7d6;
-      border-radius: 4px;
-      padding: 0.5em;
-      font-size: 1em;
-      margin-bottom: 0.5em;
-      width: 100%;
-       resize: none;
-    }
-    textarea:focus {
-      border-color: #ff4b5c;
-      outline: none;
-    }
-    #error {
-      color: #ff4b5c;
-      font-weight: bold;
-      margin-bottom: 1em;
-    }
-     .toggle-switch {
-      position: relative;
-      display: inline-flex;
-      align-items: center;
-      cursor: pointer;
-      gap: 0.5em;
-    }
-    .toggle-switch input {
-      display: none;
-    }
-    .slider {
-      width: 40px;
-      height: 20px;
-      background: #888;
-      border-radius: 20px;
-      position: relative;
-      transition: background 0.2s;
-      margin-right: 0.5em;
-    }
-    .slider:before {
-      content: "";
-      position: absolute;
-      left: 2px;
-      top: 2px;
-      width: 16px;
-      height: 16px;
-      background: #ffe347;
-      border-radius: 50%;
-      transition: left 0.2s, background 0.2s;
-    }
-    .toggle-switch input:checked + .slider {
-      background: #43e97b;
-    }
-    .toggle-switch input:checked + .slider:before {
-      left: 22px;
-      background: #ff4b5c;
-    }
-    .toggle-label {
-      font-size: 0.95em;
-      color: #ffe347;
-      margin-left: 0.5em;
-    }
-   </style>
+   .banner {
+        background: #222;
+        color: #fff;
+        padding: 1em;
+        text-align: center;
+        font-size: 1.2em;
+        font-weight: bold;
+        border-bottom: 4px solid;
+        border-image: linear-gradient(90deg, #ff4b5c, #ffb26b, #ffe347, #43e97b, #3fa7d6, #7c4dff, #c86dd7) 1;
+        position: sticky;
+        top: 0;
+        z-index: 1000;
+      }
+     .container {
+       max-width: 600px;
+       margin: 2em auto;
+       background: #222;
+       border-radius: 8px;
+       box-shadow: 0 2px 8px rgba(0,0,0,0.2);
+       padding: 2em;
+     }
+     h1, h2 {
+       color: #ffe347;
+     }
+     .desc {
+       margin-bottom: 2em;
+       color: #b3b3b3;
+     }
+     .rainbow-link-gradient {
+       background: linear-gradient(90deg, #ff4b5c, #ffb26b, #ffe347, #43e97b, #3fa7d6, #7c4dff, #c86dd7);
+       -webkit-background-clip: text;
+       -webkit-text-fill-color: transparent;
+       font-weight: bold;
+       font-size: 1.1em;
+       text-decoration: underline;
+       transition: text-shadow 0.2s;
+     }
+     .rainbow-link-gradient:hover {
+       text-shadow: 0 0 8px #43e97b;
+     }
+     .rainbow-link-underline {
+       color: #ffe347;
+       font-weight: bold;
+       font-size: 1.1em;
+       text-decoration: underline;
+       text-decoration-thickness: 3px;
+       text-decoration-color: transparent;
+       background-image: linear-gradient(90deg, #ff4b5c, #ffb26b, #ffe347, #43e97b, #3fa7d6, #7c4dff, #c86dd7);
+       background-size: 100% 3px;
+       background-repeat: no-repeat;
+       background-position: 0 100%;
+     }
+     .rainbow-link-underline:hover {
+       color: #fff;
+     }
+     .post {
+       background: #23232b;
+       border-radius: 6px;
+       box-shadow: 0 1px 4px rgba(0,0,0,0.08);
+       margin-bottom: 1em;
+       padding: 1em;
+       border-left: 6px solid #43e97b;
+       color: #f5f5f5;
+     }
+     .username {
+       font-weight: bold;
+       color: #ff4b5c;
+       margin-right: 1em;
+     }
+     .timestamp {
+       color: #888;
+       font-size: 0.9em;
+       margin-left: 0.5em;
+     }
+     .post div {
+       margin-top: 0.5em;
+       font-size: 1.1em;
+       color: #ffe347;
+       overflow-wrap: anywhere;
+       word-break: break-word;
+       white-space: pre-wrap;
+     }
+     button {
+       background: linear-gradient(90deg, #ff4b5c, #ffb26b, #ffe347, #43e97b, #3fa7d6, #7c4dff, #c86dd7);
+       color: #fff;
+       border: none;
+       border-radius: 4px;
+       padding: 0.75em 2em;
+       font-weight: bold;
+       cursor: pointer;
+       transition: box-shadow 0.2s;
+       font-size: 1.1em;
+       min-width: 44px;
+       min-height: 44px;
+     }
+     button:hover {
+       box-shadow: 0 0 8px #43e97b;
+     }
+textarea {
+        background: #23232b;
+        color: #f5f5f5;
+        border: 2px solid #3fa7d6;
+        border-radius: 12px;
+        padding: 14px 18px;
+        font-size: 1.1em;
+        font-size: 16px;
+        margin-bottom: 0.5em;
+        width: 100%;
+        resize: none;
+        min-height: 120px;
+        max-height: 180px;
+        box-sizing: border-box;
+        transition: border-color 0.2s, box-shadow 0.2s;
+      }
+      textarea:focus {
+        border-color: #ff4b5c;
+        box-shadow: 0 0 0 2px #ff4b5c33;
+        outline: none;
+      }
+      .post-form-textarea-container {
+        position: relative;
+        margin-bottom: 1.5em;
+      }
+      #char-count {
+        position: absolute;
+        bottom: 12px;
+        right: 20px;
+        font-size: 13px;
+        color: #888;
+        background: rgba(24,24,27,0.85);
+        padding: 2px 8px;
+        border-radius: 12px;
+        pointer-events: none;
+        transition: color 0.2s, background 0.2s;
+      }
+      @media (min-width: 769px) {
+        #char-count {
+          bottom: 20px;
+          right: 8px;
+        }
+        .post-form-row {
+          flex-direction: row !important;
+          align-items: center !important;
+          gap: 1em !important;
+          margin-top: 1.2em;
+          padding: 0 0.5em;
+        }
+      .post-form-row button[type="submit"] {
+        margin-left: auto;
+        margin-right: 0;
+        width: auto;
+        font-size: 1.1em;
+        padding: 0.75em 2em;
+        display: inline-flex;
+        justify-content: center;
+        align-items: center;
+      }
+      #emoji-btn:hover {
+        background-color: rgba(255, 255, 255, 0.1);
+      }
+        .post-form-row .toggle-switch {
+          margin-right: auto;
+        }
+      }
+
+      #post-btn {
+        height: 52px;
+        min-width: 80px;
+        font-size: 1.1em;
+        font-weight: bold;
+        background: linear-gradient(90deg, #ff4b5c, #ffb26b, #ffe347, #43e97b, #3fa7d6, #7c4dff, #c86dd7);
+        color: #fff;
+        border: none;
+        border-radius: 8px;
+        box-shadow: 0 2px 8px rgba(0,0,0,0.12);
+        cursor: pointer;
+        transition: box-shadow 0.2s, opacity 0.2s;
+        margin-left: auto;
+        display: inline-block;
+      }
+      #post-btn:disabled {
+        opacity: 0.6;
+        cursor: not-allowed;
+        box-shadow: none;
+      }
+       #post-btn:hover:not(:disabled) {
+         box-shadow: 0 0 12px #43e97b;
+       }
+       #emoji-btn:hover {
+         background-color: rgba(255, 255, 255, 0.1);
+       }
+      .post-form-row {
+        display: flex;
+        align-items: center;
+        gap: 1em;
+        margin-top: 0.5em;
+        padding: 0 0.5em;
+      }
+      #error {
+        color: #ff4b5c;
+        font-weight: bold;
+        margin-bottom: 1em;
+        opacity: 0;
+        transition: opacity 0.3s;
+      }
+
+     textarea:focus {
+       border-color: #ff4b5c;
+       outline: none;
+     }
+     #error {
+       color: #ff4b5c;
+       font-weight: bold;
+       margin-bottom: 1em;
+     }
+      .toggle-switch {
+       position: relative;
+       display: inline-flex;
+       align-items: center;
+       cursor: pointer;
+       gap: 0.5em;
+     }
+     .toggle-switch input {
+       display: none;
+     }
+     .slider {
+       width: 40px;
+       height: 20px;
+       background: #888;
+       border-radius: 20px;
+       position: relative;
+       transition: background 0.2s;
+       margin-right: 0.5em;
+     }
+     .slider:before {
+       content: "";
+       position: absolute;
+       left: 2px;
+       top: 2px;
+       width: 16px;
+       height: 16px;
+       background: #ffe347;
+       border-radius: 50%;
+       transition: left 0.2s, background 0.2s;
+     }
+     .toggle-switch input:checked + .slider {
+       background: #43e97b;
+     }
+     .toggle-switch input:checked + .slider:before {
+       left: 22px;
+       background: #ff4b5c;
+     }
+     .toggle-label {
+       font-size: 0.95em;
+       color: #ffe347;
+       margin-left: 0.5em;
+     }
+
+     /* --- Mobile Responsive Styles --- */
+      @media (max-width: 768px) {
+        .container {
+          max-width: 98vw;
+          margin: 1em auto;
+          padding: 1em;
+        }
+        .banner {
+          font-size: 1em;
+          padding: 0.7em;
+        }
+        h1, h2 {
+          font-size: 1.3em;
+        }
+        .desc {
+          font-size: 1em;
+        }
+        .post {
+          padding: 0.7em;
+          font-size: 1em;
+        }
+        button, textarea {
+          font-size: 1em;
+          padding: 0.7em 1em;
+          min-width: 44px;
+          min-height: 44px;
+        }
+        .post-form-row {
+          flex-direction: column !important;
+          align-items: stretch !important;
+          gap: 0.7em !important;
+        }
+         .post-form-row button[type="submit"] {
+           display: flex;
+           justify-content: center;
+           align-items: center;
+           margin: 0.7em auto 0.3em auto;
+           width: 90%;
+           font-size: 1.3em;
+           padding: 1em 0;
+           text-align: center;
+         }
+         #emoji-btn {
+           display: none; /* Hidden on mobile as before */
+         }
+      }
+      @media (max-width: 480px) {
+        .container {
+          max-width: 100vw;
+          margin: 0.5em auto;
+          padding: 0.5em;
+          border-radius: 0;
+        }
+        .banner {
+          font-size: 0.95em;
+          padding: 0.5em;
+        }
+        h1, h2 {
+          font-size: 1.1em;
+        }
+        .desc {
+          font-size: 0.95em;
+        }
+        .post {
+          padding: 0.5em;
+          font-size: 0.95em;
+        }
+        button, textarea {
+          font-size: 0.95em;
+          padding: 0.5em 0.7em;
+          min-width: 44px;
+          min-height: 44px;
+        }
+         .post-form-row button[type="submit"] {
+           display: flex;
+           justify-content: center;
+           align-items: center;
+           width: 100%;
+           font-size: 1.4em;
+           padding: 1.2em 0;
+           margin: 1em auto 0.5em auto;
+           text-align: center;
+         }
+         #emoji-btn {
+           display: none; /* Hidden on mobile as before */
+         }
+      }
+    </style>
 </head>
 <body>
   <div class="banner">
@@ -191,20 +378,33 @@
 <h2 style="margin-top:0;">Share a message</h2>
 <div id="error" style="color: red; margin-bottom: 1em;"></div>
 <form id="post-form" style="margin-bottom:2em;">
-  <div style="display: flex; align-items: center; gap: 0.5em;">
-     <textarea name="message" id="message" rows="3" maxlength="280" style="width:100%;" placeholder="Share something kind or uplifting..."></textarea>
-     <div id="char-count" style="font-size:0.9em; color:#888; text-align:right; margin-bottom:0.5em;">0/280</div>
-    <button type="button" id="emoji-btn" title="Add emoji" style="font-size:1.5em; padding:0.5em; background: none; border: none; cursor: pointer;">😊</button>
-  </div>
-  <emoji-picker id="emoji-picker" style="display:none; position:absolute; z-index:2000;"></emoji-picker>
-  <div style="display: flex; align-items: center; gap: 1em; margin-top:0.5em;">
-    <button type="submit">Post</button>
-    <label class="toggle-switch" title="When enabled, pressing Enter will post your message. Shift+Enter always adds a new line.">
-      <input type="checkbox" id="enter-to-post" />
-      <span class="slider"></span>
-      <span class="toggle-label">Post on Enter</span>
-    </label>
-  </div>
+  <div class="post-form-textarea-container" style="position:relative; margin-bottom:1.5em;">
+    <textarea
+      name="message"
+      id="message"
+      rows="4"
+      maxlength="280"
+      aria-label="Share something kind"
+      placeholder="Share something kind…"
+      style="width:100%;"
+    ></textarea>
+     <div id="char-count"
+       aria-live="polite"
+       style="position:absolute; bottom:12px; right:20px; font-size:13px; color:#888; background:rgba(24,24,27,0.85); padding:2px 8px; border-radius:12px; pointer-events:none;">
+       0/280
+     </div>
+    </div>
+   <div id="error" style="color: #ff4b5c; font-weight: bold; margin-bottom: 1em;"></div>
+    <div class="post-form-row" style="display: flex; align-items: center; gap: 1em; margin-top:0.5em;">
+      <button type="button" id="emoji-btn" title="Add emoji" style="font-size:1.2em; padding:0.5em; background: none; border: none; cursor: pointer; border-radius: 4px; transition: background-color 0.2s;" aria-label="Add emoji">😊</button>
+      <label class="toggle-switch" title="When enabled, pressing Enter will post your message. Shift+Enter always adds a new line.">
+        <input type="checkbox" id="enter-to-post" />
+        <span class="slider"></span>
+        <span class="toggle-label">Post on Enter</span>
+      </label>
+      <button type="submit" id="post-btn" aria-label="Post your message">Post</button>
+      <emoji-picker id="emoji-picker" style="display:none; position:absolute; z-index:2000;"></emoji-picker>
+    </div>
 </form>
 <!-- Emoji Picker CDN -->
 <script type="module" src="https://cdn.jsdelivr.net/npm/emoji-picker-element@^1/index.js"></script>

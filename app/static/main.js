@@ -264,16 +264,53 @@ window.addEventListener('DOMContentLoaded', setupEnterToPost);
 function setupCharacterCounter() {
   const textarea = document.getElementById('message');
   const counter = document.getElementById('char-count');
+  const postBtn = document.getElementById('post-btn');
+  const errorDiv = document.getElementById('error');
 
   function updateCounter() {
     const length = textarea.value.length;
     counter.textContent = `${length}/280`;
-    counter.style.color = length > 280 ? '#ff4b5c' : '#888';
+    // Color logic: muted <240, orange 240-279, red 280+
+    if (length > 280) {
+      counter.style.color = '#ff4b5c'; // error
+      postBtn.disabled = true;
+      postBtn.style.opacity = '0.6';
+      errorDiv.textContent = "Your message is a bit too long. Let's keep it kind and concise!";
+      errorDiv.style.opacity = '1';
+    } else if (length >= 240) {
+      counter.style.color = '#ffb26b'; // warning
+      postBtn.disabled = false;
+      postBtn.style.opacity = '1';
+      errorDiv.textContent = '';
+      errorDiv.style.opacity = '0';
+    } else if (length === 0) {
+      counter.style.color = '#888';
+      postBtn.disabled = true;
+      postBtn.style.opacity = '0.6';
+      errorDiv.textContent = "Share something uplifting to brighten someone's day!";
+      errorDiv.style.opacity = '1';
+    } else {
+      counter.style.color = '#888';
+      postBtn.disabled = false;
+      postBtn.style.opacity = '1';
+      errorDiv.textContent = '';
+      errorDiv.style.opacity = '0';
+    }
   }
 
   textarea.addEventListener('input', updateCounter);
   updateCounter(); // Initial update
+
+  // Mobile usability: scroll form into view when keyboard opens
+  textarea.addEventListener('focus', function() {
+    if (window.innerWidth < 600) {
+      setTimeout(function() {
+        document.getElementById('post-form').scrollIntoView({ behavior: 'smooth', block: 'center' });
+      }, 300);
+    }
+  });
 }
+
 window.addEventListener('DOMContentLoaded', setupCharacterCounter);
 
 
@@ -287,18 +324,21 @@ window.addEventListener('DOMContentLoaded', function() {
   const emojiPicker = document.getElementById('emoji-picker');
   const textarea = document.getElementById('message');
 
-  // Hide emoji button on mobile devices
-  if (emojiBtn && isMobileDevice()) {
-    emojiBtn.style.display = 'none';
+  // Hide emoji button and 'Post on Enter' toggle on mobile devices
+  if (isMobileDevice()) {
+    if (emojiBtn) emojiBtn.style.display = 'none';
     if (emojiPicker) emojiPicker.style.display = 'none';
+    const enterToggleLabel = document.querySelector('.toggle-switch');
+    if (enterToggleLabel) enterToggleLabel.style.display = 'none';
     return;
   }
 
-  // Position picker below button
+  // Position picker above button to avoid covering post button
   function positionPicker() {
     const rect = emojiBtn.getBoundingClientRect();
     emojiPicker.style.left = rect.left + 'px';
-    emojiPicker.style.top = (rect.bottom + window.scrollY) + 'px';
+    emojiPicker.style.top = (rect.top + window.scrollY - 10) + 'px';
+    emojiPicker.style.transform = 'translateY(-100%)';
   }
 
   emojiBtn.addEventListener('click', function(e) {
