@@ -155,6 +155,20 @@ docker exec jeet-web-1 python cleanup_long_posts.py --dry-run
 
 ## CI/CD Agent and Commands
 
+## Specialist Developer Agent
+
+The project includes a dedicated specialist developer agent defined in `.opencode/agent/developer.md`. This agent is designed to autonomously handle all technical development, testing, DevOps, and code maintenance tasks for jeetSocial, following the project's privacy, kindness, and quality guidelines.
+
+**Delegation Guidelines:**
+- The main agent should delegate all technical work (backend, frontend, database, testing, DevOps, documentation, security, etc.) to the specialist developer agent.
+- For any task involving code changes, feature implementation, bug fixes, testing, CI/CD, or documentation, the specialist developer agent should be invoked.
+- The specialist developer agent is fully aligned with the jeetSocial mission and tech stack, and is responsible for maintaining code quality, privacy, and positive user experience.
+
+**Usage:**
+- Refer to `.opencode/agent/developer.md` for the agent's detailed profile, responsibilities, and skill requirements.
+- When a technical task is requested, the main agent should automatically delegate it to the specialist developer agent for execution.
+
+
 ### CI/CD Agent
 The project includes a specialized CI/CD agent for GitHub workflows and DevOps automation:
 

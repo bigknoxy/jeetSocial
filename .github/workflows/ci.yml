@@ -1,15 +1,20 @@
 name: CI
 on:
   push:
-    branches: [ main, feature/* ]
+    branches:
+      - main
+      - feature/*
   pull_request:
-    branches: [ main ]
+    branches:
+      - main
 jobs:
   lint:
     runs-on: ubuntu-latest
     strategy:
       matrix:
-        language: [python, js]
+        language:
+          - python
+          - js
     steps:
       - uses: actions/checkout@v3
       - name: Set up Python
@@ -56,6 +61,7 @@ jobs:
       - name: Lint JS
         if: matrix.language == 'js'
         run: npx eslint .
+
   test:
     runs-on: ubuntu-latest
     services:
@@ -114,7 +120,8 @@ jobs:
           restore-keys: ${{ runner.os }}-npm-
       - name: Install JS dependencies
         run: npm install
-
+      - name: Copy .env.example
+        run: cp .env.example .env
       - name: Wait for DB to be ready
         run: |
           for i in {1..30}; do
@@ -127,22 +134,38 @@ jobs:
         run: |
           flask run --host=0.0.0.0 --port=5000 &
           sleep 5
-          for i in {1..30}; do curl -f http://localhost:5000 && break; sleep 1; done
+          for i in {1..30}; do
+            if curl -s http://localhost:5000 > /dev/null; then
+              echo "Flask app is ready!"
+              break
+            fi
+            sleep 2
+          done
+      - name: Install Playwright Browsers
+        run: npx playwright install --with-deps
       - name: Run Playwright E2E tests
-        run: |
-          npx playwright install
-          npm run e2e
+        run: npm run e2e -- --timeout=60000
       - name: Upload Playwright test results
         if: always()
         uses: actions/upload-artifact@v4
         with:
           name: playwright-results
           path: test-results/
+      - name: Upload Playwright traces
+        if: failure()
+        uses: actions/upload-artifact@v4
+        with:
+          name: playwright-traces
+          path: |
+            test-results/
+            *.png
+            *.webm
       - name: Enforce coverage threshold
         run: |
           pip install coverage
           coverage report --fail-under=80
           npx nyc check-coverage --lines 80 --functions 80 --branches 80 --statements 80
+
   build:
     runs-on: ubuntu-latest
     steps:
