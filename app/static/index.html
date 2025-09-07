@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>jeetSocial – Anonymous, but always kind.</title>
+  <title>jeetSocial - Anonymous, but always kind.</title>
   <link rel="icon" href="/static/favicon.svg">
    <style>
      body {
@@ -25,14 +25,47 @@
         top: 0;
         z-index: 1000;
       }
-     .container {
-       max-width: 600px;
-       margin: 2em auto;
-       background: #222;
-       border-radius: 8px;
-       box-shadow: 0 2px 8px rgba(0,0,0,0.2);
-       padding: 2em;
-     }
+      .container {
+        max-width: 600px;
+        margin: 2em auto;
+        background: #222;
+        border-radius: 8px;
+        box-shadow: 0 2px 8px rgba(0,0,0,0.2);
+        padding: 2em;
+      }
+      #feed {
+        min-height: 400px;
+        position: relative;
+        transition: min-height 0.2s;
+      }
+      .skeleton-loader {
+        display: flex;
+        flex-direction: column;
+        gap: 1em;
+        padding: 1em 0;
+      }
+      .skeleton-post {
+        background: #23232b;
+        border-radius: 6px;
+        height: 64px;
+        margin-bottom: 1em;
+        position: relative;
+        overflow: hidden;
+      }
+      .skeleton-animate {
+        animation: skeleton-shimmer 1.2s linear infinite;
+        background: linear-gradient(90deg, #23232b 0%, #2c2c38 50%, #23232b 100%);
+        background-size: 200% 100%;
+        width: 100%;
+        height: 100%;
+        position: absolute;
+        top: 0; left: 0;
+      }
+      @keyframes skeleton-shimmer {
+        0% { background-position: -200% 0; }
+        100% { background-position: 200% 0; }
+      }
+
      h1, h2 {
        color: #ffe347;
      }
@@ -409,7 +442,13 @@ textarea {
 <!-- Emoji Picker CDN -->
 <script type="module" src="https://cdn.jsdelivr.net/npm/emoji-picker-element@^1/index.js"></script>
  <h2 style="margin-top:2em;">Recent Posts</h2>
- <div id="feed"></div>
+  <div id="feed">
+    <div class="skeleton-loader" id="skeleton-loader">
+      <div class="skeleton-post"><div class="skeleton-animate"></div></div>
+      <div class="skeleton-post"><div class="skeleton-animate"></div></div>
+      <div class="skeleton-post"><div class="skeleton-animate"></div></div>
+    </div>
+  </div>
 <script src="/static/main.js"></script>
   </div>
   <footer style="text-align:center;font-size:0.9em;color:#888;background:#23232b;padding:1em 0;margin-top:2em;">

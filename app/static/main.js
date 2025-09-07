@@ -41,12 +41,12 @@ async function butterSmoothLiveUpdate() {
     // Get existing post IDs in DOM
     const existingIds = Array.from(feed.children).map(node => node.dataset && node.dataset.id);
     let inserted = false;
-    newPosts.forEach((post) => {
+newPosts.forEach((post, i) => {
       if (!existingIds.includes(post.id.toString())) {
         // Create post node
         const div = document.createElement('div');
         div.className = 'post new-post';
-div.style.animation = 'fadeIn 1s';
+        div.style.animation = 'fadeIn 1s';
         div.style.borderLeft = `6px solid ${accentColors[i % accentColors.length]}`;
         div.setAttribute('data-id', post.id);
         div.innerHTML = `
@@ -138,12 +138,20 @@ function renderPagingControls() {
 
 async function fetchFeedPage(page) {
   const feed = document.getElementById('feed');
-  feed.innerHTML = '<em>Loading...</em>';
+  // Show skeleton loader while loading
+  feed.innerHTML = `
+    <div class="skeleton-loader" id="skeleton-loader">
+      <div class="skeleton-post"><div class="skeleton-animate"></div></div>
+      <div class="skeleton-post"><div class="skeleton-animate"></div></div>
+      <div class="skeleton-post"><div class="skeleton-animate"></div></div>
+    </div>
+  `;
   try {
     const resp = await fetch(`/api/posts?page=${page}&limit=${pageLimit}`);
     const data = await resp.json();
     const posts = data.posts;
     const accentColors = ["#ff4b5c", "#ffb26b", "#ffe347", "#43e97b", "#3fa7d6", "#7c4dff", "#c86dd7"];
+    // Remove skeleton loader and show posts
     feed.innerHTML = posts.map((post, index) => {
       const color = accentColors[index % accentColors.length];
       return `
