@@ -108,10 +108,10 @@ If you do not follow this workflow, your code will be rejected and your PR will 
 - Ideation & scoping
 - Branching & environment setup
 - Design & planning
-- Agentic implementation (using the specialist developer agent)
-- Testing (unit, integration, E2E)
+- Agentic implementation (using the specialist @developer sub agent)
+- Testing (unit, integration, E2E - use @qa-testing-specialist sub agent)
 - Linting & code quality
-- Documentation
+- Documentation (use @docs-maintainer sub agent)
 - Final review
 - Commit & PR
 - Merge & cleanup
@@ -180,7 +180,14 @@ If you do not follow this workflow, your code will be rejected and your PR will 
   - Lint: `eslint .` (if using JS)
   - Test: Add simple JS unit tests if needed.
 - **End-to-End (E2E):**
-  - Run Playwright E2E tests: `npm run e2e`
+  - **Robust E2E Test Workflow:**
+    1. Check if jeetSocial web container is running (`docker ps`)
+    2. If not running, start container (`docker compose up --build --remove-orphans`)
+    3. Verify web app is running by inspecting docker logs (look for Flask startup and port 5000)
+    4. Run Playwright E2E tests: `npm run e2e`
+    5. Shut down container after tests: `docker compose down`
+    6. Iteratively fix failing tests until all pass
+    7. Commit only when all tests pass and coverage is confirmed
 - **CI/CD Testing:**
   - Test CI changes locally: `act`
   - Test specific workflow: `act -W .github/workflows/ci.yml`
