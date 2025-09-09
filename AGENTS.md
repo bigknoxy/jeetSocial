@@ -90,6 +90,45 @@ docker exec jeet-web-1 python cleanup_long_posts.py --dry-run
 
 ## Agentic Coding Guidelines
 
+---
+
+# 🚨🚨🚨 MANDATORY AGENTIC FEATURE WORKFLOW 🚨🚨🚨
+
+**EVERY TIME a new feature is added, you MUST follow the exact workflow in `.opencode/developer-flow.md` from start to finish.**
+
+- **NO EXCEPTIONS.**
+- **NO SHORTCUTS.**
+- **NO UNTESTED CODE.**
+- **NO UNDOCUMENTED CHANGES.**
+- **NO UNTRACKED TODOs.**
+
+If you do not follow this workflow, your code will be rejected and your PR will not be merged.
+
+**The workflow covers:**
+- Ideation & scoping
+- Branching & environment setup
+- Design & planning
+- Agentic implementation (using the specialist developer agent)
+- Testing (unit, integration, E2E)
+- Linting & code quality
+- Documentation
+- Final review
+- Commit & PR
+- Merge & cleanup
+
+**You are REQUIRED to:**
+- Use the specialist developer agent for all technical work
+- Track every sub-task in a todo list
+- Run all tests and linters after every change
+- Document everything
+- Never commit secrets or broken code
+- Iterate until all tests and CI pass
+
+**Reference:**
+- The full workflow is in `.opencode/developer-flow.md` (read it and follow it for every feature)
+
+---
+
 1. **Think Big Picture:**  
    - Understand the project architecture before making changes.  
    - Consider scalability, maintainability, and modularity.
