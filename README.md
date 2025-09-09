@@ -1,8 +1,11 @@
 # jeetSocial
 
-[![Build Status](https://img.shields.io/github/workflow/status/your-org/jeetSocial/CI)](https://github.com/your-org/jeetSocial/actions)
-[![Test Coverage](https://img.shields.io/codecov/c/github/your-org/jeetSocial)](https://codecov.io/gh/your-org/jeetSocial)
-[![License](https://img.shields.io/github/license/your-org/jeetSocial)](LICENSE)
+[![CI](https://github.com/bigknoxy/jeetSocial/actions/workflows/ci.yml/badge.svg)](https://github.com/bigknoxy/jeetSocial/actions/workflows/ci.yml)
+[![Codecov](https://codecov.io/gh/bigknoxy/jeetSocial/branch/main/graph/badge.svg)](https://codecov.io/gh/bigknoxy/jeetSocial)
+[![License](https://img.shields.io/github/license/bigknoxy/jeetSocial)](LICENSE)
+[![Python Version](https://img.shields.io/badge/python-3.10-blue.svg)](https://www.python.org/downloads/release/python-3100/)
+[![Last Commit](https://img.shields.io/github/last-commit/bigknoxy/jeetSocial)](https://github.com/bigknoxy/jeetSocial/commits/main)
+[![Issues](https://img.shields.io/github/issues/bigknoxy/jeetSocial)](https://github.com/bigknoxy/jeetSocial/issues)
 
 ## Project Purpose & Kindness Mission
 jeetSocial is a minimal, anonymous social platform designed to encourage kindness and privacy. All posts are anonymous and assigned random usernames. No personal data is collected, and all posts are filtered for hate speech using an extensive word/phrase list. The platform exists to spread and encourage kindness through anonymous sharing and support.
