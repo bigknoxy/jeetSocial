@@ -173,7 +173,7 @@ jobs:
       - name: Build Docker images
         run: docker compose build
       - name: Trivy scan
-        uses: aquasecurity/trivy-action@v0.33.1
+        uses: aquasecurity/trivy-action@0.33.1
         with:
           image-ref: 'jeetsocial_web:latest'
           format: 'table'
