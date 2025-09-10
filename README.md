@@ -1,5 +1,7 @@
 # jeetSocial
 
+![jeetSocial homepage branding](app/static/branding/homepage-branding-cropped.png)
+
 [![CI](https://github.com/bigknoxy/jeetSocial/actions/workflows/ci.yml/badge.svg)](https://github.com/bigknoxy/jeetSocial/actions/workflows/ci.yml)
 [![Codecov](https://codecov.io/gh/bigknoxy/jeetSocial/branch/main/graph/badge.svg)](https://codecov.io/gh/bigknoxy/jeetSocial)
 [![License](https://img.shields.io/github/license/bigknoxy/jeetSocial)](LICENSE)
