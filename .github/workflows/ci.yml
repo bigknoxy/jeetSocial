@@ -1,3 +1,4 @@
+---
 name: CI
 on:
   push:
@@ -74,8 +75,8 @@ jobs:
     env:
       DATABASE_URL: postgresql://${{ secrets.POSTGRES_USER }}:${{ secrets.POSTGRES_PASSWORD }}@localhost:5433/jeetsocial
       SECRET_KEY: ${{ secrets.SECRET_KEY }}
-      ENABLE_RATE_LIMITING: true
-      ENABLE_MODERATION: true
+      ENABLE_RATE_LIMITING: 'true'
+      ENABLE_MODERATION: 'true'
       FLASK_APP: app
       FLASK_ENV: development
     steps:
@@ -186,7 +187,7 @@ jobs:
     if: github.ref == 'refs/heads/main' && github.event_name == 'push'
     environment:
       name: production
-      url: ${{ secrets.PRODUCTION_URL }}
+          # url: ${{ secrets.PRODUCTION_URL }}  # Uncomment and set when production infra is ready
     steps:
       - name: Manual approval
         uses: fjogeleit/manual-approval-action@v1.2
