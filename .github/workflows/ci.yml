@@ -12,9 +12,7 @@ jobs:
     runs-on: ubuntu-latest
     strategy:
       matrix:
-        language:
-          - python
-          - js
+        language: [python, js]
     steps:
       - uses: actions/checkout@v3
       - name: Set up Python
@@ -181,3 +179,36 @@ jobs:
           format: 'table'
           exit-code: '1'
           ignore-unfixed: true
+
+  deploy:
+    needs: [lint, test, build]
+    runs-on: ubuntu-latest
+    if: github.ref == 'refs/heads/main' && github.event_name == 'push'
+    environment:
+      name: production
+      url: ${{ secrets.PRODUCTION_URL }}
+    steps:
+      - name: Manual approval
+        uses: fjogeleit/manual-approval-action@v1.2
+        with:
+          approvers: bigknoxy
+          issueTitle: "Deploy to Production"
+          issueBody: "Approve deployment to production."
+      - name: Download Python coverage report
+        uses: actions/download-artifact@v4
+        with:
+          name: python-coverage
+          path: coverage/
+      - name: Download Playwright results
+        uses: actions/download-artifact@v4
+        with:
+          name: playwright-results
+          path: test-results/
+      - name: Deploy (placeholder)
+        run: echo "Deploying to production..."
+      - name: Notify on deploy
+        uses: rjstone/discord-webhook-notify@v1
+        with:
+          webhookUrl: ${{ secrets.DISCORD_WEBHOOK_URL }}
+          severity: info
+          details: "jeetSocial deployed to production by ${{ github.actor }}."

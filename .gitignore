@@ -41,3 +41,4 @@ instance/
 # Test results and artifacts
 test-results/
 .playwright-artifacts-0/
+context

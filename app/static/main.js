@@ -204,7 +204,8 @@ document.head.appendChild(animationStyle);
 function escapeHtml(text) {
   const div = document.createElement('div');
   div.textContent = text;
-  return div.innerHTML;
+  // Convert line breaks to <br> after escaping
+  return div.innerHTML.replace(/\n/g, '<br>');
 }
 
 async function postMessage(e) {

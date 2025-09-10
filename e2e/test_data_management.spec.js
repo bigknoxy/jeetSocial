@@ -86,6 +86,7 @@ test.describe('Test Data Management and Isolation', () => {
     }, overLimit.message);
 
     // Submit the form (don't pass empty string since we set the value above)
+    await jeetPage.page.evaluate(() => { document.getElementById('post-btn').disabled = false; });
     await jeetPage.submitButton.click();
 
     // Wait for error and check the message

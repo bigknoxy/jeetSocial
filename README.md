@@ -229,12 +229,19 @@ Response:
 ### End-to-End (E2E)
 - Run Playwright E2E tests: `npm run e2e`
 
-### CI/CD Testing
-- Test CI changes locally: `act`
-- Test specific workflow: `act -W .github/workflows/ci.yml`
-- Pass secrets: `act -s SECRET_KEY=value -s DATABASE_URL=...`
-- Iterate: Run `act`, review output, fix issues, repeat until passing.
-- Full usage guide: https://nektosact.com/usage/index.html
+### CI/CD Pipeline
+- **Lint:** Python (flake8, black, safety) and JS (eslint) linting in matrix.
+- **Test:** Python (pytest, coverage), JS (npm test, Playwright E2E), DB migrations, coverage enforcement, artifact upload.
+- **Build:** Docker Compose build, Trivy security scan.
+- **Deploy:** Manual approval required, downloads coverage and E2E results, placeholder deploy step, Discord notification on success.
+- **Secrets:** All sensitive values (DB, Flask, webhook) are managed via GitHub secrets.
+- **Artifacts:** Coverage and Playwright results are uploaded for review.
+- **Local Testing:**
+  - Test CI changes locally: `act`
+  - Test specific workflow: `act -W .github/workflows/ci.yml`
+  - Pass secrets: `act -s SECRET_KEY=value -s DATABASE_URL=...`
+  - Iterate: Run `act`, review output, fix issues, repeat until passing.
+  - Full usage guide: https://nektosact.com/usage/index.html
 
 ## Contributing
 - Use feature branches for new features (`feature/<short-description>`)

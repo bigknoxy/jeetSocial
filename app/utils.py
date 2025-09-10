@@ -281,7 +281,32 @@ def generate_username():
 
 
 def normalize_text(text):
-    return re.sub(r"[^\w\s]", "", text.lower())
+    # Decode unicode escapes (e.g. b\u0069got -> bigot)
+    import codecs
+
+    try:
+        text = codecs.decode(text, "unicode_escape")
+    except Exception:
+        pass
+    text = text.lower()
+    homoglyphs = {
+        "1": "i",
+        "0": "o",
+        "3": "e",
+        "@": "a",
+        "$": "s",
+        "!": "i",
+        "|": "i",
+        "5": "s",
+        "7": "t",
+        "4": "a",
+        "8": "b",
+    }
+    for k, v in homoglyphs.items():
+        text = text.replace(k, v)
+    # Remove non-word characters again
+    text = re.sub(r"[^\w\s]", "", text)
+    return text
 
 
 def is_hate_speech(text):
