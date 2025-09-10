@@ -6,7 +6,7 @@ test.describe('Edge Case Moderation', () => {
     await page.goto(BASE_URL);
     await page.fill('textarea[name="message"]', 'b\u0069got'); // Obfuscated 'bigot'
     await page.click('button[type="submit"]');
-    await expect(page.locator('#error')).toHaveText(/blocked/i);
+    await expect(page.locator('#error')).toHaveText(/Hateful content not allowed/i);
   });
 
   test('accepts long positive post', async ({ page }) => {
@@ -22,6 +22,6 @@ test.describe('Edge Case Moderation', () => {
     await page.goto(BASE_URL);
     await page.fill('textarea[name="message"]', '');
     await page.click('button[type="submit"]');
-    await expect(page.locator('#error')).toHaveText(/error/i);
+    await expect(page.locator('#error')).toHaveText(/Message required/i);
   });
 });

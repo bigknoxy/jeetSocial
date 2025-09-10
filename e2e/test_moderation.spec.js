@@ -8,15 +8,19 @@ test.describe('HuggingFace Moderation', () => {
     await page.goto(BASE_URL);
 
     // Test hate speech post (word-list filter)
-    await page.fill('textarea[name="post"]', 'I hate [group], they should all disappear.');
+    await page.fill('textarea[name="message"]', 'I hate [group], they should all disappear.');
     await page.click('button[type="submit"]');
-    await expect(page.locator('.error-message')).toHaveText(/blocked due to hate speech/i);
+    await expect(page.locator('#error')).toHaveText(/Hateful content not allowed/i);
     await page.screenshot({ path: 'hate_speech_blocked.png' });
 
     // Test positive post
-    await page.fill('textarea[name="post"]', 'I hope everyone has a wonderful day!');
+    await page.fill('textarea[name="message"]', 'I hope everyone has a wonderful day!');
     await page.click('button[type="submit"]');
-    await expect(page.locator('.success-message')).toHaveText(/shared/i);
+    // Success case: error div should be empty and feed should update
+    await expect(page.locator('#error')).toHaveText('');
+    // Wait for feed to update with new post
+    await page.waitForSelector('.post', { timeout: 5000 });
+    await expect(page.locator('.post').first()).toContainText('I hope everyone has a wonderful day!');
     await page.screenshot({ path: 'positive_post_accepted.png' });
   });
 });

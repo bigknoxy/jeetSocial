@@ -59,9 +59,8 @@ def preview_changes(long_posts, action):
         print(f"   Username: {post.username}")
         print(f"   Created: {post.timestamp}")
         print(f"   Current length: {len(post.message)} characters")
-        print(
-            f"   Message preview: {post.message[:100]}{'...' if len(post.message) > 100 else ''}"
-        )
+        preview = f"{post.message[:100]}{'...' if len(post.message) > 100 else ''}"
+        print(f"   Message preview: {preview}")
 
         if action == "truncate":
             print(f"   → Will truncate to: {post.message[:280]}")

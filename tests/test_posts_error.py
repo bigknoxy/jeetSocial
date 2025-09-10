@@ -1,6 +1,7 @@
 """
 test_posts_error.py
 """
+
 from app import create_app, db
 
 

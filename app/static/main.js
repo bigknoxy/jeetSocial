@@ -8,59 +8,7 @@ Frontend logic for jeetSocial:
 - Kindness mission UI/UX
 - Emoji picker integration
 */
-let latestTimestamp = null;
 
-async function fetchFeed(initial = false) {
-  console.log('[LiveFeed] fetchFeed called. initial:', initial, 'latestTimestamp:', latestTimestamp);
-
-  const feed = document.getElementById('feed');
-  if (initial) feed.innerHTML = '<em>Loading...</em>';
-  try {
-    let url = '/api/posts';
-    if (!initial && latestTimestamp) {
-      url += `?since=${encodeURIComponent(latestTimestamp)}`;
-    }
-    console.log('[LiveFeed] Fetching URL:', url);
-    const resp = await fetch(url);
-    const posts = await resp.json();
-    console.log('[LiveFeed] API response:', posts);
-    const accentColors = ["#ff4b5c", "#ffb26b", "#ffe347", "#43e97b", "#3fa7d6", "#7c4dff", "#c86dd7"];
-    if (initial) {
-      feed.innerHTML = posts.map((post, i) => {
-        const color = accentColors[i % accentColors.length];
-        return `
-          <div class="post" style="border-left: 6px solid ${color};">
-            <span class="username" style="color:${color}">${post.username}</span>
-            <span class="timestamp">${new Date(post.timestamp).toLocaleString()}</span>
-            <div>${escapeHtml(post.message)}</div>
-          </div>
-        `;
-      }).join('');
-      if (posts.length > 0) {
-        latestTimestamp = posts[0].timestamp;
-      }
-    } else {
-      // Only append new posts
-      if (posts.length > 0) {
-        latestTimestamp = posts[0].timestamp;
-        const newPostsHtml = posts.map((post, i) => {
-          const color = accentColors[Math.floor(Math.random() * accentColors.length)];
-          return `
-            <div class="post new-post" style="border-left: 6px solid ${color}; animation: fadeIn 1s;" data-id="${post.id}">
-              <span class="username" style="color:${color}">${post.username}</span>
-              <span class="timestamp">${new Date(post.timestamp).toLocaleString()}</span>
-              <div>${escapeHtml(post.message)}</div>
-            </div>
-          `;
-        }).join('');
-        console.log('[LiveFeed] Inserting new posts:', posts);
-        feed.insertAdjacentHTML('afterbegin', newPostsHtml);
-      }
-    }
-  } catch (e) {
-    if (initial) feed.innerHTML = '<em>Error loading feed.</em>';
-  }
-}
 
 // Paging state
 let currentPage = 1;
@@ -93,12 +41,12 @@ async function butterSmoothLiveUpdate() {
     // Get existing post IDs in DOM
     const existingIds = Array.from(feed.children).map(node => node.dataset && node.dataset.id);
     let inserted = false;
-    newPosts.forEach((post, i) => {
+newPosts.forEach((post, i) => {
       if (!existingIds.includes(post.id.toString())) {
         // Create post node
         const div = document.createElement('div');
         div.className = 'post new-post';
-div.style.animation = 'fadeIn 1s';
+        div.style.animation = 'fadeIn 1s';
         div.style.borderLeft = `6px solid ${accentColors[i % accentColors.length]}`;
         div.setAttribute('data-id', post.id);
         div.innerHTML = `
@@ -118,8 +66,8 @@ div.style.animation = 'fadeIn 1s';
         showNewPostsBanner();
       }
     }
-  } catch (e) {
-    console.log('[LiveFeed] Butter-smooth update error:', e);
+  } catch {
+    console.log('[LiveFeed] Butter-smooth update error');
   }
 }
 
@@ -190,14 +138,22 @@ function renderPagingControls() {
 
 async function fetchFeedPage(page) {
   const feed = document.getElementById('feed');
-  feed.innerHTML = '<em>Loading...</em>';
+  // Show skeleton loader while loading
+  feed.innerHTML = `
+    <div class="skeleton-loader" id="skeleton-loader">
+      <div class="skeleton-post"><div class="skeleton-animate"></div></div>
+      <div class="skeleton-post"><div class="skeleton-animate"></div></div>
+      <div class="skeleton-post"><div class="skeleton-animate"></div></div>
+    </div>
+  `;
   try {
     const resp = await fetch(`/api/posts?page=${page}&limit=${pageLimit}`);
     const data = await resp.json();
     const posts = data.posts;
     const accentColors = ["#ff4b5c", "#ffb26b", "#ffe347", "#43e97b", "#3fa7d6", "#7c4dff", "#c86dd7"];
-    feed.innerHTML = posts.map((post, i) => {
-      const color = accentColors[i % accentColors.length];
+    // Remove skeleton loader and show posts
+    feed.innerHTML = posts.map((post, index) => {
+      const color = accentColors[index % accentColors.length];
       return `
         <div class="post" style="border-left: 6px solid ${color};" data-id="${post.id}">
           <span class="username" style="color:${color}">${post.username}</span>
@@ -212,7 +168,7 @@ if (banner) banner.remove();
     currentPage = data.page;
     totalPages = Math.max(1, Math.ceil(data.total_count / pageLimit));
     renderPagingControls();
-  } catch (e) {
+  } catch {
     feed.innerHTML = '<em>Error loading feed.</em>';
   }
 }
@@ -278,7 +234,7 @@ async function postMessage(e) {
       try {
         const data = await resp.json();
         errorDiv.textContent = data.error || `Error posting (status ${resp.status}).`;
-      } catch (err) {
+      } catch {
         if (resp.status === 429) {
           errorDiv.textContent = 'You are posting too quickly. Please wait a minute before posting again. This helps keep jeetSocial spam-free and fair for everyone.';
         } else {
@@ -286,7 +242,7 @@ async function postMessage(e) {
         }
       }
     }
-  } catch (e) {
+  } catch {
     errorDiv.textContent = 'Network error.';
   }
 }
@@ -316,16 +272,53 @@ window.addEventListener('DOMContentLoaded', setupEnterToPost);
 function setupCharacterCounter() {
   const textarea = document.getElementById('message');
   const counter = document.getElementById('char-count');
+  const postBtn = document.getElementById('post-btn');
+  const errorDiv = document.getElementById('error');
 
   function updateCounter() {
     const length = textarea.value.length;
     counter.textContent = `${length}/280`;
-    counter.style.color = length > 280 ? '#ff4b5c' : '#888';
+    // Color logic: muted <240, orange 240-279, red 280+
+    if (length > 280) {
+      counter.style.color = '#ff4b5c'; // error
+      postBtn.disabled = true;
+      postBtn.style.opacity = '0.6';
+      errorDiv.textContent = "Your message is a bit too long. Let's keep it kind and concise!";
+      errorDiv.style.opacity = '1';
+    } else if (length >= 240) {
+      counter.style.color = '#ffb26b'; // warning
+      postBtn.disabled = false;
+      postBtn.style.opacity = '1';
+      errorDiv.textContent = '';
+      errorDiv.style.opacity = '0';
+    } else if (length === 0) {
+      counter.style.color = '#888';
+      postBtn.disabled = true;
+      postBtn.style.opacity = '0.6';
+      errorDiv.textContent = "Share something uplifting to brighten someone's day!";
+      errorDiv.style.opacity = '1';
+    } else {
+      counter.style.color = '#888';
+      postBtn.disabled = false;
+      postBtn.style.opacity = '1';
+      errorDiv.textContent = '';
+      errorDiv.style.opacity = '0';
+    }
   }
 
   textarea.addEventListener('input', updateCounter);
   updateCounter(); // Initial update
+
+  // Mobile usability: scroll form into view when keyboard opens
+  textarea.addEventListener('focus', function() {
+    if (window.innerWidth < 600) {
+      setTimeout(function() {
+        document.getElementById('post-form').scrollIntoView({ behavior: 'smooth', block: 'center' });
+      }, 300);
+    }
+  });
 }
+
 window.addEventListener('DOMContentLoaded', setupCharacterCounter);
 
 
@@ -339,18 +332,21 @@ window.addEventListener('DOMContentLoaded', function() {
   const emojiPicker = document.getElementById('emoji-picker');
   const textarea = document.getElementById('message');
 
-  // Hide emoji button on mobile devices
-  if (emojiBtn && isMobileDevice()) {
-    emojiBtn.style.display = 'none';
+  // Hide emoji button and 'Post on Enter' toggle on mobile devices
+  if (isMobileDevice()) {
+    if (emojiBtn) emojiBtn.style.display = 'none';
     if (emojiPicker) emojiPicker.style.display = 'none';
+    const enterToggleLabel = document.querySelector('.toggle-switch');
+    if (enterToggleLabel) enterToggleLabel.style.display = 'none';
     return;
   }
 
-  // Position picker below button
+  // Position picker above button to avoid covering post button
   function positionPicker() {
     const rect = emojiBtn.getBoundingClientRect();
     emojiPicker.style.left = rect.left + 'px';
-    emojiPicker.style.top = (rect.bottom + window.scrollY) + 'px';
+    emojiPicker.style.top = (rect.top + window.scrollY - 10) + 'px';
+    emojiPicker.style.transform = 'translateY(-100%)';
   }
 
   emojiBtn.addEventListener('click', function(e) {

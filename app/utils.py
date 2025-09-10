@@ -7,6 +7,7 @@ Utility functions for jeetSocial.
 - Kindness detection
 - Word/phrase lists for moderation
 """
+
 import random
 import re
 import logging

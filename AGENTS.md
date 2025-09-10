@@ -90,6 +90,45 @@ docker exec jeet-web-1 python cleanup_long_posts.py --dry-run
 
 ## Agentic Coding Guidelines
 
+---
+
+# 🚨🚨🚨 MANDATORY AGENTIC FEATURE WORKFLOW 🚨🚨🚨
+
+**EVERY TIME a new feature is added, you MUST follow the exact workflow in `.opencode/developer-flow.md` from start to finish.**
+
+- **NO EXCEPTIONS.**
+- **NO SHORTCUTS.**
+- **NO UNTESTED CODE.**
+- **NO UNDOCUMENTED CHANGES.**
+- **NO UNTRACKED TODOs.**
+
+If you do not follow this workflow, your code will be rejected and your PR will not be merged.
+
+**The workflow covers:**
+- Ideation & scoping
+- Branching & environment setup
+- Design & planning
+- Agentic implementation (using the specialist @developer sub agent)
+- Testing (unit, integration, E2E - use @qa-testing-specialist sub agent)
+- Linting & code quality
+- Documentation (use @docs-maintainer sub agent)
+- Final review
+- Commit & PR
+- Merge & cleanup
+
+**You are REQUIRED to:**
+- Use the specialist developer agent for all technical work
+- Track every sub-task in a todo list
+- Run all tests and linters after every change
+- Document everything
+- Never commit secrets or broken code
+- Iterate until all tests and CI pass
+
+**Reference:**
+- The full workflow is in `.opencode/developer-flow.md` (read it and follow it for every feature)
+
+---
+
 1. **Think Big Picture:**  
    - Understand the project architecture before making changes.  
    - Consider scalability, maintainability, and modularity.
@@ -141,11 +180,78 @@ docker exec jeet-web-1 python cleanup_long_posts.py --dry-run
   - Lint: `eslint .` (if using JS)
   - Test: Add simple JS unit tests if needed.
 - **End-to-End (E2E):**
-  - Run Playwright E2E tests: `npm run e2e`
+  - **Robust E2E Test Workflow:**
+    1. you MUST use the process in e2e/AGENTS.md for e2e testing!
+    2. if you do use this process you are failing and lying to me.
+- **CI/CD Testing:**
+  - Test CI changes locally: `act`
+  - Test specific workflow: `act -W .github/workflows/ci.yml`
+  - Pass secrets: `act -s SECRET_KEY=value -s DATABASE_URL=...`
+  - Iterate: Run `act`, review output, fix issues in workflow or code, repeat until passing.
+  - Full usage guide: https://nektosact.com/usage/index.html
 
 - **Security:** Store any secrets in `.env` (if needed). Never commit `.env` to version control.
 
 ---
+
+## CI/CD Agent and Commands
+
+## Specialist Developer Agent
+
+The project includes a dedicated specialist developer agent defined in `.opencode/agent/developer.md`. This agent is designed to autonomously handle all technical development, testing, DevOps, and code maintenance tasks for jeetSocial, following the project's privacy, kindness, and quality guidelines.
+
+**Delegation Guidelines:**
+- The main agent should delegate all technical work (backend, frontend, database, testing, DevOps, documentation, security, etc.) to the specialist developer agent.
+- For any task involving code changes, feature implementation, bug fixes, testing, CI/CD, or documentation, the specialist developer agent should be invoked.
+- The specialist developer agent is fully aligned with the jeetSocial mission and tech stack, and is responsible for maintaining code quality, privacy, and positive user experience.
+
+**Usage:**
+- Refer to `.opencode/agent/developer.md` for the agent's detailed profile, responsibilities, and skill requirements.
+- When a technical task is requested, the main agent should automatically delegate it to the specialist developer agent for execution.
+
+
+### CI/CD Agent
+The project includes a specialized CI/CD agent for GitHub workflows and DevOps automation:
+
+**Usage:**
+- `@cicd-agent analyze my workflow` - General CI/CD analysis
+- `@cicd-agent help me optimize this pipeline` - Pipeline optimization
+- `@cicd-agent what security tools should I add?` - Security recommendations
+
+### CI/CD Commands
+For common CI/CD tasks, use these dedicated commands:
+
+- `/cicd-analyze` - Analyze current CI/CD setup and suggest improvements
+- `/cicd-optimize` - Optimize GitHub Actions workflow for better performance
+- `/cicd-security` - Add security scanning to CI/CD pipeline
+- `/cicd-deploy` - Set up automated deployment workflow
+
+**Example Usage:**
+```bash
+/cicd-analyze    # Analyze current pipeline
+/cicd-optimize   # Get optimized workflow
+/cicd-security   # Add security scanning
+/cicd-deploy     # Set up deployment workflow
+```
+
+These commands automatically use the specialized CI/CD agent and provide structured, actionable outputs for specific DevOps tasks.
+
+**Local Testing with Act:**
+
+Before pushing CI/CD changes to GitHub, test them locally using `act` to catch issues early:
+
+```bash
+# Test default workflow
+act
+
+# Test specific workflow
+act -W .github/workflows/ci.yml
+
+# Pass environment variables
+act -e .env.example
+```
+
+This ensures your workflow runs correctly before triggering GitHub Actions.
 
 ## Git Branching and Feature Development Workflow
 

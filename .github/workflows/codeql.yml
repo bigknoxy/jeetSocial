@@ -1,0 +1,99 @@
+name: "CodeQL"
+
+on:
+  push:
+    branches: [main, master, 'feature/*', 'release/*']
+  pull_request:
+    branches: [main, master, 'release/*']
+  schedule:
+    - cron: '0 3 * * 0' # Weekly Sunday 3am UTC
+  workflow_dispatch:
+
+permissions:
+  actions: read
+  contents: read
+  security-events: write
+
+jobs:
+  analyze:
+    name: Analyze (CodeQL)
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    concurrency: codeql-${{ github.ref }}
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Display trigger information
+        run: |
+          echo "Triggered by: ${{ github.event_name }}"
+          echo "Branch: ${{ github.ref }}"
+          echo "Repository: ${{ github.repository }}"
+          echo "Actor: ${{ github.actor }}"
+          if [[ "${{ github.ref }}" == refs/heads/main || "${{ github.ref }}" == refs/heads/master ]] || [[ "${{ github.ref }}" == refs/heads/release/* ]]; then
+            echo "🔒 Protected/Release branch - SARIF results will be uploaded"
+          else
+            echo "🌿 Feature branch - Analysis only, no SARIF upload"
+          fi
+
+      # Python cache
+      - name: Cache Python dependencies
+        uses: actions/cache@v4
+        with:
+          path: |
+            ~/.cache/pip
+          key: ${{ runner.os }}-pip-${{ hashFiles('requirements.txt', 'pyproject.toml') }}
+          restore-keys: |
+            ${{ runner.os }}-pip-
+
+      # Node.js cache
+      - name: Cache Node.js dependencies
+        uses: actions/cache@v4
+        with:
+          path: |
+            ~/.npm
+          key: ${{ runner.os }}-npm-${{ hashFiles('package-lock.json', 'package.json') }}
+          restore-keys: |
+            ${{ runner.os }}-npm-
+
+      # Set up Python
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+
+      - name: Install Python dependencies
+        run: |
+          pip install --upgrade pip
+          pip install -r requirements.txt
+
+      # Set up Node.js
+      - name: Set up Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+
+      - name: Install Node.js dependencies
+        run: npm ci
+
+      # Initialize CodeQL
+      - name: Initialize CodeQL
+        uses: github/codeql-action/init@v3
+        with:
+          languages: python, javascript
+
+      # Autobuild (for supported languages)
+      - name: Autobuild
+        uses: github/codeql-action/autobuild@v3
+
+      # Run CodeQL Analysis
+      - name: Perform CodeQL Analysis
+        uses: github/codeql-action/analyze@v3
+        with:
+          category: "/language:python,/language:javascript"
+
+      # Upload results only for protected branches
+      - name: Upload CodeQL results
+        if: github.ref == 'refs/heads/main' || github.ref == 'refs/heads/master' || startsWith(github.ref, 'refs/heads/release/')
+        uses: github/codeql-action/upload-sarif@v3

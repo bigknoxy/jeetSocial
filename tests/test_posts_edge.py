@@ -2,7 +2,6 @@
 test_posts_edge.py
 """
 
-
 import pytest
 
 

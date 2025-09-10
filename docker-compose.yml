@@ -5,13 +5,19 @@
 services:
   web:
     build: .
-    command: /bin/sh -c "chmod +x wait-for-db-healthy.sh && ./wait-for-db-healthy.sh"
+    command: ./wait-for-db-healthy.sh
     ports:
       - "5000:5000"
     env_file:
       - .env
     depends_on:
       - db
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:5000/"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+      start_period: 10s
   db:
     image: postgres:15
     environment:

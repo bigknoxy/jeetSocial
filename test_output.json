@@ -1,0 +1,2064 @@
+{
+  "config": {
+    "rootDir": "/root/code/jeet",
+    "forbidOnly": false,
+    "fullyParallel": false,
+    "globalSetup": null,
+    "globalTeardown": null,
+    "globalTimeout": 0,
+    "grep": {},
+    "grepInvert": null,
+    "maxFailures": 0,
+    "metadata": {
+      "actualWorkers": 1
+    },
+    "preserveOutput": "always",
+    "reporter": [
+      [
+        "json"
+      ]
+    ],
+    "reportSlowTests": {
+      "max": 5,
+      "threshold": 300000
+    },
+    "quiet": false,
+    "projects": [
+      {
+        "outputDir": "/root/code/jeet/test-results",
+        "repeatEach": 1,
+        "retries": 0,
+        "metadata": {
+          "actualWorkers": 1
+        },
+        "id": "",
+        "name": "",
+        "testDir": "/root/code/jeet",
+        "testIgnore": [],
+        "testMatch": [
+          "**/*.@(spec|test).?(c|m)[jt]s?(x)"
+        ],
+        "timeout": 30000
+      }
+    ],
+    "shard": null,
+    "updateSnapshots": "missing",
+    "updateSourceMethod": "patch",
+    "version": "1.54.2",
+    "workers": 1,
+    "webServer": null
+  },
+  "suites": [
+    {
+      "title": "e2e/test_character_limit.spec.js",
+      "file": "e2e/test_character_limit.spec.js",
+      "column": 0,
+      "line": 0,
+      "specs": [],
+      "suites": [
+        {
+          "title": "Character Limit Enforcement",
+          "file": "e2e/test_character_limit.spec.js",
+          "line": 5,
+          "column": 6,
+          "specs": [
+            {
+              "title": "enforces 280 character limit in textarea",
+              "ok": true,
+              "tags": [],
+              "tests": [
+                {
+                  "timeout": 30000,
+                  "annotations": [],
+                  "expectedStatus": "passed",
+                  "projectId": "",
+                  "projectName": "",
+                  "results": [
+                    {
+                      "workerIndex": 0,
+                      "parallelIndex": 0,
+                      "status": "passed",
+                      "duration": 4592,
+                      "errors": [],
+                      "stdout": [],
+                      "stderr": [],
+                      "retry": 0,
+                      "startTime": "2025-09-02T18:45:49.957Z",
+                      "annotations": [],
+                      "attachments": []
+                    }
+                  ],
+                  "status": "expected"
+                }
+              ],
+              "id": "450126cafdf7b8386b39-5e865986f86c0b29dce5",
+              "file": "e2e/test_character_limit.spec.js",
+              "line": 6,
+              "column": 3
+            },
+            {
+              "title": "character counter updates as user types",
+              "ok": true,
+              "tags": [],
+              "tests": [
+                {
+                  "timeout": 30000,
+                  "annotations": [],
+                  "expectedStatus": "passed",
+                  "projectId": "",
+                  "projectName": "",
+                  "results": [
+                    {
+                      "workerIndex": 0,
+                      "parallelIndex": 0,
+                      "status": "passed",
+                      "duration": 1151,
+                      "errors": [],
+                      "stdout": [],
+                      "stderr": [],
+                      "retry": 0,
+                      "startTime": "2025-09-02T18:45:54.741Z",
+                      "annotations": [],
+                      "attachments": []
+                    }
+                  ],
+                  "status": "expected"
+                }
+              ],
+              "id": "450126cafdf7b8386b39-0991863e939ae4cdc9dd",
+              "file": "e2e/test_character_limit.spec.js",
+              "line": 24,
+              "column": 3
+            },
+            {
+              "title": "backend rejects posts exceeding 280 characters",
+              "ok": true,
+              "tags": [],
+              "tests": [
+                {
+                  "timeout": 30000,
+                  "annotations": [],
+                  "expectedStatus": "passed",
+                  "projectId": "",
+                  "projectName": "",
+                  "results": [
+                    {
+                      "workerIndex": 0,
+                      "parallelIndex": 0,
+                      "status": "passed",
+                      "duration": 959,
+                      "errors": [],
+                      "stdout": [],
+                      "stderr": [],
+                      "retry": 0,
+                      "startTime": "2025-09-02T18:45:55.903Z",
+                      "annotations": [],
+                      "attachments": []
+                    }
+                  ],
+                  "status": "expected"
+                }
+              ],
+              "id": "450126cafdf7b8386b39-fb82e015b9b8cb03a81d",
+              "file": "e2e/test_character_limit.spec.js",
+              "line": 40,
+              "column": 3
+            },
+            {
+              "title": "accepts posts with exactly 280 characters",
+              "ok": true,
+              "tags": [],
+              "tests": [
+                {
+                  "timeout": 30000,
+                  "annotations": [],
+                  "expectedStatus": "passed",
+                  "projectId": "",
+                  "projectName": "",
+                  "results": [
+                    {
+                      "workerIndex": 0,
+                      "parallelIndex": 0,
+                      "status": "passed",
+                      "duration": 1593,
+                      "errors": [],
+                      "stdout": [],
+                      "stderr": [],
+                      "retry": 0,
+                      "startTime": "2025-09-02T18:45:56.890Z",
+                      "annotations": [],
+                      "attachments": []
+                    }
+                  ],
+                  "status": "expected"
+                }
+              ],
+              "id": "450126cafdf7b8386b39-f4fb39d4b5ea385e13b4",
+              "file": "e2e/test_character_limit.spec.js",
+              "line": 57,
+              "column": 3
+            },
+            {
+              "title": "character counter turns red when over limit",
+              "ok": true,
+              "tags": [],
+              "tests": [
+                {
+                  "timeout": 30000,
+                  "annotations": [],
+                  "expectedStatus": "passed",
+                  "projectId": "",
+                  "projectName": "",
+                  "results": [
+                    {
+                      "workerIndex": 0,
+                      "parallelIndex": 0,
+                      "status": "passed",
+                      "duration": 1343,
+                      "errors": [],
+                      "stdout": [],
+                      "stderr": [],
+                      "retry": 0,
+                      "startTime": "2025-09-02T18:45:58.499Z",
+                      "annotations": [],
+                      "attachments": []
+                    }
+                  ],
+                  "status": "expected"
+                }
+              ],
+              "id": "450126cafdf7b8386b39-70595ab9a00dc916c5e9",
+              "file": "e2e/test_character_limit.spec.js",
+              "line": 72,
+              "column": 3
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "title": "e2e/test_data_management.spec.js",
+      "file": "e2e/test_data_management.spec.js",
+      "column": 0,
+      "line": 0,
+      "specs": [],
+      "suites": [
+        {
+          "title": "Test Data Management and Isolation",
+          "file": "e2e/test_data_management.spec.js",
+          "line": 5,
+          "column": 6,
+          "specs": [
+            {
+              "title": "demonstrates test data tracking and cleanup",
+              "ok": true,
+              "tags": [],
+              "tests": [
+                {
+                  "timeout": 30000,
+                  "annotations": [],
+                  "expectedStatus": "passed",
+                  "projectId": "",
+                  "projectName": "",
+                  "results": [
+                    {
+                      "workerIndex": 0,
+                      "parallelIndex": 0,
+                      "status": "passed",
+                      "duration": 2170,
+                      "errors": [],
+                      "stdout": [
+                        {
+                          "text": "Cleaning up 2 test posts...\n"
+                        },
+                        {
+                          "text": "Would delete post: First tracked message [test-1756838761346-rgy6ueptu]\n"
+                        },
+                        {
+                          "text": "Would delete post: Second tracked message [test-1756838761346-dlf1giv1e]\n"
+                        }
+                      ],
+                      "stderr": [],
+                      "retry": 0,
+                      "startTime": "2025-09-02T18:45:59.927Z",
+                      "annotations": [],
+                      "attachments": []
+                    }
+                  ],
+                  "status": "expected"
+                }
+              ],
+              "id": "f07cdfbecc19ed6ec571-82d4409bc4be5633eeb4",
+              "file": "e2e/test_data_management.spec.js",
+              "line": 20,
+              "column": 3
+            },
+            {
+              "title": "uses test fixtures for consistent data",
+              "ok": true,
+              "tags": [],
+              "tests": [
+                {
+                  "timeout": 30000,
+                  "annotations": [],
+                  "expectedStatus": "passed",
+                  "projectId": "",
+                  "projectName": "",
+                  "results": [
+                    {
+                      "workerIndex": 0,
+                      "parallelIndex": 0,
+                      "status": "passed",
+                      "duration": 1924,
+                      "errors": [],
+                      "stdout": [
+                        {
+                          "text": "Cleaning up 0 test posts...\n"
+                        }
+                      ],
+                      "stderr": [],
+                      "retry": 0,
+                      "startTime": "2025-09-02T18:46:02.106Z",
+                      "annotations": [],
+                      "attachments": []
+                    }
+                  ],
+                  "status": "expected"
+                }
+              ],
+              "id": "f07cdfbecc19ed6ec571-96b0cab61977bfd26503",
+              "file": "e2e/test_data_management.spec.js",
+              "line": 42,
+              "column": 3
+            },
+            {
+              "title": "demonstrates character limit testing with fixtures",
+              "ok": true,
+              "tags": [],
+              "tests": [
+                {
+                  "timeout": 30000,
+                  "annotations": [],
+                  "expectedStatus": "passed",
+                  "projectId": "",
+                  "projectName": "",
+                  "results": [
+                    {
+                      "workerIndex": 0,
+                      "parallelIndex": 0,
+                      "status": "passed",
+                      "duration": 1678,
+                      "errors": [],
+                      "stdout": [
+                        {
+                          "text": "Cleaning up 0 test posts...\n"
+                        }
+                      ],
+                      "stderr": [],
+                      "retry": 0,
+                      "startTime": "2025-09-02T18:46:04.049Z",
+                      "annotations": [],
+                      "attachments": []
+                    }
+                  ],
+                  "status": "expected"
+                }
+              ],
+              "id": "f07cdfbecc19ed6ec571-70ac3917295152f773ac",
+              "file": "e2e/test_data_management.spec.js",
+              "line": 56,
+              "column": 3
+            },
+            {
+              "title": "shows test isolation with unique identifiers",
+              "ok": true,
+              "tags": [],
+              "tests": [
+                {
+                  "timeout": 30000,
+                  "annotations": [],
+                  "expectedStatus": "passed",
+                  "projectId": "",
+                  "projectName": "",
+                  "results": [
+                    {
+                      "workerIndex": 0,
+                      "parallelIndex": 0,
+                      "status": "passed",
+                      "duration": 1660,
+                      "errors": [],
+                      "stdout": [
+                        {
+                          "text": "Cleaning up 3 test posts...\n"
+                        },
+                        {
+                          "text": "Would delete post: Isolation test 1 [test-1756838766648-6idk3szrx]\n"
+                        },
+                        {
+                          "text": "Would delete post: Isolation test 2 [test-1756838766648-6vtac1lu9]\n"
+                        },
+                        {
+                          "text": "Would delete post: Isolation test 3 [test-1756838766648-9ksfgjsjh]\n"
+                        }
+                      ],
+                      "stderr": [],
+                      "retry": 0,
+                      "startTime": "2025-09-02T18:46:05.732Z",
+                      "annotations": [],
+                      "attachments": []
+                    }
+                  ],
+                  "status": "expected"
+                }
+              ],
+              "id": "f07cdfbecc19ed6ec571-b375bfbb0c94bbca97c1",
+              "file": "e2e/test_data_management.spec.js",
+              "line": 112,
+              "column": 3
+            },
+            {
+              "title": "demonstrates rate limiting tests with fixtures",
+              "ok": true,
+              "tags": [],
+              "tests": [
+                {
+                  "timeout": 30000,
+                  "annotations": [],
+                  "expectedStatus": "passed",
+                  "projectId": "",
+                  "projectName": "",
+                  "results": [
+                    {
+                      "workerIndex": 0,
+                      "parallelIndex": 0,
+                      "status": "passed",
+                      "duration": 2918,
+                      "errors": [],
+                      "stdout": [
+                        {
+                          "text": "Cleaning up 0 test posts...\n"
+                        }
+                      ],
+                      "stderr": [],
+                      "retry": 0,
+                      "startTime": "2025-09-02T18:46:07.408Z",
+                      "annotations": [],
+                      "attachments": []
+                    }
+                  ],
+                  "status": "expected"
+                }
+              ],
+              "id": "f07cdfbecc19ed6ec571-b4e2370ca29c38de5f24",
+              "file": "e2e/test_data_management.spec.js",
+              "line": 137,
+              "column": 3
+            },
+            {
+              "title": "shows test data statistics and reporting",
+              "ok": true,
+              "tags": [],
+              "tests": [
+                {
+                  "timeout": 30000,
+                  "annotations": [],
+                  "expectedStatus": "passed",
+                  "projectId": "",
+                  "projectName": "",
+                  "results": [
+                    {
+                      "workerIndex": 0,
+                      "parallelIndex": 0,
+                      "status": "passed",
+                      "duration": 2271,
+                      "errors": [],
+                      "stdout": [
+                        {
+                          "text": "Test Statistics: { totalTestPosts: \u001b[33m5\u001b[39m, testDuration: \u001b[33m2133\u001b[39m, postsCreated: \u001b[33m5\u001b[39m }\n"
+                        },
+                        {
+                          "text": "Cleaning up 5 test posts...\n"
+                        },
+                        {
+                          "text": "Would delete post: Stats test 1 [test-1756838771450-cun9i0c2s]\n"
+                        },
+                        {
+                          "text": "Would delete post: Stats test 2 [test-1756838771838-cd2n8ea70]\n"
+                        },
+                        {
+                          "text": "Would delete post: Stats test 3 [test-1756838772041-ktifav6v0]\n"
+                        },
+                        {
+                          "text": "Would delete post: Stats test 4 [test-1756838772216-rcnrwnq21]\n"
+                        },
+                        {
+                          "text": "Would delete post: Stats test 5 [test-1756838772429-a28fau5nz]\n"
+                        }
+                      ],
+                      "stderr": [],
+                      "retry": 0,
+                      "startTime": "2025-09-02T18:46:10.334Z",
+                      "annotations": [],
+                      "attachments": []
+                    }
+                  ],
+                  "status": "expected"
+                }
+              ],
+              "id": "f07cdfbecc19ed6ec571-1e5c59fe74a05995fe3d",
+              "file": "e2e/test_data_management.spec.js",
+              "line": 154,
+              "column": 3
+            },
+            {
+              "title": "demonstrates special character handling with fixtures",
+              "ok": true,
+              "tags": [],
+              "tests": [
+                {
+                  "timeout": 30000,
+                  "annotations": [],
+                  "expectedStatus": "passed",
+                  "projectId": "",
+                  "projectName": "",
+                  "results": [
+                    {
+                      "workerIndex": 0,
+                      "parallelIndex": 0,
+                      "status": "passed",
+                      "duration": 2257,
+                      "errors": [],
+                      "stdout": [
+                        {
+                          "text": "Cleaning up 0 test posts...\n"
+                        }
+                      ],
+                      "stderr": [],
+                      "retry": 0,
+                      "startTime": "2025-09-02T18:46:12.613Z",
+                      "annotations": [],
+                      "attachments": []
+                    }
+                  ],
+                  "status": "expected"
+                }
+              ],
+              "id": "f07cdfbecc19ed6ec571-0727a33db5edd4a1064f",
+              "file": "e2e/test_data_management.spec.js",
+              "line": 170,
+              "column": 3
+            },
+            {
+              "title": "shows test data cleanup verification",
+              "ok": true,
+              "tags": [],
+              "tests": [
+                {
+                  "timeout": 30000,
+                  "annotations": [],
+                  "expectedStatus": "passed",
+                  "projectId": "",
+                  "projectName": "",
+                  "results": [
+                    {
+                      "workerIndex": 0,
+                      "parallelIndex": 0,
+                      "status": "passed",
+                      "duration": 1881,
+                      "errors": [],
+                      "stdout": [
+                        {
+                          "text": "Cleaning up 3 test posts...\n"
+                        },
+                        {
+                          "text": "Would delete post: Cleanup test 1 [test-1756838775856-i74otqfgf]\n"
+                        },
+                        {
+                          "text": "Would delete post: Cleanup test 2 [test-1756838776404-466i3emw0]\n"
+                        },
+                        {
+                          "text": "Would delete post: Cleanup test 3 [test-1756838776539-d07s5lgor]\n"
+                        },
+                        {
+                          "text": "Cleaning up 0 test posts...\n"
+                        }
+                      ],
+                      "stderr": [],
+                      "retry": 0,
+                      "startTime": "2025-09-02T18:46:14.892Z",
+                      "annotations": [],
+                      "attachments": []
+                    }
+                  ],
+                  "status": "expected"
+                }
+              ],
+              "id": "f07cdfbecc19ed6ec571-8e81f986153cf8f2c6b8",
+              "file": "e2e/test_data_management.spec.js",
+              "line": 195,
+              "column": 3
+            },
+            {
+              "title": "demonstrates hate speech testing with fixtures",
+              "ok": true,
+              "tags": [],
+              "tests": [
+                {
+                  "timeout": 30000,
+                  "annotations": [],
+                  "expectedStatus": "passed",
+                  "projectId": "",
+                  "projectName": "",
+                  "results": [
+                    {
+                      "workerIndex": 0,
+                      "parallelIndex": 0,
+                      "status": "passed",
+                      "duration": 1494,
+                      "errors": [],
+                      "stdout": [
+                        {
+                          "text": "Cleaning up 0 test posts...\n"
+                        }
+                      ],
+                      "stderr": [],
+                      "retry": 0,
+                      "startTime": "2025-09-02T18:46:16.782Z",
+                      "annotations": [],
+                      "attachments": []
+                    }
+                  ],
+                  "status": "expected"
+                }
+              ],
+              "id": "f07cdfbecc19ed6ec571-848bc192b87e9ae21b95",
+              "file": "e2e/test_data_management.spec.js",
+              "line": 218,
+              "column": 3
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "title": "e2e/test_feed_functionality.spec.js",
+      "file": "e2e/test_feed_functionality.spec.js",
+      "column": 0,
+      "line": 0,
+      "specs": [],
+      "suites": [
+        {
+          "title": "Feed Display and Post Rendering",
+          "file": "e2e/test_feed_functionality.spec.js",
+          "line": 5,
+          "column": 6,
+          "specs": [
+            {
+              "title": "displays new posts in feed after submission",
+              "ok": true,
+              "tags": [],
+              "tests": [
+                {
+                  "timeout": 30000,
+                  "annotations": [],
+                  "expectedStatus": "passed",
+                  "projectId": "",
+                  "projectName": "",
+                  "results": [
+                    {
+                      "workerIndex": 0,
+                      "parallelIndex": 0,
+                      "status": "passed",
+                      "duration": 878,
+                      "errors": [],
+                      "stdout": [],
+                      "stderr": [],
+                      "retry": 0,
+                      "startTime": "2025-09-02T18:46:18.304Z",
+                      "annotations": [],
+                      "attachments": []
+                    }
+                  ],
+                  "status": "expected"
+                }
+              ],
+              "id": "1a93bc6e58b37a66d8f4-429f35c219f7d1e45ad3",
+              "file": "e2e/test_feed_functionality.spec.js",
+              "line": 6,
+              "column": 3
+            },
+            {
+              "title": "displays post with anonymous username",
+              "ok": true,
+              "tags": [],
+              "tests": [
+                {
+                  "timeout": 30000,
+                  "annotations": [],
+                  "expectedStatus": "passed",
+                  "projectId": "",
+                  "projectName": "",
+                  "results": [
+                    {
+                      "workerIndex": 0,
+                      "parallelIndex": 0,
+                      "status": "passed",
+                      "duration": 976,
+                      "errors": [],
+                      "stdout": [],
+                      "stderr": [],
+                      "retry": 0,
+                      "startTime": "2025-09-02T18:46:19.201Z",
+                      "annotations": [],
+                      "attachments": []
+                    }
+                  ],
+                  "status": "expected"
+                }
+              ],
+              "id": "1a93bc6e58b37a66d8f4-5cf05276f4eb8c780415",
+              "file": "e2e/test_feed_functionality.spec.js",
+              "line": 25,
+              "column": 3
+            },
+            {
+              "title": "displays post timestamp",
+              "ok": true,
+              "tags": [],
+              "tests": [
+                {
+                  "timeout": 30000,
+                  "annotations": [],
+                  "expectedStatus": "passed",
+                  "projectId": "",
+                  "projectName": "",
+                  "results": [
+                    {
+                      "workerIndex": 0,
+                      "parallelIndex": 0,
+                      "status": "passed",
+                      "duration": 1000,
+                      "errors": [],
+                      "stdout": [],
+                      "stderr": [],
+                      "retry": 0,
+                      "startTime": "2025-09-02T18:46:20.196Z",
+                      "annotations": [],
+                      "attachments": []
+                    }
+                  ],
+                  "status": "expected"
+                }
+              ],
+              "id": "1a93bc6e58b37a66d8f4-67e15e9b0ad178e17274",
+              "file": "e2e/test_feed_functionality.spec.js",
+              "line": 48,
+              "column": 3
+            },
+            {
+              "title": "handles special characters and formatting in posts",
+              "ok": true,
+              "tags": [],
+              "tests": [
+                {
+                  "timeout": 30000,
+                  "annotations": [],
+                  "expectedStatus": "passed",
+                  "projectId": "",
+                  "projectName": "",
+                  "results": [
+                    {
+                      "workerIndex": 0,
+                      "parallelIndex": 0,
+                      "status": "passed",
+                      "duration": 782,
+                      "errors": [],
+                      "stdout": [],
+                      "stderr": [],
+                      "retry": 0,
+                      "startTime": "2025-09-02T18:46:21.209Z",
+                      "annotations": [],
+                      "attachments": []
+                    }
+                  ],
+                  "status": "expected"
+                }
+              ],
+              "id": "1a93bc6e58b37a66d8f4-80e17f1da54dbd73ed93",
+              "file": "e2e/test_feed_functionality.spec.js",
+              "line": 71,
+              "column": 3
+            },
+            {
+              "title": "shows loading state while feed is loading",
+              "ok": true,
+              "tags": [],
+              "tests": [
+                {
+                  "timeout": 30000,
+                  "annotations": [],
+                  "expectedStatus": "passed",
+                  "projectId": "",
+                  "projectName": "",
+                  "results": [
+                    {
+                      "workerIndex": 0,
+                      "parallelIndex": 0,
+                      "status": "passed",
+                      "duration": 437,
+                      "errors": [],
+                      "stdout": [],
+                      "stderr": [],
+                      "retry": 0,
+                      "startTime": "2025-09-02T18:46:22.004Z",
+                      "annotations": [],
+                      "attachments": []
+                    }
+                  ],
+                  "status": "expected"
+                }
+              ],
+              "id": "1a93bc6e58b37a66d8f4-16b8a5bbc597947bb306",
+              "file": "e2e/test_feed_functionality.spec.js",
+              "line": 116,
+              "column": 3
+            },
+            {
+              "title": "feed updates when new posts are added",
+              "ok": true,
+              "tags": [],
+              "tests": [
+                {
+                  "timeout": 30000,
+                  "annotations": [],
+                  "expectedStatus": "passed",
+                  "projectId": "",
+                  "projectName": "",
+                  "results": [
+                    {
+                      "workerIndex": 0,
+                      "parallelIndex": 0,
+                      "status": "passed",
+                      "duration": 880,
+                      "errors": [],
+                      "stdout": [],
+                      "stderr": [],
+                      "retry": 0,
+                      "startTime": "2025-09-02T18:46:22.457Z",
+                      "annotations": [],
+                      "attachments": []
+                    }
+                  ],
+                  "status": "expected"
+                }
+              ],
+              "id": "1a93bc6e58b37a66d8f4-53087dec516e51f04268",
+              "file": "e2e/test_feed_functionality.spec.js",
+              "line": 128,
+              "column": 3
+            },
+            {
+              "title": "posts are ordered with newest first",
+              "ok": true,
+              "tags": [],
+              "tests": [
+                {
+                  "timeout": 30000,
+                  "annotations": [],
+                  "expectedStatus": "passed",
+                  "projectId": "",
+                  "projectName": "",
+                  "results": [
+                    {
+                      "workerIndex": 0,
+                      "parallelIndex": 0,
+                      "status": "passed",
+                      "duration": 1600,
+                      "errors": [],
+                      "stdout": [],
+                      "stderr": [],
+                      "retry": 0,
+                      "startTime": "2025-09-02T18:46:23.345Z",
+                      "annotations": [],
+                      "attachments": []
+                    }
+                  ],
+                  "status": "expected"
+                }
+              ],
+              "id": "1a93bc6e58b37a66d8f4-1f19adeaefc9a9e52dee",
+              "file": "e2e/test_feed_functionality.spec.js",
+              "line": 171,
+              "column": 3
+            },
+            {
+              "title": "feed handles empty state gracefully",
+              "ok": true,
+              "tags": [],
+              "tests": [
+                {
+                  "timeout": 30000,
+                  "annotations": [],
+                  "expectedStatus": "passed",
+                  "projectId": "",
+                  "projectName": "",
+                  "results": [
+                    {
+                      "workerIndex": 0,
+                      "parallelIndex": 0,
+                      "status": "passed",
+                      "duration": 407,
+                      "errors": [],
+                      "stdout": [],
+                      "stderr": [],
+                      "retry": 0,
+                      "startTime": "2025-09-02T18:46:24.950Z",
+                      "annotations": [],
+                      "attachments": []
+                    }
+                  ],
+                  "status": "expected"
+                }
+              ],
+              "id": "1a93bc6e58b37a66d8f4-6414354862582edaca74",
+              "file": "e2e/test_feed_functionality.spec.js",
+              "line": 229,
+              "column": 3
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "title": "e2e/test_moderation_edge.spec.js",
+      "file": "e2e/test_moderation_edge.spec.js",
+      "column": 0,
+      "line": 0,
+      "specs": [],
+      "suites": [
+        {
+          "title": "Edge Case Moderation",
+          "file": "e2e/test_moderation_edge.spec.js",
+          "line": 4,
+          "column": 6,
+          "specs": [
+            {
+              "title": "blocks obfuscated hate speech",
+              "ok": true,
+              "tags": [],
+              "tests": [
+                {
+                  "timeout": 30000,
+                  "annotations": [],
+                  "expectedStatus": "passed",
+                  "projectId": "",
+                  "projectName": "",
+                  "results": [
+                    {
+                      "workerIndex": 0,
+                      "parallelIndex": 0,
+                      "status": "passed",
+                      "duration": 461,
+                      "errors": [],
+                      "stdout": [],
+                      "stderr": [],
+                      "retry": 0,
+                      "startTime": "2025-09-02T18:46:25.367Z",
+                      "annotations": [],
+                      "attachments": []
+                    }
+                  ],
+                  "status": "expected"
+                }
+              ],
+              "id": "e7f39e95163f21bc1c1b-be9056216ffe3eb58a7a",
+              "file": "e2e/test_moderation_edge.spec.js",
+              "line": 5,
+              "column": 3
+            },
+            {
+              "title": "accepts long positive post",
+              "ok": true,
+              "tags": [],
+              "tests": [
+                {
+                  "timeout": 30000,
+                  "annotations": [],
+                  "expectedStatus": "passed",
+                  "projectId": "",
+                  "projectName": "",
+                  "results": [
+                    {
+                      "workerIndex": 0,
+                      "parallelIndex": 0,
+                      "status": "passed",
+                      "duration": 659,
+                      "errors": [],
+                      "stdout": [],
+                      "stderr": [],
+                      "retry": 0,
+                      "startTime": "2025-09-02T18:46:25.834Z",
+                      "annotations": [],
+                      "attachments": []
+                    }
+                  ],
+                  "status": "expected"
+                }
+              ],
+              "id": "e7f39e95163f21bc1c1b-07c83207a98c562a2942",
+              "file": "e2e/test_moderation_edge.spec.js",
+              "line": 12,
+              "column": 3
+            },
+            {
+              "title": "handles empty post",
+              "ok": true,
+              "tags": [],
+              "tests": [
+                {
+                  "timeout": 30000,
+                  "annotations": [],
+                  "expectedStatus": "passed",
+                  "projectId": "",
+                  "projectName": "",
+                  "results": [
+                    {
+                      "workerIndex": 0,
+                      "parallelIndex": 0,
+                      "status": "passed",
+                      "duration": 503,
+                      "errors": [],
+                      "stdout": [],
+                      "stderr": [],
+                      "retry": 0,
+                      "startTime": "2025-09-02T18:46:26.497Z",
+                      "annotations": [],
+                      "attachments": []
+                    }
+                  ],
+                  "status": "expected"
+                }
+              ],
+              "id": "e7f39e95163f21bc1c1b-597d8989c539b8e2d0bc",
+              "file": "e2e/test_moderation_edge.spec.js",
+              "line": 21,
+              "column": 3
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "title": "e2e/test_moderation.spec.js",
+      "file": "e2e/test_moderation.spec.js",
+      "column": 0,
+      "line": 0,
+      "specs": [],
+      "suites": [
+        {
+          "title": "HuggingFace Moderation",
+          "file": "e2e/test_moderation.spec.js",
+          "line": 5,
+          "column": 6,
+          "specs": [
+            {
+              "title": "blocks hate speech and accepts positive posts",
+              "ok": true,
+              "tags": [],
+              "tests": [
+                {
+                  "timeout": 30000,
+                  "annotations": [],
+                  "expectedStatus": "passed",
+                  "projectId": "",
+                  "projectName": "",
+                  "results": [
+                    {
+                      "workerIndex": 0,
+                      "parallelIndex": 0,
+                      "status": "passed",
+                      "duration": 1530,
+                      "errors": [],
+                      "stdout": [],
+                      "stderr": [],
+                      "retry": 0,
+                      "startTime": "2025-09-02T18:46:27.021Z",
+                      "annotations": [],
+                      "attachments": []
+                    }
+                  ],
+                  "status": "expected"
+                }
+              ],
+              "id": "e1a56a9992b116e998ff-1bfed232b2ff5e9cb755",
+              "file": "e2e/test_moderation.spec.js",
+              "line": 6,
+              "column": 3
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "title": "e2e/test_page_object_model.spec.js",
+      "file": "e2e/test_page_object_model.spec.js",
+      "column": 0,
+      "line": 0,
+      "specs": [],
+      "suites": [
+        {
+          "title": "Page Object Model Usage Examples",
+          "file": "e2e/test_page_object_model.spec.js",
+          "line": 4,
+          "column": 6,
+          "specs": [
+            {
+              "title": "demonstrates basic page object usage",
+              "ok": true,
+              "tags": [],
+              "tests": [
+                {
+                  "timeout": 30000,
+                  "annotations": [],
+                  "expectedStatus": "passed",
+                  "projectId": "",
+                  "projectName": "",
+                  "results": [
+                    {
+                      "workerIndex": 0,
+                      "parallelIndex": 0,
+                      "status": "passed",
+                      "duration": 1480,
+                      "errors": [],
+                      "stdout": [],
+                      "stderr": [],
+                      "retry": 0,
+                      "startTime": "2025-09-02T18:46:28.567Z",
+                      "annotations": [],
+                      "attachments": []
+                    }
+                  ],
+                  "status": "expected"
+                }
+              ],
+              "id": "d771c9af25997da89cfd-0c789ad466655865a696",
+              "file": "e2e/test_page_object_model.spec.js",
+              "line": 12,
+              "column": 3
+            },
+            {
+              "title": "shows improved readability with page objects",
+              "ok": true,
+              "tags": [],
+              "tests": [
+                {
+                  "timeout": 30000,
+                  "annotations": [],
+                  "expectedStatus": "passed",
+                  "projectId": "",
+                  "projectName": "",
+                  "results": [
+                    {
+                      "workerIndex": 0,
+                      "parallelIndex": 0,
+                      "status": "passed",
+                      "duration": 1347,
+                      "errors": [],
+                      "stdout": [],
+                      "stderr": [],
+                      "retry": 0,
+                      "startTime": "2025-09-02T18:46:30.062Z",
+                      "annotations": [],
+                      "attachments": []
+                    }
+                  ],
+                  "status": "expected"
+                }
+              ],
+              "id": "d771c9af25997da89cfd-3d54f4e9fe88c6b65410",
+              "file": "e2e/test_page_object_model.spec.js",
+              "line": 30,
+              "column": 3
+            },
+            {
+              "title": "demonstrates username and post content retrieval",
+              "ok": true,
+              "tags": [],
+              "tests": [
+                {
+                  "timeout": 30000,
+                  "annotations": [],
+                  "expectedStatus": "passed",
+                  "projectId": "",
+                  "projectName": "",
+                  "results": [
+                    {
+                      "workerIndex": 0,
+                      "parallelIndex": 0,
+                      "status": "passed",
+                      "duration": 1585,
+                      "errors": [],
+                      "stdout": [],
+                      "stderr": [],
+                      "retry": 0,
+                      "startTime": "2025-09-02T18:46:31.415Z",
+                      "annotations": [],
+                      "attachments": []
+                    }
+                  ],
+                  "status": "expected"
+                }
+              ],
+              "id": "d771c9af25997da89cfd-c39b3a542e52fb19ffbb",
+              "file": "e2e/test_page_object_model.spec.js",
+              "line": 48,
+              "column": 3
+            },
+            {
+              "title": "shows character counter functionality with page objects",
+              "ok": true,
+              "tags": [],
+              "tests": [
+                {
+                  "timeout": 30000,
+                  "annotations": [],
+                  "expectedStatus": "passed",
+                  "projectId": "",
+                  "projectName": "",
+                  "results": [
+                    {
+                      "workerIndex": 0,
+                      "parallelIndex": 0,
+                      "status": "passed",
+                      "duration": 1203,
+                      "errors": [],
+                      "stdout": [],
+                      "stderr": [],
+                      "retry": 0,
+                      "startTime": "2025-09-02T18:46:33.005Z",
+                      "annotations": [],
+                      "attachments": []
+                    }
+                  ],
+                  "status": "expected"
+                }
+              ],
+              "id": "d771c9af25997da89cfd-672cb571677e313d3df9",
+              "file": "e2e/test_page_object_model.spec.js",
+              "line": 65,
+              "column": 3
+            },
+            {
+              "title": "demonstrates error handling with page objects",
+              "ok": true,
+              "tags": [],
+              "tests": [
+                {
+                  "timeout": 30000,
+                  "annotations": [],
+                  "expectedStatus": "passed",
+                  "projectId": "",
+                  "projectName": "",
+                  "results": [
+                    {
+                      "workerIndex": 0,
+                      "parallelIndex": 0,
+                      "status": "passed",
+                      "duration": 3056,
+                      "errors": [],
+                      "stdout": [],
+                      "stderr": [],
+                      "retry": 0,
+                      "startTime": "2025-09-02T18:46:34.219Z",
+                      "annotations": [],
+                      "attachments": []
+                    }
+                  ],
+                  "status": "expected"
+                }
+              ],
+              "id": "d771c9af25997da89cfd-eef02cf96ff7b2378756",
+              "file": "e2e/test_page_object_model.spec.js",
+              "line": 76,
+              "column": 3
+            },
+            {
+              "title": "shows multiple post handling with page objects",
+              "ok": true,
+              "tags": [],
+              "tests": [
+                {
+                  "timeout": 30000,
+                  "annotations": [],
+                  "expectedStatus": "passed",
+                  "projectId": "",
+                  "projectName": "",
+                  "results": [
+                    {
+                      "workerIndex": 0,
+                      "parallelIndex": 0,
+                      "status": "passed",
+                      "duration": 3127,
+                      "errors": [],
+                      "stdout": [],
+                      "stderr": [],
+                      "retry": 0,
+                      "startTime": "2025-09-02T18:46:37.284Z",
+                      "annotations": [],
+                      "attachments": []
+                    }
+                  ],
+                  "status": "expected"
+                }
+              ],
+              "id": "d771c9af25997da89cfd-f1949c3cdd090095e581",
+              "file": "e2e/test_page_object_model.spec.js",
+              "line": 88,
+              "column": 3
+            },
+            {
+              "title": "demonstrates page object maintainability benefits",
+              "ok": true,
+              "tags": [],
+              "tests": [
+                {
+                  "timeout": 30000,
+                  "annotations": [],
+                  "expectedStatus": "passed",
+                  "projectId": "",
+                  "projectName": "",
+                  "results": [
+                    {
+                      "workerIndex": 0,
+                      "parallelIndex": 0,
+                      "status": "passed",
+                      "duration": 1921,
+                      "errors": [],
+                      "stdout": [],
+                      "stderr": [],
+                      "retry": 0,
+                      "startTime": "2025-09-02T18:46:40.418Z",
+                      "annotations": [],
+                      "attachments": []
+                    }
+                  ],
+                  "status": "expected"
+                }
+              ],
+              "id": "d771c9af25997da89cfd-996d70d5f3695fa79635",
+              "file": "e2e/test_page_object_model.spec.js",
+              "line": 111,
+              "column": 3
+            },
+            {
+              "title": "shows page object reusability across different test scenarios",
+              "ok": true,
+              "tags": [],
+              "tests": [
+                {
+                  "timeout": 30000,
+                  "annotations": [],
+                  "expectedStatus": "passed",
+                  "projectId": "",
+                  "projectName": "",
+                  "results": [
+                    {
+                      "workerIndex": 0,
+                      "parallelIndex": 0,
+                      "status": "passed",
+                      "duration": 1401,
+                      "errors": [],
+                      "stdout": [],
+                      "stderr": [],
+                      "retry": 0,
+                      "startTime": "2025-09-02T18:46:42.347Z",
+                      "annotations": [],
+                      "attachments": []
+                    }
+                  ],
+                  "status": "expected"
+                }
+              ],
+              "id": "d771c9af25997da89cfd-00a65f28c55417626a3e",
+              "file": "e2e/test_page_object_model.spec.js",
+              "line": 131,
+              "column": 3
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "title": "e2e/test_rate_limiting.spec.js",
+      "file": "e2e/test_rate_limiting.spec.js",
+      "column": 0,
+      "line": 0,
+      "specs": [],
+      "suites": [
+        {
+          "title": "Rate Limiting",
+          "file": "e2e/test_rate_limiting.spec.js",
+          "line": 5,
+          "column": 6,
+          "specs": [
+            {
+              "title": "verifies rate limiting infrastructure is configured",
+              "ok": true,
+              "tags": [],
+              "tests": [
+                {
+                  "timeout": 30000,
+                  "annotations": [],
+                  "expectedStatus": "passed",
+                  "projectId": "",
+                  "projectName": "",
+                  "results": [
+                    {
+                      "workerIndex": 0,
+                      "parallelIndex": 0,
+                      "status": "passed",
+                      "duration": 819,
+                      "errors": [],
+                      "stdout": [],
+                      "stderr": [],
+                      "retry": 0,
+                      "startTime": "2025-09-02T18:46:43.773Z",
+                      "annotations": [],
+                      "attachments": []
+                    }
+                  ],
+                  "status": "expected"
+                }
+              ],
+              "id": "572a465077f4cd7cd740-8e99bb22bfeccd470bae",
+              "file": "e2e/test_rate_limiting.spec.js",
+              "line": 6,
+              "column": 3
+            },
+            {
+              "title": "rate limiting error message format is correct when triggered",
+              "ok": true,
+              "tags": [],
+              "tests": [
+                {
+                  "timeout": 30000,
+                  "annotations": [],
+                  "expectedStatus": "passed",
+                  "projectId": "",
+                  "projectName": "",
+                  "results": [
+                    {
+                      "workerIndex": 0,
+                      "parallelIndex": 0,
+                      "status": "passed",
+                      "duration": 540,
+                      "errors": [],
+                      "stdout": [],
+                      "stderr": [],
+                      "retry": 0,
+                      "startTime": "2025-09-02T18:46:44.604Z",
+                      "annotations": [],
+                      "attachments": []
+                    }
+                  ],
+                  "status": "expected"
+                }
+              ],
+              "id": "572a465077f4cd7cd740-b91ba6da7c90d57666bc",
+              "file": "e2e/test_rate_limiting.spec.js",
+              "line": 25,
+              "column": 3
+            },
+            {
+              "title": "form preserves content during submission attempts",
+              "ok": true,
+              "tags": [],
+              "tests": [
+                {
+                  "timeout": 30000,
+                  "annotations": [],
+                  "expectedStatus": "passed",
+                  "projectId": "",
+                  "projectName": "",
+                  "results": [
+                    {
+                      "workerIndex": 0,
+                      "parallelIndex": 0,
+                      "status": "passed",
+                      "duration": 809,
+                      "errors": [],
+                      "stdout": [],
+                      "stderr": [],
+                      "retry": 0,
+                      "startTime": "2025-09-02T18:46:45.155Z",
+                      "annotations": [],
+                      "attachments": []
+                    }
+                  ],
+                  "status": "expected"
+                }
+              ],
+              "id": "572a465077f4cd7cd740-5f06a3205441fd4e424a",
+              "file": "e2e/test_rate_limiting.spec.js",
+              "line": 45,
+              "column": 3
+            },
+            {
+              "title": "handles multiple post submissions appropriately",
+              "ok": true,
+              "tags": [],
+              "tests": [
+                {
+                  "timeout": 30000,
+                  "annotations": [],
+                  "expectedStatus": "passed",
+                  "projectId": "",
+                  "projectName": "",
+                  "results": [
+                    {
+                      "workerIndex": 0,
+                      "parallelIndex": 0,
+                      "status": "passed",
+                      "duration": 2507,
+                      "errors": [],
+                      "stdout": [],
+                      "stderr": [],
+                      "retry": 0,
+                      "startTime": "2025-09-02T18:46:45.971Z",
+                      "annotations": [],
+                      "attachments": []
+                    }
+                  ],
+                  "status": "expected"
+                }
+              ],
+              "id": "572a465077f4cd7cd740-e02becac5dec0c6aa416",
+              "file": "e2e/test_rate_limiting.spec.js",
+              "line": 65,
+              "column": 3
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "title": "e2e/test_username_generation.spec.js",
+      "file": "e2e/test_username_generation.spec.js",
+      "column": 0,
+      "line": 0,
+      "specs": [],
+      "suites": [
+        {
+          "title": "Anonymous Username Generation",
+          "file": "e2e/test_username_generation.spec.js",
+          "line": 5,
+          "column": 6,
+          "specs": [
+            {
+              "title": "generates anonymous username for new posts",
+              "ok": true,
+              "tags": [],
+              "tests": [
+                {
+                  "timeout": 30000,
+                  "annotations": [],
+                  "expectedStatus": "passed",
+                  "projectId": "",
+                  "projectName": "",
+                  "results": [
+                    {
+                      "workerIndex": 0,
+                      "parallelIndex": 0,
+                      "status": "passed",
+                      "duration": 891,
+                      "errors": [],
+                      "stdout": [],
+                      "stderr": [],
+                      "retry": 0,
+                      "startTime": "2025-09-02T18:46:48.502Z",
+                      "annotations": [],
+                      "attachments": []
+                    }
+                  ],
+                  "status": "expected"
+                }
+              ],
+              "id": "b247d50d96c965f9c7ba-99154a47ba68180d2a55",
+              "file": "e2e/test_username_generation.spec.js",
+              "line": 6,
+              "column": 3
+            },
+            {
+              "title": "username follows expected format pattern",
+              "ok": true,
+              "tags": [],
+              "tests": [
+                {
+                  "timeout": 30000,
+                  "annotations": [],
+                  "expectedStatus": "passed",
+                  "projectId": "",
+                  "projectName": "",
+                  "results": [
+                    {
+                      "workerIndex": 0,
+                      "parallelIndex": 0,
+                      "status": "passed",
+                      "duration": 1125,
+                      "errors": [],
+                      "stdout": [],
+                      "stderr": [],
+                      "retry": 0,
+                      "startTime": "2025-09-02T18:46:49.397Z",
+                      "annotations": [],
+                      "attachments": []
+                    }
+                  ],
+                  "status": "expected"
+                }
+              ],
+              "id": "b247d50d96c965f9c7ba-21b0c72a70cb09e43007",
+              "file": "e2e/test_username_generation.spec.js",
+              "line": 30,
+              "column": 3
+            },
+            {
+              "title": "generates different usernames for different posts",
+              "ok": true,
+              "tags": [],
+              "tests": [
+                {
+                  "timeout": 30000,
+                  "annotations": [],
+                  "expectedStatus": "passed",
+                  "projectId": "",
+                  "projectName": "",
+                  "results": [
+                    {
+                      "workerIndex": 0,
+                      "parallelIndex": 0,
+                      "status": "passed",
+                      "duration": 818,
+                      "errors": [],
+                      "stdout": [],
+                      "stderr": [],
+                      "retry": 0,
+                      "startTime": "2025-09-02T18:46:50.527Z",
+                      "annotations": [],
+                      "attachments": []
+                    }
+                  ],
+                  "status": "expected"
+                }
+              ],
+              "id": "b247d50d96c965f9c7ba-1c0a40737e87d63ba36c",
+              "file": "e2e/test_username_generation.spec.js",
+              "line": 54,
+              "column": 3
+            },
+            {
+              "title": "usernames are anonymous and non-identifiable",
+              "ok": true,
+              "tags": [],
+              "tests": [
+                {
+                  "timeout": 30000,
+                  "annotations": [],
+                  "expectedStatus": "passed",
+                  "projectId": "",
+                  "projectName": "",
+                  "results": [
+                    {
+                      "workerIndex": 0,
+                      "parallelIndex": 0,
+                      "status": "passed",
+                      "duration": 2331,
+                      "errors": [],
+                      "stdout": [],
+                      "stderr": [],
+                      "retry": 0,
+                      "startTime": "2025-09-02T18:46:51.364Z",
+                      "annotations": [],
+                      "attachments": []
+                    }
+                  ],
+                  "status": "expected"
+                }
+              ],
+              "id": "b247d50d96c965f9c7ba-fbb4feabeba2f18faa0a",
+              "file": "e2e/test_username_generation.spec.js",
+              "line": 92,
+              "column": 3
+            },
+            {
+              "title": "username generation is consistent across page reloads",
+              "ok": true,
+              "tags": [],
+              "tests": [
+                {
+                  "timeout": 30000,
+                  "annotations": [],
+                  "expectedStatus": "passed",
+                  "projectId": "",
+                  "projectName": "",
+                  "results": [
+                    {
+                      "workerIndex": 0,
+                      "parallelIndex": 0,
+                      "status": "passed",
+                      "duration": 1171,
+                      "errors": [],
+                      "stdout": [],
+                      "stderr": [],
+                      "retry": 0,
+                      "startTime": "2025-09-02T18:46:53.702Z",
+                      "annotations": [],
+                      "attachments": []
+                    }
+                  ],
+                  "status": "expected"
+                }
+              ],
+              "id": "b247d50d96c965f9c7ba-9376ac2dda8a1d289d85",
+              "file": "e2e/test_username_generation.spec.js",
+              "line": 132,
+              "column": 3
+            },
+            {
+              "title": "usernames are randomly distributed",
+              "ok": true,
+              "tags": [],
+              "tests": [
+                {
+                  "timeout": 30000,
+                  "annotations": [],
+                  "expectedStatus": "passed",
+                  "projectId": "",
+                  "projectName": "",
+                  "results": [
+                    {
+                      "workerIndex": 0,
+                      "parallelIndex": 0,
+                      "status": "passed",
+                      "duration": 2659,
+                      "errors": [],
+                      "stdout": [],
+                      "stderr": [],
+                      "retry": 0,
+                      "startTime": "2025-09-02T18:46:54.879Z",
+                      "annotations": [],
+                      "attachments": []
+                    }
+                  ],
+                  "status": "expected"
+                }
+              ],
+              "id": "b247d50d96c965f9c7ba-8ea21b9014df4f54ad1c",
+              "file": "e2e/test_username_generation.spec.js",
+              "line": 199,
+              "column": 3
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "title": "e2e/test_wait_strategies.spec.js",
+      "file": "e2e/test_wait_strategies.spec.js",
+      "column": 0,
+      "line": 0,
+      "specs": [],
+      "suites": [
+        {
+          "title": "Wait Strategies and Async Operations",
+          "file": "e2e/test_wait_strategies.spec.js",
+          "line": 5,
+          "column": 6,
+          "specs": [
+            {
+              "title": "uses network idle wait for initial page load",
+              "ok": true,
+              "tags": [],
+              "tests": [
+                {
+                  "timeout": 30000,
+                  "annotations": [],
+                  "expectedStatus": "passed",
+                  "projectId": "",
+                  "projectName": "",
+                  "results": [
+                    {
+                      "workerIndex": 0,
+                      "parallelIndex": 0,
+                      "status": "passed",
+                      "duration": 1182,
+                      "errors": [],
+                      "stdout": [],
+                      "stderr": [],
+                      "retry": 0,
+                      "startTime": "2025-09-02T18:46:57.565Z",
+                      "annotations": [],
+                      "attachments": []
+                    }
+                  ],
+                  "status": "expected"
+                }
+              ],
+              "id": "8c65bab8011c044c1ad3-ddcd5e09854ba36e6c05",
+              "file": "e2e/test_wait_strategies.spec.js",
+              "line": 6,
+              "column": 3
+            },
+            {
+              "title": "waits for form submission to complete using multiple strategies",
+              "ok": true,
+              "tags": [],
+              "tests": [
+                {
+                  "timeout": 30000,
+                  "annotations": [],
+                  "expectedStatus": "passed",
+                  "projectId": "",
+                  "projectName": "",
+                  "results": [
+                    {
+                      "workerIndex": 0,
+                      "parallelIndex": 0,
+                      "status": "passed",
+                      "duration": 1552,
+                      "errors": [],
+                      "stdout": [],
+                      "stderr": [],
+                      "retry": 0,
+                      "startTime": "2025-09-02T18:46:58.763Z",
+                      "annotations": [],
+                      "attachments": []
+                    }
+                  ],
+                  "status": "expected"
+                }
+              ],
+              "id": "8c65bab8011c044c1ad3-ed4dbf0d7df6c48db871",
+              "file": "e2e/test_wait_strategies.spec.js",
+              "line": 15,
+              "column": 3
+            },
+            {
+              "title": "waits for dynamic content updates with retry logic",
+              "ok": true,
+              "tags": [],
+              "tests": [
+                {
+                  "timeout": 30000,
+                  "annotations": [],
+                  "expectedStatus": "passed",
+                  "projectId": "",
+                  "projectName": "",
+                  "results": [
+                    {
+                      "workerIndex": 0,
+                      "parallelIndex": 0,
+                      "status": "passed",
+                      "duration": 1623,
+                      "errors": [],
+                      "stdout": [],
+                      "stderr": [],
+                      "retry": 0,
+                      "startTime": "2025-09-02T18:47:00.336Z",
+                      "annotations": [],
+                      "attachments": []
+                    }
+                  ],
+                  "status": "expected"
+                }
+              ],
+              "id": "8c65bab8011c044c1ad3-4e4197e2af9852828d4f",
+              "file": "e2e/test_wait_strategies.spec.js",
+              "line": 40,
+              "column": 3
+            },
+            {
+              "title": "handles race conditions with proper sequencing",
+              "ok": true,
+              "tags": [],
+              "tests": [
+                {
+                  "timeout": 30000,
+                  "annotations": [],
+                  "expectedStatus": "passed",
+                  "projectId": "",
+                  "projectName": "",
+                  "results": [
+                    {
+                      "workerIndex": 0,
+                      "parallelIndex": 0,
+                      "status": "passed",
+                      "duration": 1748,
+                      "errors": [],
+                      "stdout": [],
+                      "stderr": [],
+                      "retry": 0,
+                      "startTime": "2025-09-02T18:47:01.965Z",
+                      "annotations": [],
+                      "attachments": []
+                    }
+                  ],
+                  "status": "expected"
+                }
+              ],
+              "id": "8c65bab8011c044c1ad3-d372fc0818132590dfa1",
+              "file": "e2e/test_wait_strategies.spec.js",
+              "line": 78,
+              "column": 3
+            },
+            {
+              "title": "waits for element state changes with proper conditions",
+              "ok": true,
+              "tags": [],
+              "tests": [
+                {
+                  "timeout": 30000,
+                  "annotations": [],
+                  "expectedStatus": "passed",
+                  "projectId": "",
+                  "projectName": "",
+                  "results": [
+                    {
+                      "workerIndex": 0,
+                      "parallelIndex": 0,
+                      "status": "passed",
+                      "duration": 1474,
+                      "errors": [],
+                      "stdout": [],
+                      "stderr": [],
+                      "retry": 0,
+                      "startTime": "2025-09-02T18:47:03.731Z",
+                      "annotations": [],
+                      "attachments": []
+                    }
+                  ],
+                  "status": "expected"
+                }
+              ],
+              "id": "8c65bab8011c044c1ad3-dac2baf00e3126cc4a4e",
+              "file": "e2e/test_wait_strategies.spec.js",
+              "line": 124,
+              "column": 3
+            },
+            {
+              "title": "handles loading states and spinners",
+              "ok": true,
+              "tags": [],
+              "tests": [
+                {
+                  "timeout": 30000,
+                  "annotations": [],
+                  "expectedStatus": "passed",
+                  "projectId": "",
+                  "projectName": "",
+                  "results": [
+                    {
+                      "workerIndex": 0,
+                      "parallelIndex": 0,
+                      "status": "passed",
+                      "duration": 2139,
+                      "errors": [],
+                      "stdout": [],
+                      "stderr": [],
+                      "retry": 0,
+                      "startTime": "2025-09-02T18:47:05.208Z",
+                      "annotations": [],
+                      "attachments": []
+                    }
+                  ],
+                  "status": "expected"
+                }
+              ],
+              "id": "8c65bab8011c044c1ad3-05ce994a0132169fec8e",
+              "file": "e2e/test_wait_strategies.spec.js",
+              "line": 147,
+              "column": 3
+            },
+            {
+              "title": "waits for CSS animations and transitions to complete",
+              "ok": true,
+              "tags": [],
+              "tests": [
+                {
+                  "timeout": 30000,
+                  "annotations": [],
+                  "expectedStatus": "passed",
+                  "projectId": "",
+                  "projectName": "",
+                  "results": [
+                    {
+                      "workerIndex": 0,
+                      "parallelIndex": 0,
+                      "status": "passed",
+                      "duration": 2851,
+                      "errors": [],
+                      "stdout": [],
+                      "stderr": [],
+                      "retry": 0,
+                      "startTime": "2025-09-02T18:47:07.361Z",
+                      "annotations": [],
+                      "attachments": []
+                    }
+                  ],
+                  "status": "expected"
+                }
+              ],
+              "id": "8c65bab8011c044c1ad3-5ef23a3341f8426a7183",
+              "file": "e2e/test_wait_strategies.spec.js",
+              "line": 168,
+              "column": 3
+            },
+            {
+              "title": "handles flaky operations with retry mechanisms",
+              "ok": true,
+              "tags": [],
+              "tests": [
+                {
+                  "timeout": 30000,
+                  "annotations": [],
+                  "expectedStatus": "passed",
+                  "projectId": "",
+                  "projectName": "",
+                  "results": [
+                    {
+                      "workerIndex": 0,
+                      "parallelIndex": 0,
+                      "status": "passed",
+                      "duration": 2671,
+                      "errors": [],
+                      "stdout": [],
+                      "stderr": [],
+                      "retry": 0,
+                      "startTime": "2025-09-02T18:47:10.233Z",
+                      "annotations": [],
+                      "attachments": []
+                    }
+                  ],
+                  "status": "expected"
+                }
+              ],
+              "id": "8c65bab8011c044c1ad3-ee2ccb7eb41cc72c6135",
+              "file": "e2e/test_wait_strategies.spec.js",
+              "line": 193,
+              "column": 3
+            }
+          ]
+        }
+      ]
+    }
+  ],
+  "errors": [],
+  "stats": {
+    "startTime": "2025-09-02T18:45:46.698Z",
+    "duration": 86494.63799999999,
+    "expected": 52,
+    "skipped": 0,
+    "unexpected": 0,
+    "flaky": 0
+  }
+}
