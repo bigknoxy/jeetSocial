@@ -14,7 +14,9 @@ test.describe('Test Data Management and Isolation', () => {
 
   test.afterEach(async () => {
     // Clean up test data after each test
-    await dataManager.cleanupTestData();
+    if (dataManager) {
+      await dataManager.cleanupTestData();
+    }
   });
 
   test('demonstrates test data tracking and cleanup', async () => {
@@ -46,7 +48,9 @@ test.describe('Test Data Management and Isolation', () => {
 
     // Submit posts using fixtures
     await jeetPage.submitPostAndWait(positiveMessage);
+    await jeetPage.waitForPostInFeed(positiveMessage);
     await jeetPage.submitPostAndWait(specialCharsMessage);
+    await jeetPage.waitForPostInFeed(specialCharsMessage);
 
     // Verify posts exist
     expect(await jeetPage.hasPostWithMessage(positiveMessage)).toBe(true);

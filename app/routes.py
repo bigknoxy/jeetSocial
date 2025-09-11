@@ -132,11 +132,15 @@ def create_post():
     return _create_post_impl()
 
 
+import os
+
+RATE_LIMIT = os.environ.get("RATE_LIMIT", "1/minute")
+
 if limiter is not None:
     bp.add_url_rule(
         "/api/posts",
         view_func=limiter.shared_limit(
-            "1/minute",
+            RATE_LIMIT,
             scope="post",
             deduct_when=lambda response: response.status_code == 201,
             error_message=(

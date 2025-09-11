@@ -73,11 +73,24 @@ test.describe('Page Object Model Usage Examples', () => {
     expect(await jeetPage.getCharacterCount()).toBe('0/280');
   });
 
-  test('demonstrates error handling with page objects', async () => {
+  test('demonstrates error handling with page objects', async ({ page }) => {
     // Test empty message error
-    await jeetPage.submitPost('');
-    await jeetPage.waitForError('Message required');
-    expect(await jeetPage.getErrorMessage()).toContain('Message required');
+    await jeetPage.messageTextarea.fill('');
+    // Debug: print button disabled state before enabling
+    const isDisabledBefore = await page.evaluate(() => document.getElementById('post-btn').disabled);
+    console.log('Post button disabled before:', isDisabledBefore);
+    // Enable button to test backend error handling
+    await page.evaluate(() => {
+      document.getElementById('post-btn').disabled = false;
+    });
+    // Debug: print button disabled state after enabling
+    const isDisabledAfter = await page.evaluate(() => document.getElementById('post-btn').disabled);
+    console.log('Post button disabled after:', isDisabledAfter);
+    // Wait for button to be enabled
+    await expect(page.locator('#post-btn')).toBeEnabled({ timeout: 2000 });
+    await jeetPage.submitButton.click();
+    await jeetPage.waitForError('Message required', 3000);
+    expect(await jeetPage.getErrorMessage()).toMatch(/Message required/i);
 
     // Test successful post after error
     await jeetPage.clearMessage();
