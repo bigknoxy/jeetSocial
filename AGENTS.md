@@ -68,6 +68,14 @@ python cleanup_long_posts.py --truncate --force
 - During database maintenance or migration tasks
 - When you need to ensure all posts comply with the new character limit
 
+## Python Test & Filter Maintenance
+
+- All Python tests must pass 100% before merging or deploying. Run with `docker compose run --rm --remove-orphans web pytest` after every backend change.
+- The hate speech filter in `app/utils.py` must block all words/phrases listed in its filter set, including edge cases (punctuation, case, multi-word phrases). Update the filter list and normalization logic as needed to ensure all tests in `tests/test_filter.py` pass.
+- After any filter logic change, rebuild the Docker image (`docker compose build`) before retesting.
+- If a test fails, print debug output for normalization and matching, then iterate until all cases are blocked and all tests pass.
+- Do not remove or skip failing tests—fix the logic or update the filter list until all tests pass.
+
 ## UI/UX Note
 - The homepage and feed include a live character counter for post input, which updates as you type and enforces the 280 character limit visually. Error messages for moderation, rate limiting, and character limit are shown clearly to users.
 

@@ -223,7 +223,12 @@ HATEFUL_WORDS = [
 ]
 
 HATEFUL_REGEX = re.compile(
-    r"\b(" + "|".join(re.escape(word) for word in HATEFUL_WORDS) + r")\b", re.IGNORECASE
+    r"(?<!\w)"
+    + r"("
+    + "|".join(re.escape(word) for word in HATEFUL_WORDS)
+    + r")"
+    + r"(?!\w)",
+    re.IGNORECASE,
 )
 
 KIND_WORDS = {
@@ -295,7 +300,6 @@ def normalize_text(text):
         "3": "e",
         "@": "a",
         "$": "s",
-        "!": "i",
         "|": "i",
         "5": "s",
         "7": "t",
@@ -304,8 +308,8 @@ def normalize_text(text):
     }
     for k, v in homoglyphs.items():
         text = text.replace(k, v)
-    # Remove non-word characters again
-    text = re.sub(r"[^\w\s]", "", text)
+    # Replace punctuation with spaces
+    text = re.sub(r"[!\"#$%&'()*+,-./:;<=>?@[\\]^_`{|}~]", " ", text)
     return text
 
 
@@ -324,6 +328,16 @@ def is_hate_speech(text):
     - details: matched word/phrase
     """
     normalized = normalize_text(text)
+    normalized = normalized.lower()
+    # Check multi-word phrases first
+    for phrase in HATEFUL_WORDS:
+        if " " in phrase:
+            # Use regex with word boundaries for multi-word phrases
+            pattern = r"(?<!\w)" + re.escape(phrase.lower()) + r"(?!\w)"
+            if re.search(pattern, normalized):
+                logging.info(f"Post rejected by word list: '{phrase}'")
+                return True, "word_list", phrase
+    # Check single words with regex
     match = HATEFUL_REGEX.search(normalized)
     if match:
         logging.info(f"Post rejected by word list: '{match.group(0)}'")
