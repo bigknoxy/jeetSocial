@@ -10,6 +10,7 @@ from flask import Blueprint, request, jsonify, send_from_directory, current_app
 from app import db, limiter
 from app.models import Post
 from app.utils import generate_username, is_hate_speech
+import os
 
 bp = Blueprint("routes", __name__)
 
@@ -131,8 +132,6 @@ def _create_post_impl():
 def create_post():
     return _create_post_impl()
 
-
-import os
 
 RATE_LIMIT = os.environ.get("RATE_LIMIT", "1/minute")
 
