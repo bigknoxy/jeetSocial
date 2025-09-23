@@ -173,32 +173,8 @@ if (banner) banner.remove();
   }
 }
 
-// Rainbow button style
-const style = document.createElement('style');
-style.innerHTML += `.rainbow-btn {
-  background: linear-gradient(90deg, #ff4b5c, #ffb26b, #ffe347, #43e97b, #3fa7d6, #7c4dff, #c86dd7);
-  color: #fff;
-  border: none;
-  border-radius: 4px;
-  padding: 0.5em 1.5em;
-  font-weight: bold;
-  cursor: pointer;
-  transition: box-shadow 0.2s;
-  font-size: 1em;
-}
-.rainbow-btn:disabled {
-  opacity: 0.5;
-  cursor: not-allowed;
-}
-.rainbow-btn:hover:not(:disabled) {
-  box-shadow: 0 0 8px #43e97b;
-}`;
-document.head.appendChild(style);
-
-// Optional: highlight new posts
-const animationStyle = document.createElement('style');
-animationStyle.innerHTML = `@keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } } .new-post { background: #23232b; box-shadow: 0 0 8px #ffe347; }`;
-document.head.appendChild(animationStyle);
+// Styles moved to shared stylesheet (`/static/styles.css`) — no-op here to avoid duplicate rules.
+// Keeping this comment ensures backward-compatibility if older pages relied on JS-injected styles.
 
 
 function escapeHtml(text) {
@@ -247,7 +223,8 @@ async function postMessage(e) {
   }
 }
 
-document.getElementById('post-form').addEventListener('submit', postMessage);
+const _postForm = document.getElementById('post-form');
+if (_postForm) _postForm.addEventListener('submit', postMessage);
 // window.addEventListener('DOMContentLoaded', fetchFeed); // Disabled to prevent feed overwrite
 
 // Enter to Post Toggle Integration
@@ -256,13 +233,21 @@ function setupEnterToPost() {
   const enterToggle = document.getElementById('enter-to-post');
   const postForm = document.getElementById('post-form');
 
+  if (!textarea || !postForm) return;
+
   textarea.addEventListener('keydown', function(e) {
     if (
       enterToggle && enterToggle.checked &&
       e.key === 'Enter' && !e.shiftKey && !e.ctrlKey
     ) {
       e.preventDefault();
-      postForm.requestSubmit();
+      if (typeof postForm.requestSubmit === 'function') {
+        postForm.requestSubmit();
+      } else {
+        // Fallback for older browsers
+        const submitBtn = document.getElementById('post-btn');
+        if (submitBtn) submitBtn.click();
+      }
     }
   });
 }
@@ -274,6 +259,8 @@ function setupCharacterCounter() {
   const counter = document.getElementById('char-count');
   const postBtn = document.getElementById('post-btn');
   const errorDiv = document.getElementById('error');
+
+  if (!textarea || !counter || !postBtn || !errorDiv) return;
 
   function updateCounter() {
     const length = textarea.value.length;
@@ -313,7 +300,8 @@ function setupCharacterCounter() {
   textarea.addEventListener('focus', function() {
     if (window.innerWidth < 600) {
       setTimeout(function() {
-        document.getElementById('post-form').scrollIntoView({ behavior: 'smooth', block: 'center' });
+        const form = document.getElementById('post-form');
+        if (form) form.scrollIntoView({ behavior: 'smooth', block: 'center' });
       }, 300);
     }
   });

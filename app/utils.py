@@ -103,7 +103,7 @@ ANIMALS = [
     "PranksterPhantom",
 ]
 
-# Expanded hateful word/phrase list
+# Expanded hateful word/phrase list (merged and de-duplicated)
 HATEFUL_WORDS = [
     "stupid",
     "idiot",
@@ -175,8 +175,7 @@ HATEFUL_WORDS = [
     "threat",
     "danger",
     "evil",
-    # Add more as needed
-    # Existing slurs and phrases from previous list
+    # offensive slurs and leetspeak variants (kept for moderation coverage)
     "nigger",
     "chink",
     "spic",
@@ -186,9 +185,6 @@ HATEFUL_WORDS = [
     "coon",
     "jigaboo",
     "porch monkey",
-    "bitch",
-    "slut",
-    "whore",
     "cunt",
     "skank",
     "twat",
@@ -213,9 +209,6 @@ HATEFUL_WORDS = [
     "f@g",
     "f4ggot",
     "go die",
-    "drop dead",
-    "kill yourself",
-    "kys",
     "i hate you",
     "you should die",
     "slur1",
@@ -223,7 +216,8 @@ HATEFUL_WORDS = [
 ]
 
 HATEFUL_REGEX = re.compile(
-    r"\b(" + "|".join(re.escape(word) for word in HATEFUL_WORDS) + r")\b", re.IGNORECASE
+    r"\b(" + "|".join(re.escape(word) for word in HATEFUL_WORDS) + r")\b",
+    re.IGNORECASE,
 )
 
 KIND_WORDS = {
@@ -273,25 +267,17 @@ def generate_username():
     Generates a random, anonymous username for posts.
     Format: <Adjective><Animal><2-digit number>
     """
-    return (
-        f"{random.choice(ADJECTIVES)}"
-        f"{random.choice(ANIMALS)}"
-        f"{random.randint(10,99)}"
-    )
+    return f"{random.choice(ADJECTIVES)}{random.choice(ANIMALS)}{random.randint(10,99)}"
 
 
 def normalize_text(text):
+    """Lowercase and strip punctuation from text for matching."""
+    if not isinstance(text, str):
+        return ""
     return re.sub(r"[^\w\s]", "", text.lower())
 
 
 def is_hate_speech(text):
-    """
-    Checks if the given text contains hateful words/phrases.
-    Returns (is_hate, reason, details):
-      - is_hate: bool
-      - reason: 'word_list'
-      - details: matched word/phrase
-    """
     """
     Returns (is_hate, reason, details)
     - is_hate: bool
@@ -311,6 +297,8 @@ def is_kind(message):
     Checks if the message contains any kind/uplifting words.
     Returns True if any word in KIND_WORDS is present.
     """
+    if not isinstance(message, str):
+        return False
     lowered = message.lower()
     for word in KIND_WORDS:
         if word in lowered:

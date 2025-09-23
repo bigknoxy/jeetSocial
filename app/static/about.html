@@ -5,203 +5,57 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>About jeetSocial – Kindness Mission</title>
   <link rel="icon" href="/static/favicon.svg">
-  <style>
-    body {
-      font-family: sans-serif;
-      background: #18181b;
-      color: #f5f5f5;
-      margin: 0;
-    }
-    .banner {
-      background: #222;
-      color: #fff;
-      padding: 1em;
-      text-align: center;
-      font-size: 1.2em;
-      font-weight: bold;
-      border-bottom: 4px solid;
-      border-image: linear-gradient(90deg, #ff4b5c, #ffb26b, #ffe347, #43e97b, #3fa7d6, #7c4dff, #c86dd7) 1;
-      position: sticky;
-      top: 0;
-      z-index: 1000;
-    }
-    .container {
-      max-width: 600px;
-      margin: 2em auto;
-      background: #222;
-      border-radius: 12px;
-      box-shadow: 0 2px 16px rgba(0,0,0,0.25);
-      padding: 2em;
-    }
-    h1, h2 {
-      color: #ffe347;
-      margin-top: 1.5em;
-      margin-bottom: 0.5em;
-    }
-    .desc {
-      margin-bottom: 2em;
-      color: #b3b3b3;
-      font-size: 1.1em;
-      text-align: center;
-    }
-    .rainbow-link-gradient {
-      background: linear-gradient(90deg, #ff4b5c, #ffb26b, #ffe347, #43e97b, #3fa7d6, #7c4dff, #c86dd7);
-      -webkit-background-clip: text;
-      -webkit-text-fill-color: transparent;
-      font-weight: bold;
-      font-size: 1.1em;
-      text-decoration: underline;
-      transition: text-shadow 0.2s;
-    }
-    .rainbow-link-gradient:hover {
-      text-shadow: 0 0 8px #43e97b;
-    }
-    .rainbow-btn {
-      background: linear-gradient(90deg, #ff4b5c, #ffb26b, #ffe347, #43e97b, #3fa7d6, #7c4dff, #c86dd7);
-      color: #fff;
-      border: none;
-      border-radius: 8px;
-      padding: 0.75em 2em;
-      font-weight: bold;
-      cursor: pointer;
-      transition: box-shadow 0.2s, background 0.2s;
-      font-size: 1.1em;
-      margin: 1.5em auto 0.5em auto;
-      display: block;
-      box-shadow: 0 2px 8px rgba(0,0,0,0.12);
-      text-align: center;
-      min-width: 120px;
-    }
-    .rainbow-btn:hover {
-      box-shadow: 0 0 12px #43e97b;
-      background: linear-gradient(90deg, #ffb26b, #ffe347, #43e97b, #3fa7d6, #7c4dff, #c86dd7, #ff4b5c);
-    }
-    .quote {
-      font-style: italic;
-      color: #43e97b;
-      margin: 1.5em 0 2em 0;
-      text-align: center;
-      font-size: 1.15em;
-    }
-    ul {
-      color: #b3b3b3;
-      margin-bottom: 1.5em;
-      margin-top: 0.5em;
-      padding-left: 1.2em;
-    }
-    li {
-      margin-bottom: 0.7em;
-      font-size: 1.05em;
-    }
-    .footer {
-      text-align: center;
-      margin-top: 2em;
-      color: #888;
-    }
-    a {
-      color: #3fa7d6;
-      text-decoration: underline;
-      transition: color 0.2s;
-    }
-    a:hover {
-      color: #ffe347;
-    }
-    /* --- Mobile Responsive Styles --- */
-    @media (max-width: 768px) {
-      .container {
-        max-width: 98vw;
-        margin: 1em auto;
-        padding: 1em;
-      }
-      .banner {
-        font-size: 1em;
-        padding: 0.7em;
-      }
-      h1, h2 {
-        font-size: 1.3em;
-      }
-      .desc, .quote, ul, li {
-        font-size: 1em;
-      }
-      .rainbow-btn {
-        font-size: 1.1em;
-        padding: 1em 0.5em;
-        width: 100%;
-        min-width: 0;
-      }
-    }
-    @media (max-width: 480px) {
-      .container {
-        max-width: 100vw;
-        margin: 0.5em auto;
-        padding: 0.5em;
-        border-radius: 0;
-      }
-      .banner {
-        font-size: 0.95em;
-        padding: 0.5em;
-      }
-      h1, h2 {
-        font-size: 1.1em;
-      }
-      .desc, .quote, ul, li {
-        font-size: 0.95em;
-      }
-      .rainbow-btn {
-        font-size: 1em;
-        padding: 1em 0.2em;
-      }
-    }
-  </style>
+  <link rel="stylesheet" href="/static/styles.css">
 </head>
 <body>
   <div class="banner">
-    <a href="/static/index.html" class="rainbow-link-gradient" aria-label="Go to homepage">jeetSocial</a> exists to spread and encourage kindness.
+    <a href="/static/index.html" class="rainbow-link-gradient" aria-label="Go to homepage">jeetSocial</a>: Spreading kindness, support, and positivity.
   </div>
   <div class="container">
     <h1>About jeetSocial</h1>
-    <div class="desc">
-      Welcome to a safe, anonymous space for sharing kindness and positivity.<br>
-      All posts are anonymous and assigned a random username.<br>
-      Please keep your messages kind, supportive, and uplifting!
-    </div>
     <div class="quote">“One kind word can change someone’s entire day.”</div>
     <h2>Our Mission</h2>
     <p>
       jeetSocial is a safe, anonymous space to share kindness, support, and positivity. Our mission is to make the internet a little brighter, one uplifting message at a time.
     </p>
     <h2>Kindness Manifesto</h2>
-    <ul>
-      <li>We believe everyone deserves encouragement.</li>
-      <li>We celebrate diversity, empathy, and the power of uplifting words.</li>
-      <li>We support each other, no matter who we are.</li>
-      <li>We choose kindness, always.</li>
-    </ul>
+    <div class="manifesto">
+      <ul>
+        <li>We believe everyone deserves encouragement.</li>
+        <li>We celebrate diversity, empathy, and the power of uplifting words.</li>
+        <li>We support each other, no matter who we are.</li>
+        <li>We choose kindness, always.</li>
+      </ul>
+    </div>
     <h2>Community Guidelines</h2>
-    <ul>
-      <li>Be kind and respectful.</li>
-      <li>No hate, bullying, or negativity.</li>
-      <li>Support others—uplift, don’t tear down.</li>
-      <li>All posts are anonymous; respect privacy.</li>
-    </ul>
+    <div class="guidelines">
+      <ul>
+        <li>Be kind and respectful.</li>
+        <li>No hate, bullying, or negativity.</li>
+        <li>Support others—uplift, don’t tear down.</li>
+        <li>All posts are anonymous; respect privacy.</li>
+      </ul>
+    </div>
     <h2>How Moderation Works</h2>
     <p>
       All posts are checked for hate or unkind language using a simple word filter. We never collect personal data, and all posts are anonymous.
     </p>
     <h2>Kindness Resources</h2>
-    <ul>
-      <li><a href="https://mhanational.org/" target="_blank" class="rainbow-link-gradient">Mental Health America</a></li>
-      <li><a href="https://kindness.org/" target="_blank" class="rainbow-link-gradient">Kindness.org</a></li>
-      <li><a href="https://www.7cups.com/" target="_blank" class="rainbow-link-gradient">7 Cups</a></li>
-    </ul>
+    <div class="resources">
+      <ul>
+        <li><a href="https://mhanational.org/" target="_blank" class="rainbow-link-gradient">Mental Health America</a></li>
+        <li><a href="https://kindness.org/" target="_blank" class="rainbow-link-gradient">Kindness.org</a></li>
+        <li><a href="https://www.7cups.com/" target="_blank" class="rainbow-link-gradient">7 Cups</a></li>
+      </ul>
+    </div>
     <h2>Feedback & Ideas</h2>
     <p>
       Have ideas to make jeetSocial kinder? <a href="https://github.com/bigknoxy/jeetSocial/issues" target="_blank" class="rainbow-link-gradient">Report an issue or suggestion on GitHub!</a>
     </p>
     <a href="/static/index.html" class="rainbow-btn" aria-label="Back to jeetSocial">← Back to jeetSocial</a>
   </div>
-  <footer style="text-align:center;font-size:0.9em;color:#888;background:#23232b;padding:1em 0;margin-top:2em;">
-    &copy; 2025 jeetSocial | <a href="https://github.com/bigknoxy/jeetSocial" target="_blank" style="color:#ffe347;text-decoration:underline;">GitHub</a>
+  <footer style="text-align:center;font-size:0.9em;color:#888;background:var(--container-contrast);padding:1em 0;margin-top:2em;">
+    &copy; 2025 jeetSocial | <a href="https://github.com/bigknoxy/jeetSocial" target="_blank" style="color:var(--accent);text-decoration:underline;">GitHub</a>
   </footer>
 </body>
 </html>
