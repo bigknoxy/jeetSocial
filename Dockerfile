@@ -13,8 +13,8 @@ WORKDIR /app
 RUN useradd --create-home --shell /bin/bash jeetuser
 # Install only runtime deps
 RUN apt-get update && apt-get install -y postgresql-client curl && rm -rf /var/lib/apt/lists/*
-COPY --from=builder /root/.local /root/.local
-RUN chown -R jeetuser:jeetuser /root/.local && chmod +x /root/.local/bin/*
+COPY --from=builder --chown=jeetuser:jeetuser /root/.local /root/.local
+RUN chmod +x /root/.local/bin/*
 RUN chmod 755 /root
 ENV PATH=/root/.local/bin:$PATH
 COPY app app
