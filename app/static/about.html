@@ -5,61 +5,9 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>About jeetSocial – Kindness Mission</title>
   <link rel="icon" href="/static/favicon.svg">
-  <style>
-    /* Base styles inspired by both theme variants */
-    body { font-family: sans-serif; background: #f7f7f7; margin: 0; }
-    .banner { background: #e0ffe0; color: #2d7a2d; padding: 1em; text-align: center; font-size: 1.2em; font-weight: bold; }
-    .container { max-width: 700px; margin: 2em auto; background: #fff; border-radius: 8px; box-shadow: 0 2px 8px rgba(0,0,0,0.05); padding: 2em; }
-    h1 { color: #2d7a2d; }
-    h2 { color: #2d7a2d; margin-top: 2em; }
-    ul { color: #444; }
-    .manifesto, .guidelines, .resources { margin-bottom: 2em; }
-    .quote { font-style: italic; color: #3a7a3a; margin: 1em 0; text-align: center; }
-    .footer { text-align: center; margin-top: 2em; color: #888; }
-
-    /* Accent styles borrowed from the darker theme for prominent CTAs */
-    .rainbow-link-gradient {
-      background: linear-gradient(90deg, #ff4b5c, #ffb26b, #ffe347, #43e97b, #3fa7d6, #7c4dff, #c86dd7);
-      -webkit-background-clip: text;
-      -webkit-text-fill-color: transparent;
-      font-weight: bold;
-      text-decoration: underline;
-      transition: text-shadow 0.2s;
-    }
-    .rainbow-link-gradient:hover { text-shadow: 0 0 8px #43e97b; }
-    .rainbow-btn {
-      display: inline-block;
-      background: linear-gradient(90deg, #ff4b5c, #ffb26b, #ffe347, #43e97b, #3fa7d6, #7c4dff, #c86dd7);
-      color: #fff;
-      border: none;
-      border-radius: 8px;
-      padding: 0.75em 2em;
-      font-weight: bold;
-      cursor: pointer;
-      transition: box-shadow 0.2s, background 0.2s;
-      font-size: 1.1em;
-      margin: 1.5em 0 0.5em 0;
-      box-shadow: 0 2px 8px rgba(0,0,0,0.12);
-      text-align: center;
-      min-width: 120px;
-      text-decoration: none;
-    }
-    .rainbow-btn:hover { box-shadow: 0 0 12px #43e97b; }
-
-    /* Mobile Responsive Styles */
-    @media (max-width: 768px) {
-      .container { max-width: 98vw; margin: 1em auto; padding: 1em; }
-      .banner { font-size: 1em; padding: 0.7em; }
-      h1, h2 { font-size: 1.3em; }
-      .rainbow-btn { font-size: 1.1em; padding: 1em 0.5em; width: 100%; min-width: 0; }
-    }
-    @media (max-width: 480px) {
-      .container { max-width: 100vw; margin: 0.5em auto; padding: 0.5em; border-radius: 0; }
-      .banner { font-size: 0.95em; padding: 0.5em; }
-      h1, h2 { font-size: 1.1em; }
-      .rainbow-btn { font-size: 1em; padding: 1em 0.2em; }
-    }
-  </style>
+  <link rel="stylesheet" href="/static/styles.css">
+  <!-- Apply light theme variables for About page -->
+  <script>document.documentElement.classList.add('light-theme');</script>
 </head>
 <body>
   <div class="banner">

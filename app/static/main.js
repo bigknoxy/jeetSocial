@@ -173,32 +173,8 @@ if (banner) banner.remove();
   }
 }
 
-// Rainbow button style
-const style = document.createElement('style');
-style.innerHTML += `.rainbow-btn {
-  background: linear-gradient(90deg, #ff4b5c, #ffb26b, #ffe347, #43e97b, #3fa7d6, #7c4dff, #c86dd7);
-  color: #fff;
-  border: none;
-  border-radius: 4px;
-  padding: 0.5em 1.5em;
-  font-weight: bold;
-  cursor: pointer;
-  transition: box-shadow 0.2s;
-  font-size: 1em;
-}
-.rainbow-btn:disabled {
-  opacity: 0.5;
-  cursor: not-allowed;
-}
-.rainbow-btn:hover:not(:disabled) {
-  box-shadow: 0 0 8px #43e97b;
-}`;
-document.head.appendChild(style);
-
-// Optional: highlight new posts
-const animationStyle = document.createElement('style');
-animationStyle.innerHTML = `@keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } } .new-post { background: #23232b; box-shadow: 0 0 8px #ffe347; }`;
-document.head.appendChild(animationStyle);
+// Styles moved to shared stylesheet (`/static/styles.css`) — no-op here to avoid duplicate rules.
+// Keeping this comment ensures backward-compatibility if older pages relied on JS-injected styles.
 
 
 function escapeHtml(text) {
