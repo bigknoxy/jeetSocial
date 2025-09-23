@@ -8,20 +8,29 @@ Main Flask application factory and global objects for jeetSocial.
 """
 
 import os
-from dotenv import load_dotenv
-from flask import Flask
+
+try:
+    from dotenv import load_dotenv
+except Exception:
+    load_dotenv = None
+from flask import Flask, jsonify, current_app, make_response
 from flask_sqlalchemy import SQLAlchemy
 from flask_limiter import Limiter
 from flask_limiter.util import get_remote_address
 from flask_migrate import Migrate
+from werkzeug.exceptions import HTTPException
 
-load_dotenv()
+# Load environment variables if python-dotenv is available
+if load_dotenv is not None:
+    load_dotenv()
 
+# Initialize extensions (actual init happens in create_app)
 db = SQLAlchemy()
 limiter = None
 
 
 def create_app(config_override=None):
+    """Create and configure the Flask application."""
     app = Flask(__name__)
     app.config["SQLALCHEMY_DATABASE_URI"] = os.getenv("DATABASE_URL")
     app.config["SQLALCHEMY_TRACK_MODIFICATIONS"] = False
@@ -33,6 +42,7 @@ def create_app(config_override=None):
     if config_override:
         app.config.update(config_override)
 
+    # Initialize extensions
     db.init_app(app)
     Migrate(app, db)
 
@@ -41,6 +51,7 @@ def create_app(config_override=None):
     logging.basicConfig(level=logging.INFO)
     logging.info(f"Rate limiting enabled: {app.config['ENABLE_RATE_LIMITING']}")
 
+    # Configure rate limiter if enabled
     global limiter
     if app.config["ENABLE_RATE_LIMITING"]:
         limiter = Limiter(key_func=get_remote_address)
@@ -48,25 +59,28 @@ def create_app(config_override=None):
     else:
         limiter = None
 
-    # Register blueprints/routes here
+    # Register blueprints/routes after extensions are initialized
     from app.routes import bp as routes_bp
 
     app.register_blueprint(routes_bp)
 
     # Global error handler for all unhandled exceptions
-    from flask import jsonify, current_app
-    from werkzeug.exceptions import HTTPException
-
     @app.errorhandler(Exception)
     def handle_global_exception(e):
+        # Determine status code (ensure it's an int). Default to 500.
         code = 500
-        if isinstance(e, HTTPException):
-            code = e.code
+        if isinstance(e, HTTPException) and getattr(e, "code", None) is not None:
+            try:
+                code = int(e.code)
+            except (TypeError, ValueError):
+                code = 500
         if hasattr(current_app, "logger"):
             current_app.logger.error(f"Unhandled exception: {e}")
-        return (
+        # Use make_response to create a Response with explicit status code
+        resp = make_response(
             jsonify({"error": "Sorry, something went wrong. Please try again later."}),
             code,
         )
+        return resp
 
     return app

@@ -2,8 +2,7 @@
 app/routes.py
 
 Flask routes and API endpoints for jeetSocial.
-Handles static files, feed, and post creation with moderation
-and rate limiting.
+Handles static files, feed, and post creation with moderation and rate limiting.
 """
 
 from flask import Blueprint, request, jsonify, send_from_directory, current_app
@@ -28,8 +27,7 @@ def static_files(path):
 def get_posts():
     """
     GET /api/posts
-    Returns a paginated list of posts, optionally filtered by timestamp
-    (since).
+    Returns a paginated list of posts, optionally filtered by timestamp (since).
     Query params:
       - since: ISO8601 or timestamp (optional)
       - page: int (default 1)
@@ -50,7 +48,9 @@ def get_posts():
                 since_dt = datetime.utcfromtimestamp(float(since))
             query = query.filter(Post.timestamp >= since_dt)
         except Exception:
+            # Ignore parsing errors and return unfiltered results
             pass
+
     total_count = query.count()
     posts = (
         query.order_by(Post.timestamp.desc())
@@ -59,6 +59,7 @@ def get_posts():
         .all()
     )
     has_more = (page * limit) < total_count
+
     return jsonify(
         {
             "posts": [
@@ -85,24 +86,22 @@ def _create_post_impl():
     and saves post.
     Returns JSON response with post or error.
     """
-    data = request.get_json()
-    message = data.get("message", "").strip()
+    data = request.get_json(silent=True) or {}
+    message = (data.get("message") or "").strip()
     if not message:
         return jsonify({"error": "Message required"}), 400
     if len(message) > 280:
         return jsonify({"error": "Message exceeds 280 character limit"}), 400
+
     is_hate, reason, details = is_hate_speech(message)
     if is_hate:
-        return (
-            jsonify(
-                {
-                    "error": (
-                        f"Hateful content not allowed (detected by {reason}: {details})"
-                    )
-                }
-            ),
-            403,
+        # Build a shorter error message to satisfy linters
+        details_str = str(details) if details is not None else ""
+        error_msg = (
+            "Hateful content not allowed " f"(detected by {reason}: {details_str})"
         )
+        return jsonify({"error": error_msg}), 403
+
     username = generate_username()
     post = Post(username=username, message=message)
     db.session.add(post)
@@ -112,6 +111,7 @@ def _create_post_impl():
         current_app.logger.error(f"DB commit failed: {e}")
         db.session.rollback()
         return jsonify({"error": "Database error. Please try again later."}), 500
+
     return (
         jsonify(
             {
@@ -125,27 +125,26 @@ def _create_post_impl():
     )
 
 
-# Dynamically apply rate limiting if enabled
-
-
 def create_post():
     return _create_post_impl()
 
 
+# Register POST /api/posts and apply rate limiting if enabled
 if limiter is not None:
-    bp.add_url_rule(
-        "/api/posts",
-        view_func=limiter.shared_limit(
-            "1/minute",
-            scope="post",
-            deduct_when=lambda response: response.status_code == 201,
-            error_message=(
-                "You are posting too quickly. Please wait a minute before "
-                "posting again. This helps keep jeetSocial spam-free and fair "
-                "for everyone."
-            ),
-        )(create_post),
-        methods=["POST"],
+
+    def _deduct_when(response):
+        return getattr(response, "status_code", None) == 201
+
+    error_message = (
+        "You are posting too quickly. Please wait a minute before posting again. "
+        "This helps keep jeetSocial spam-free and fair for everyone."
     )
+    view_func = limiter.shared_limit(
+        "1/minute",
+        scope="post",
+        deduct_when=_deduct_when,
+        error_message=error_message,
+    )(create_post)
+    bp.add_url_rule("/api/posts", view_func=view_func, methods=["POST"])
 else:
     bp.add_url_rule("/api/posts", view_func=create_post, methods=["POST"])

@@ -25,42 +25,10 @@ jeetSocial is a minimal, anonymous social platform designed to encourage kindnes
 - Automated database migrations
 - Comprehensive test suite (unit, integration, E2E)
 
-## Post Form UI/UX & Accessibility
-
-The jeetSocial post form is designed for mobile-first, accessible, and uplifting interactions:
-
-- **Post Button:**  
-  - Prominently placed below the textarea, right-aligned on desktop, full-width on mobile.
-  - Large tap area (≥44x44px), bold accent color, high contrast text, subtle shadow and rounded corners.
-  - Disabled if input is empty or exceeds 280 characters, with clear feedback.
-
-- **Textarea:**  
-  - 120px tall (approx. 4 lines), full-width, 18px horizontal padding, rounded corners, clear focus state.
-  - Accessible placeholder: “Share something kind…”, font size ≥16px, high color contrast.
-
-- **Character Counter:**  
-  - Positioned bottom-right inside the textarea container.
-  - Font: 13px, muted color until near limit, then highlights orange, turns red if limit exceeded.
-  - Live updates as you type, with error state if limit exceeded.
-
-- **Spacing & Alignment:**  
-  - 18px vertical spacing between elements, 18px horizontal padding.
-  - Left-aligned text/labels; button right-aligned or full-width on mobile.
-
-- **Touch Target & Usability:**  
-  - All interactive elements ≥44x44px.
-  - No overlapping elements.
-  - Friendly, uplifting error messages and microcopy.
-
-- **Mobile Usability:**  
-  - Form remains visible when keyboard is open.
-  - Subtle transitions for button and error states.
-  - Fully responsive for all screen sizes.
-
 ## Quickstart / Onboarding
 
 ### Requirements
-- Python 3.10.12
+- Python 3.10.12 (local dev)
 - Docker & Docker Compose (recommended)
 - **Linux users:** You may need to run the following command before running `setup.sh` to install required build dependencies for Python:
   ```bash
@@ -131,15 +99,9 @@ You can set up your environment automatically with the provided script, or manua
 
 #### Option 3: Run in Docker (Recommended for containers)
 ```bash
-   docker compose up --build
+   docker compose up --build --remove-orphans
 ```
-- The web container waits for the Postgres database to be ready, runs migrations, and starts Flask.
-
-### Setup (Docker Compose)
-```bash
-docker compose up --build
-```
-- The web container waits for the Postgres database to be ready, runs migrations, and starts Flask.
+- The web container waits for the Postgres database to be ready, runs migrations, and starts Flask. The image uses `wait-for-it.sh` to protect against database race conditions.
 
 ## Project Structure
 ```
@@ -203,6 +165,21 @@ Response:
 { "id": 43, "username": "RandomUser", "timestamp": "2025-08-20T12:35:00Z", "message": "Be kind!" }
 ```
 
+## Docker Compose & Deployment Notes
+
+- The project now uses Docker Compose for robust, production-grade local deployment.
+- The `wait-for-it.sh` script blocks the web container until Postgres is ready, then runs migrations and starts Flask:
+
+```
+command: /bin/sh -c "chmod +x wait-for-it.sh && ./wait-for-it.sh db:5432 -- flask db upgrade && flask run --host=0.0.0.0"
+```
+
+- To reset the database and apply migrations from scratch:
+  ```bash
+  docker compose down -v
+  docker compose up --build
+  ```
+
 ## Feature Flags & Environment Variables
 
 | Variable              | Description                                 | Default/Example                        |
@@ -228,15 +205,10 @@ Response:
 - Lint: `eslint .` (if using JS)
 - Test: `npm test`, `npm run e2e`
 
-### End-to-End (E2E)
-- Run Playwright E2E tests: `npm run e2e`
-
 ### CI/CD Testing
 - Test CI changes locally: `act`
 - Test specific workflow: `act -W .github/workflows/ci.yml`
 - Pass secrets: `act -s SECRET_KEY=value -s DATABASE_URL=...`
-- Iterate: Run `act`, review output, fix issues, repeat until passing.
-- Full usage guide: https://nektosact.com/usage/index.html
 
 ## Contributing
 - Use feature branches for new features (`feature/<short-description>`)
@@ -245,26 +217,15 @@ Response:
 - Submit PRs to `main` after all tests pass
 - See [AGENTS.md](./AGENTS.md) for project guidelines and coding standards
 
-## License
-This project is licensed under the MIT License. See [LICENSE](./LICENSE) for details.
-
 ## Troubleshooting
 - **Migration errors:**
   - Ensure the database is reachable (`db:5432`)
   - Migration files are present and committed
   - `.env` uses the correct Postgres URI
   - Use `docker compose logs web` and `docker compose logs db` for details
-- **Endpoint issues:**
-  - Ensure the app is running and migrations have completed
-  - All routes (including `/feed`) are available once startup is complete
-- **General:**
-  - Confirm `.env` uses the correct Postgres URI and secrets
 
-## About & Kindness Mission
-- All posts are anonymous and must pass a hate speech filter
-- The About page and UI promote positivity and kindness
-- See `/static/about.html` for more on our mission
-- **Mobile support:** All main pages and components are fully responsive and optimized for mobile devices. Buttons, forms, and interactive elements are sized and spaced for touch input. Layout adapts seamlessly to different screen sizes. For details, see the [Mobile UI Improvement](https://github.com/bigknoxy/jeetSocial/issues/4) enhancement.
+## License
+This project is licensed under the MIT License. See [LICENSE](./LICENSE) for details.
 
 ---
 

@@ -1,13 +1,31 @@
 """
-test_posts.py
+Consolidated tests for post creation, paging, and character limits.
+This file merges the previous conflicting versions into a single coherent test suite.
 """
 
+import pytest
+from app import create_app, db
 from app.utils import is_hate_speech
+
+
+@pytest.fixture
+def client():
+    config_override = {
+        "TESTING": True,
+        "SQLALCHEMY_DATABASE_URI": "sqlite:///:memory:",
+        "ENABLE_RATE_LIMITING": False,
+    }
+    app = create_app(config_override)
+    with app.test_client() as client:
+        with app.app_context():
+            db.create_all()
+        yield client
+        with app.app_context():
+            db.drop_all()
 
 
 def test_create_post(client):
     resp = client.post("/api/posts", json={"message": "You are awesome!"})
-
     assert resp.status_code == 201
     data = resp.get_json()
     assert "username" in data
