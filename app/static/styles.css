@@ -163,3 +163,24 @@ textarea:focus { border-color: #ff4b5c; box-shadow: 0 0 0 2px #ff4b5c33; outline
   h1, h2 { font-size: 1.1em; }
   .rainbow-btn { font-size: 1em; padding: 1em 0.2em; }
 }
+
+/* Post form controls */
+.post-controls { margin-top: 0.5em; }
+.post-form-row { display: flex; align-items: center; gap: 1em; }
+.post-form-row .rainbow-btn { margin-left: auto; min-width: 110px; }
+
+/* Toggle switch */
+.toggle-switch { display: inline-flex; align-items: center; gap: 0.5em; cursor: pointer; user-select: none; }
+.toggle-switch input { display: none; }
+.toggle-switch .slider { width: 42px; height: 24px; background: #555; border-radius: 999px; position: relative; display: inline-block; transition: background 0.2s; }
+.toggle-switch .slider::after { content: ""; position: absolute; width: 18px; height: 18px; left: 3px; top: 3px; background: #fff; border-radius: 50%; transition: transform 0.2s; }
+.toggle-switch input:checked + .slider { background: var(--accent-strong); }
+.toggle-switch input:checked + .slider::after { transform: translateX(18px); }
+.toggle-switch .toggle-label { font-size: 0.95em; color: var(--muted); }
+
+/* Ensure emoji button does not shift layout */
+#emoji-btn { background: transparent; border: none; padding: 0.4em 0.6em; font-size: 1.1em; }
+
+/* Make char-count visually consistent with stylesheet variables */
+#char-count { background: rgba(0,0,0,0.35); color: var(--muted); }
+

@@ -223,7 +223,8 @@ async function postMessage(e) {
   }
 }
 
-document.getElementById('post-form').addEventListener('submit', postMessage);
+const _postForm = document.getElementById('post-form');
+if (_postForm) _postForm.addEventListener('submit', postMessage);
 // window.addEventListener('DOMContentLoaded', fetchFeed); // Disabled to prevent feed overwrite
 
 // Enter to Post Toggle Integration
@@ -232,13 +233,21 @@ function setupEnterToPost() {
   const enterToggle = document.getElementById('enter-to-post');
   const postForm = document.getElementById('post-form');
 
+  if (!textarea || !postForm) return;
+
   textarea.addEventListener('keydown', function(e) {
     if (
       enterToggle && enterToggle.checked &&
       e.key === 'Enter' && !e.shiftKey && !e.ctrlKey
     ) {
       e.preventDefault();
-      postForm.requestSubmit();
+      if (typeof postForm.requestSubmit === 'function') {
+        postForm.requestSubmit();
+      } else {
+        // Fallback for older browsers
+        const submitBtn = document.getElementById('post-btn');
+        if (submitBtn) submitBtn.click();
+      }
     }
   });
 }
@@ -250,6 +259,8 @@ function setupCharacterCounter() {
   const counter = document.getElementById('char-count');
   const postBtn = document.getElementById('post-btn');
   const errorDiv = document.getElementById('error');
+
+  if (!textarea || !counter || !postBtn || !errorDiv) return;
 
   function updateCounter() {
     const length = textarea.value.length;
@@ -289,7 +300,8 @@ function setupCharacterCounter() {
   textarea.addEventListener('focus', function() {
     if (window.innerWidth < 600) {
       setTimeout(function() {
-        document.getElementById('post-form').scrollIntoView({ behavior: 'smooth', block: 'center' });
+        const form = document.getElementById('post-form');
+        if (form) form.scrollIntoView({ behavior: 'smooth', block: 'center' });
       }, 300);
     }
   });

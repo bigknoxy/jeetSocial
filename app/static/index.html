@@ -25,8 +25,8 @@
     </div>
     <!-- The rest of your app UI goes here -->
 <h2 style="margin-top:0;">Share a message</h2>
-<div id="error" style="color: red; margin-bottom: 1em;"></div>
 <form id="post-form" style="margin-bottom:2em;">
+  <div id="error" style="color: #ff4b5c; font-weight: bold; margin-bottom: 1em;"></div>
   <div class="post-form-textarea-container" style="position:relative; margin-bottom:1.5em;">
     <textarea
       name="message"
@@ -43,15 +43,16 @@
        0/280
      </div>
     </div>
-   <div id="error" style="color: #ff4b5c; font-weight: bold; margin-bottom: 1em;"></div>
-    <div class="post-form-row" style="display: flex; align-items: center; gap: 1em; margin-top:0.5em;">
-      <button type="button" id="emoji-btn" title="Add emoji" style="font-size:1.2em; padding:0.5em; background: none; border: none; cursor: pointer; border-radius: 4px; transition: background-color 0.2s;" aria-label="Add emoji">😊</button>
-      <label class="toggle-switch" title="When enabled, pressing Enter will post your message. Shift+Enter always adds a new line.">
-        <input type="checkbox" id="enter-to-post" />
-        <span class="slider"></span>
-        <span class="toggle-label">Post on Enter</span>
-      </label>
-      <button type="submit" id="post-btn" aria-label="Post your message">Post</button>
+    <div class="post-controls">
+      <div class="post-form-row" style="display: flex; align-items: center; gap: 1em; margin-top:0.5em;">
+        <button type="button" id="emoji-btn" title="Add emoji" style="font-size:1.2em; padding:0.5em; background: none; border: none; cursor: pointer; border-radius: 4px; transition: background-color 0.2s;" aria-label="Add emoji">😊</button>
+        <label class="toggle-switch" title="When enabled, pressing Enter will post your message. Shift+Enter always adds a new line.">
+          <input type="checkbox" id="enter-to-post" />
+          <span class="slider"></span>
+          <span class="toggle-label">Post on Enter</span>
+        </label>
+        <button type="submit" id="post-btn" class="rainbow-btn" aria-label="Post your message">Post</button>
+      </div>
       <emoji-picker id="emoji-picker" style="display:none; position:absolute; z-index:2000;"></emoji-picker>
     </div>
 </form>
