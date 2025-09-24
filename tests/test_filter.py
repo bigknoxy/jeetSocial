@@ -1,3 +1,7 @@
+"""
+test_filter.py
+"""
+
 import pytest
 from app.utils import is_hate_speech
 

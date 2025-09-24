@@ -103,7 +103,7 @@ ANIMALS = [
     "PranksterPhantom",
 ]
 
-# Expanded hateful word/phrase list (merged and de-duplicated)
+# Expanded hateful word/phrase list
 HATEFUL_WORDS = [
     "stupid",
     "idiot",
@@ -175,7 +175,8 @@ HATEFUL_WORDS = [
     "threat",
     "danger",
     "evil",
-    # offensive slurs and leetspeak variants (kept for moderation coverage)
+    # Add more as needed
+    # Existing slurs and phrases from previous list
     "nigger",
     "chink",
     "spic",
@@ -185,6 +186,9 @@ HATEFUL_WORDS = [
     "coon",
     "jigaboo",
     "porch monkey",
+    "bitch",
+    "slut",
+    "whore",
     "cunt",
     "skank",
     "twat",
@@ -209,6 +213,9 @@ HATEFUL_WORDS = [
     "f@g",
     "f4ggot",
     "go die",
+    "drop dead",
+    "kill yourself",
+    "kys",
     "i hate you",
     "you should die",
     "slur1",
@@ -216,7 +223,11 @@ HATEFUL_WORDS = [
 ]
 
 HATEFUL_REGEX = re.compile(
-    r"\b(" + "|".join(re.escape(word) for word in HATEFUL_WORDS) + r")\b",
+    r"(?<!\w)"
+    + r"("
+    + "|".join(re.escape(word) for word in HATEFUL_WORDS)
+    + r")"
+    + r"(?!\w)",
     re.IGNORECASE,
 )
 
@@ -267,17 +278,49 @@ def generate_username():
     Generates a random, anonymous username for posts.
     Format: <Adjective><Animal><2-digit number>
     """
-    return f"{random.choice(ADJECTIVES)}{random.choice(ANIMALS)}{random.randint(10,99)}"
+    return (
+        f"{random.choice(ADJECTIVES)}"
+        f"{random.choice(ANIMALS)}"
+        f"{random.randint(10,99)}"
+    )
 
 
 def normalize_text(text):
-    """Lowercase and strip punctuation from text for matching."""
-    if not isinstance(text, str):
-        return ""
-    return re.sub(r"[^\w\s]", "", text.lower())
+    # Decode unicode escapes (e.g. b\u0069got -> bigot)
+    import codecs
+
+    try:
+        text = codecs.decode(text, "unicode_escape")
+    except Exception:
+        pass
+    text = text.lower()
+    homoglyphs = {
+        "1": "i",
+        "0": "o",
+        "3": "e",
+        "@": "a",
+        "$": "s",
+        "|": "i",
+        "5": "s",
+        "7": "t",
+        "4": "a",
+        "8": "b",
+    }
+    for k, v in homoglyphs.items():
+        text = text.replace(k, v)
+    # Replace punctuation with spaces
+    text = re.sub(r"[!\"#$%&'()*+,-./:;<=>?@[\\]^_`{|}~]", " ", text)
+    return text
 
 
 def is_hate_speech(text):
+    """
+    Checks if the given text contains hateful words/phrases.
+    Returns (is_hate, reason, details):
+      - is_hate: bool
+      - reason: 'word_list'
+      - details: matched word/phrase
+    """
     """
     Returns (is_hate, reason, details)
     - is_hate: bool
@@ -285,6 +328,16 @@ def is_hate_speech(text):
     - details: matched word/phrase
     """
     normalized = normalize_text(text)
+    normalized = normalized.lower()
+    # Check multi-word phrases first
+    for phrase in HATEFUL_WORDS:
+        if " " in phrase:
+            # Use regex with word boundaries for multi-word phrases
+            pattern = r"(?<!\w)" + re.escape(phrase.lower()) + r"(?!\w)"
+            if re.search(pattern, normalized):
+                logging.info(f"Post rejected by word list: '{phrase}'")
+                return True, "word_list", phrase
+    # Check single words with regex
     match = HATEFUL_REGEX.search(normalized)
     if match:
         logging.info(f"Post rejected by word list: '{match.group(0)}'")
@@ -297,8 +350,6 @@ def is_kind(message):
     Checks if the message contains any kind/uplifting words.
     Returns True if any word in KIND_WORDS is present.
     """
-    if not isinstance(message, str):
-        return False
     lowered = message.lower()
     for word in KIND_WORDS:
         if word in lowered:

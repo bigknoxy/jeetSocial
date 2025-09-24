@@ -18,10 +18,11 @@ test.describe('Edge Case Moderation', () => {
     await expect(page.locator('#error')).toHaveText('');
   });
 
-  test('handles empty post', async ({ page }) => {
+test('handles empty post', async ({ page }) => {
     await page.goto(BASE_URL);
     await page.fill('textarea[name="message"]', '');
+    await page.evaluate(() => document.getElementById('post-btn').disabled = false);
     await page.click('button[type="submit"]');
-    await expect(page.locator('#error')).toHaveText(/Message required/i);
+    await expect(page.locator('#error')).toHaveText(/Message required/i, { timeout: 3000 });
   });
 });

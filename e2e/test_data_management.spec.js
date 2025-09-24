@@ -14,7 +14,9 @@ test.describe('Test Data Management and Isolation', () => {
 
   test.afterEach(async () => {
     // Clean up test data after each test
-    await dataManager.cleanupTestData();
+    if (dataManager) {
+      await dataManager.cleanupTestData();
+    }
   });
 
   test('demonstrates test data tracking and cleanup', async () => {
@@ -46,7 +48,9 @@ test.describe('Test Data Management and Isolation', () => {
 
     // Submit posts using fixtures
     await jeetPage.submitPostAndWait(positiveMessage);
+    await jeetPage.waitForPostInFeed(positiveMessage);
     await jeetPage.submitPostAndWait(specialCharsMessage);
+    await jeetPage.waitForPostInFeed(specialCharsMessage);
 
     // Verify posts exist
     expect(await jeetPage.hasPostWithMessage(positiveMessage)).toBe(true);
@@ -86,6 +90,7 @@ test.describe('Test Data Management and Isolation', () => {
     }, overLimit.message);
 
     // Submit the form (don't pass empty string since we set the value above)
+    await jeetPage.page.evaluate(() => { document.getElementById('post-btn').disabled = false; });
     await jeetPage.submitButton.click();
 
     // Wait for error and check the message

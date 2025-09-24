@@ -11,11 +11,11 @@ class JeetSocialPage {
     this.mainHeading = page.locator('h1');
     this.feed = page.locator('#feed');
     this.posts = page.locator('.post');
-    this.errorDiv = page.locator('#error');
+    this.errorDiv = page.locator('form#post-form #error');
 
     // Form elements
-    this.messageTextarea = page.locator('textarea[name="message"]');
-    this.submitButton = page.locator('button[type="submit"]');
+    this.messageTextarea = page.locator('#message');
+    this.submitButton = page.locator('#post-btn');
     this.charCount = page.locator('#char-count');
 
     // Navigation and UI elements

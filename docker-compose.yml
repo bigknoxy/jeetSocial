@@ -1,7 +1,15 @@
+# docker-compose.yml for jeetSocial
+# Defines web and db services, healthchecks, and environment setup.
+# See README.md for usage and troubleshooting.
+
 services:
   web:
     build: .
-    command: /bin/sh -c "chmod +x wait-for-it.sh && ./wait-for-it.sh db:5432 -- flask db upgrade && flask run --host=0.0.0.0"
+<<<<<<< HEAD
+    command: ./wait-for-db-healthy.sh
+=======
+    command: /bin/sh -c "chmod +x wait-for-db-healthy.sh && ./wait-for-db-healthy.sh"
+>>>>>>> 9f6ae9a (Fix Docker Compose DB startup race: use pg_isready healthcheck and wait-for-db-healthy.sh; update static homepage banner and .gitignore)
     ports:
       - "5000:5000"
     env_file:

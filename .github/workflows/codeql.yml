@@ -88,10 +88,17 @@ jobs:
         uses: github/codeql-action/autobuild@v3
 
       # Run CodeQL Analysis
-      - name: Perform CodeQL Analysis
+      - name: Perform CodeQL Analysis (Python)
         uses: github/codeql-action/analyze@v3
         with:
-          category: "/language:python,/language:javascript"
+          category: python-analysis
+          languages: python
+
+      - name: Perform CodeQL Analysis (JavaScript)
+        uses: github/codeql-action/analyze@v3
+        with:
+          category: javascript-analysis
+          languages: javascript
 
       # Upload results only for protected branches
       - name: Upload CodeQL results
