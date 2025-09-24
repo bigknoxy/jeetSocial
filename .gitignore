@@ -41,4 +41,7 @@ instance/
 # Test results and artifacts
 test-results/
 .playwright-artifacts-0/
+<<<<<<< HEAD
 context
+=======
+>>>>>>> 9f6ae9a (Fix Docker Compose DB startup race: use pg_isready healthcheck and wait-for-db-healthy.sh; update static homepage banner and .gitignore)

@@ -2,7 +2,12 @@
 # Stage 1: Build dependencies
 FROM python:3.10.12-slim AS builder
 WORKDIR /app
+<<<<<<< HEAD
 RUN apt-get update && apt-get install -y build-essential postgresql-client curl && rm -rf /var/lib/apt/lists/*
+=======
+# Install Postgres client for pg_isready
+RUN apt-get update && apt-get install -y postgresql-client && rm -rf /var/lib/apt/lists/*
+>>>>>>> 9f6ae9a (Fix Docker Compose DB startup race: use pg_isready healthcheck and wait-for-db-healthy.sh; update static homepage banner and .gitignore)
 COPY requirements.txt requirements.txt
 RUN pip install --user --no-cache-dir -r requirements.txt
 
@@ -23,11 +28,18 @@ COPY wait-for-it.sh wait-for-it.sh
 COPY wait-for-db-healthy.sh wait-for-db-healthy.sh
 COPY tests tests
 COPY init_db.py init_db.py
+<<<<<<< HEAD
 # Set executable permissions before switching to non-root user
 RUN chmod +x wait-for-it.sh wait-for-db-healthy.sh
 # Fix ownership for /app
 RUN chown -R jeetuser:jeetuser /app
 ENV PYTHONPATH=/root/.local/lib/python3.10/site-packages:/app
+=======
+COPY app/static static
+# COPY .env.example .env
+# .env is injected by docker-compose, not built into the image
+ENV PYTHONPATH=/app
+>>>>>>> 9f6ae9a (Fix Docker Compose DB startup race: use pg_isready healthcheck and wait-for-db-healthy.sh; update static homepage banner and .gitignore)
 EXPOSE 5000
 USER jeetuser
 HEALTHCHECK --interval=10s --timeout=5s --start-period=5s --retries=3 CMD curl -f http://localhost:5000/ || exit 1
