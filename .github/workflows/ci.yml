@@ -62,7 +62,8 @@ jobs:
           --health-retries 5
 
     env:
-      DATABASE_URL: postgresql://${{ secrets.POSTGRES_USER }}:${{ secrets.POSTGRES_PASSWORD }}@localhost:5433/jeetsocial
+      # Use the Postgres service credentials and default service port
+      DATABASE_URL: postgresql://postgres:postgres@localhost:5432/jeet_test
       SECRET_KEY: ${{ secrets.SECRET_KEY }}
       ENABLE_RATE_LIMITING: 'true'
       ENABLE_MODERATION: 'true'
@@ -101,8 +102,10 @@ jobs:
       - name: Run migrations (if present)
         run: |
           if [ -d "migrations" ]; then
-            pip install alembic
-            alembic -c migrations/alembic.ini upgrade head
+            pip install Flask-Migrate
+            # Run migrations using Flask-Migrate under the app context
+            export FLASK_APP=app
+            flask db upgrade
           fi
 
       - name: Run pytest
