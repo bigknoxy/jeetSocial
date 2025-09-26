@@ -102,7 +102,7 @@ jobs:
         run: |
           if [ -d "migrations" ]; then
             pip install alembic
-            alembic upgrade head
+            alembic -c migrations/alembic.ini upgrade head
           fi
 
       - name: Run pytest
