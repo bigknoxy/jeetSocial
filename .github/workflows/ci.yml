@@ -37,6 +37,7 @@ jobs:
         run: |
           python -m pip install --upgrade pip
           pip install -r requirements.txt
+          pip install -e .
           pip install flake8
 
       - name: Run flake8
@@ -63,11 +64,12 @@ jobs:
 
     env:
       # Use the Postgres service credentials and default service port
+      PYTHONPATH: ${{ github.workspace }}
       DATABASE_URL: postgresql://postgres:postgres@localhost:5432/jeet_test
       SECRET_KEY: ${{ secrets.SECRET_KEY }}
       ENABLE_RATE_LIMITING: 'true'
       ENABLE_MODERATION: 'true'
-      FLASK_APP: app
+      FLASK_APP: app:create_app
       FLASK_ENV: development
     steps:
       - name: Checkout code
@@ -90,6 +92,7 @@ jobs:
         run: |
           python -m pip install --upgrade pip
           pip install -r requirements.txt
+          pip install -e .
 
       - name: Wait for Postgres
         run: |
@@ -104,7 +107,7 @@ jobs:
           if [ -d "migrations" ]; then
             pip install Flask-Migrate
             # Run migrations using Flask-Migrate under the app context
-            export FLASK_APP=app
+            export FLASK_APP=app:create_app
             flask db upgrade
           fi
 
