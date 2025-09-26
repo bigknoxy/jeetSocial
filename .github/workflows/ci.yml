@@ -11,6 +11,9 @@ jobs:
   lint:
     name: Lint (flake8)
     runs-on: ubuntu-latest
+    strategy:
+      matrix:
+        language: [python, js]
     steps:
       - name: Checkout code
         uses: actions/checkout@v4
@@ -57,10 +60,12 @@ jobs:
           --health-retries 5
 
     env:
-      DATABASE_URL: postgresql://postgres:postgres@localhost:5432/jeet_test
-      SECRET_KEY: test-secret-key
-      ENABLE_RATE_LIMITING: 1
-      ENABLE_MODERATION: 1
+      DATABASE_URL: postgresql://${{ secrets.POSTGRES_USER }}:${{ secrets.POSTGRES_PASSWORD }}@localhost:5433/jeetsocial
+      SECRET_KEY: ${{ secrets.SECRET_KEY }}
+      ENABLE_RATE_LIMITING: 'true'
+      ENABLE_MODERATION: 'true'
+      FLASK_APP: app
+      FLASK_ENV: development
     steps:
       - name: Checkout code
         uses: actions/checkout@v4
@@ -106,8 +111,47 @@ jobs:
     runs-on: ubuntu-latest
     if: github.ref == 'refs/heads/main'
     steps:
-      - name: Checkout code
-        uses: actions/checkout@v4
+      - uses: actions/checkout@v3
+      - name: Build Docker images
+        run: docker compose build
+      - name: Tag image for Trivy
+        run: docker tag jeet-web:latest jeetsocial_web:latest || true
+      - name: Trivy scan
+        uses: aquasecurity/trivy-action@0.33.1
+        with:
+          image-ref: 'jeetsocial_web:latest'
+          format: 'table'
+          exit-code: '1'
+          ignore-unfixed: true
 
-      - name: Build Docker image
-        run: docker build -t jeet-social:ci .
+  deploy:
+    needs: [lint, test, docker-build]
+    runs-on: ubuntu-latest
+    if: github.ref == 'refs/heads/main' && github.event_name == 'push'
+    environment:
+      name: production
+    steps:
+      - name: Manual approval
+        uses: fjogeleit/manual-approval-action@v1.2
+        with:
+          approvers: bigknoxy
+          issueTitle: "Deploy to Production"
+          issueBody: "Approve deployment to production."
+      - name: Download Python coverage report
+        uses: actions/download-artifact@v4
+        with:
+          name: python-coverage
+          path: coverage/
+      - name: Download Playwright results
+        uses: actions/download-artifact@v4
+        with:
+          name: playwright-results
+          path: test-results/
+      - name: Deploy (placeholder)
+        run: echo "Deploying to production..."
+      - name: Notify on deploy
+        uses: rjstone/discord-webhook-notify@v1
+        with:
+          webhookUrl: ${{ secrets.DISCORD_WEBHOOK_URL }}
+          severity: info
+          details: "jeetSocial deployed to production by ${{ github.actor }}."
