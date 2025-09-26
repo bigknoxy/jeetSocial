@@ -6,7 +6,7 @@ Handles static files, feed, and post creation with moderation
 and rate limiting.
 """
 
-from flask import Blueprint, request, jsonify, send_from_directory, current_app
+from flask import Blueprint, request, jsonify, current_app
 from app import db, limiter
 from app.models import Post
 from app.utils import generate_username, is_hate_speech
@@ -17,12 +17,14 @@ bp = Blueprint("routes", __name__)
 
 @bp.route("/")
 def index():
-    return send_from_directory("static", "index.html")
+    # Use Flask's configured static file serving to avoid working-directory issues
+    return current_app.send_static_file("index.html")
 
 
 @bp.route("/static/<path:path>")
 def static_files(path):
-    return send_from_directory("static", path)
+    # Delegate to Flask's static file handler which uses `current_app.static_folder`.
+    return current_app.send_static_file(path)
 
 
 @bp.route("/api/posts", methods=["GET"])
@@ -86,7 +88,7 @@ def _create_post_impl():
     and saves post.
     Returns JSON response with post or error.
     """
-    data = request.get_json()
+    data = request.get_json() or {}
     message = data.get("message", "").strip()
     if not message:
         return jsonify({"error": "Message required"}), 400

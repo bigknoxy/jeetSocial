@@ -10,3 +10,18 @@ instance/
 .coverage
 coverage.xml
 *.db
+# Additional ignores for Docker build performance and safety
+node_modules
+node_modules/
+venv
+.venv
+.pytest_cache
+.cache
+.opencode
+.config/opencode
+context
+tests
+.git
+.env
+.env.*
+.nyc_output

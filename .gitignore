@@ -41,7 +41,14 @@ instance/
 # Test results and artifacts
 test-results/
 .playwright-artifacts-0/
-<<<<<<< HEAD
+
+# Ignore opencode context directory if present
 context
-=======
->>>>>>> 9f6ae9a (Fix Docker Compose DB startup race: use pg_isready healthcheck and wait-for-db-healthy.sh; update static homepage banner and .gitignore)
+.venv/
+.pytest_cache/
+.env
+.coverage
+*.pyc
+__pycache__/
+.config/opencode/context/
+node_modules/
