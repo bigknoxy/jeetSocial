@@ -36,28 +36,34 @@ async function butterSmoothLiveUpdate() {
     const resp = await fetch(`/api/posts?page=1&limit=${pageLimit}`);
     const data = await resp.json();
     const newPosts = data.posts;
+    // Debug: log incoming posts payload for E2E visibility
+    try { console.debug('[LiveFeed] /api/posts payload', newPosts); } catch(e) {}
     const feed = document.getElementById('feed');
     const accentColors = ["#ff4b5c", "#ffb26b", "#ffe347", "#43e97b", "#3fa7d6", "#7c4dff", "#c86dd7"];
     // Get existing post IDs in DOM
     const existingIds = Array.from(feed.children).map(node => node.dataset && node.dataset.id);
     let inserted = false;
 newPosts.forEach((post, i) => {
-      if (!existingIds.includes(post.id.toString())) {
+      const postIdStr = post.id.toString();
+        // Defensive normalization of incoming post object
+        // Ensure kindness_points is a finite number; otherwise coerce to 0
+        if (typeof post.kindness_points !== 'number' || !Number.isFinite(post.kindness_points)) {
+          const coerced = Number(post.kindness_points);
+          post.kindness_points = Number.isFinite(coerced) ? coerced : 0;
+        }
+
+        if (!existingIds.includes(postIdStr)) {
         // Create post node
         const div = document.createElement('div');
         div.className = 'post new-post';
         div.style.animation = 'fadeIn 1s';
         div.style.borderLeft = `6px solid ${accentColors[i % accentColors.length]}`;
         div.setAttribute('data-id', post.id);
+        // Compute an explicit numeric kindness value to avoid rendering non-numeric values
+        const displayKp = Number.isFinite(Number(post.kindness_points)) ? Number(post.kindness_points) : 0;
         div.innerHTML = `
           <span class="username" style="color:${accentColors[i % accentColors.length]}">${post.username}</span>
-          <span class="timestamp">${new Date(post.timestamp).toLocaleString()}</span>
-          <div>${escapeHtml(post.message)}</div>
-        `;
-        feed.insertBefore(div, feed.firstChild);
-        inserted = true;
-      }
-    });
+undefined
     // Animate new posts
     if (inserted) {
       // Optionally, preserve scroll position if user is not at top
@@ -150,18 +156,39 @@ async function fetchFeedPage(page) {
     const resp = await fetch(`/api/posts?page=${page}&limit=${pageLimit}`);
     const data = await resp.json();
     const posts = data.posts;
+    // Debug: log incoming posts payload for E2E visibility
+    try { console.debug('[FetchFeed] /api/posts payload', posts); } catch(e) {}
     const accentColors = ["#ff4b5c", "#ffb26b", "#ffe347", "#43e97b", "#3fa7d6", "#7c4dff", "#c86dd7"];
     // Remove skeleton loader and show posts
-    feed.innerHTML = posts.map((post, index) => {
+    // Defensive normalization of posts array to ensure kindness_points is numeric
+    const normalizedPosts = posts.map(p => {
+      try {
+        if (typeof p.kindness_points !== 'number' || !Number.isFinite(p.kindness_points)) {
+          const coerced = Number(p.kindness_points);
+          p.kindness_points = Number.isFinite(coerced) ? coerced : 0;
+        }
+      } catch (e) {
+        p.kindness_points = 0;
+      }
+      return p;
+    });
+
+    feed.innerHTML = normalizedPosts.map((post, index) => {
       const color = accentColors[index % accentColors.length];
-      return `
+      // Explicit numeric display value for kindness points
+      const displayKp = Number.isFinite(Number(post.kindness_points)) ? Number(post.kindness_points) : 0;
+    return `
         <div class="post" style="border-left: 6px solid ${color};" data-id="${post.id}">
           <span class="username" style="color:${color}">${post.username}</span>
           <span class="timestamp">${new Date(post.timestamp).toLocaleString()}</span>
-          <div>${escapeHtml(post.message)}</div>
-        </div>
-      `;
-    }).join('');
+            <div class="post-content">${escapeHtml(post.message)}</div>
+           <div class="kindness-row">
+             <button class="kindness-btn rainbow-btn" data-post-id="${post.id}">Kindness +1</button>
+             <span class="kindness-count" data-kindness-count="${post.id}">🌈 ${displayKp}</span>
+           </div>
+         </div>
+       `;
+     }).join('');
 // After full reload, remove new-post banner if present
 const banner = document.getElementById('new-posts-banner');
 if (banner) banner.remove();
@@ -322,6 +349,193 @@ function setupCharacterCounter() {
 
 window.addEventListener('DOMContentLoaded', setupCharacterCounter);
 
+// Kindness Points Manager
+class KindnessManager {
+    constructor() {
+        this.token = sessionStorage.getItem('kindness_token');
+        this.tokenExpiry = sessionStorage.getItem('kindness_token_expiry');
+        this._lastAppliedKindnessTs = 0; // timestamp of last applied storage event
+        console.log('[KINDNESS-CLIENT] constructor - initial token present?', !!this.token, 'expiry=', this.tokenExpiry);
+
+        // Listen for cross-tab kindness updates broadcast via localStorage
+        window.addEventListener('storage', (e) => {
+            try {
+                // Log raw event for E2E debugging
+                console.debug('[KINDNESS-CLIENT] storage event received', { key: e.key, newValue: e.newValue, oldValue: e.oldValue });
+                if (!e.key || e.key !== 'jeet_kindness_update') return;
+                // If the key was removed (newValue === null) ignore the removal event
+                if (e.newValue === null) {
+                    console.debug('[KINDNESS-CLIENT] storage event: key removed, ignoring');
+                    return;
+                }
+                const payload = JSON.parse(e.newValue);
+                if (!payload || !payload.post_id || typeof payload.new_points === 'undefined' || !payload.ts) {
+                    console.debug('[KINDNESS-CLIENT] storage event: payload invalid', payload);
+                    return;
+                }
+                // Ignore older events
+                if (payload.ts <= this._lastAppliedKindnessTs) return;
+                this._lastAppliedKindnessTs = payload.ts;
+                console.debug('[KINDNESS-CLIENT] storage event – updating kindness for', payload.post_id, 'to', payload.new_points);
+                this.updateKindnessDisplay(payload.post_id, payload.new_points);
+            } catch (err) {
+                console.debug('[KINDNESS-CLIENT] storage handler error:', err);
+            }
+        });
+
+        // BroadcastChannel fallback for more reliable cross-tab messaging
+        try {
+            if (typeof BroadcastChannel !== 'undefined') {
+                this._bc = new BroadcastChannel('jeet_kindness');
+                this._bc.addEventListener('message', (ev) => {
+                    try {
+                        const payload = ev.data;
+                        console.debug('[KINDNESS-CLIENT] BroadcastChannel message received', payload);
+                        if (!payload || !payload.post_id || typeof payload.new_points === 'undefined' || !payload.ts) return;
+                        if (payload.ts <= this._lastAppliedKindnessTs) return;
+                        this._lastAppliedKindnessTs = payload.ts;
+                        this.updateKindnessDisplay(payload.post_id, payload.new_points);
+                    } catch (err) {
+                        console.debug('[KINDNESS-CLIENT] BroadcastChannel handler error:', err);
+                    }
+                });
+            }
+        } catch (err) {
+            console.debug('[KINDNESS-CLIENT] BroadcastChannel init error:', err);
+        }
+    }
+    
+    async ensureToken(postId) {
+        // Always refresh from sessionStorage in case a token was set after page load
+        try {
+            const ssToken = sessionStorage.getItem('kindness_token');
+            const ssExpiry = sessionStorage.getItem('kindness_token_expiry');
+            if (ssToken) this.token = ssToken;
+            if (ssExpiry) this.tokenExpiry = ssExpiry;
+        } catch (e) {
+            console.debug('[KINDNESS-CLIENT] unable to read sessionStorage:', e);
+        }
+
+        // Debug logging to help E2E visibility
+        console.debug('[KINDNESS-CLIENT] ensureToken start - this.token present?', !!this.token, 'this.tokenExpiry=', this.tokenExpiry);
+
+        // Check if current token is valid
+        if (this.token && this.tokenExpiry && Date.now() < parseInt(this.tokenExpiry)) {
+            console.debug('[KINDNESS-CLIENT] using existing token from sessionStorage');
+            return this.token;
+        }
+
+        // Request new token (include postId to satisfy server requirement)
+        try {
+            // Use query parameter fallback to avoid issues with empty request bodies
+            console.log('[KINDNESS-CLIENT] POST /api/kindness/token via query param post_id=', postId);
+            const response = await fetch(`/api/kindness/token?post_id=${encodeURIComponent(postId)}`, {
+                method: 'POST'
+            });
+            if (!response.ok) {
+                const bodyText = await response.text().catch(() => '<no body>');
+                console.error('[KINDNESS-CLIENT] token endpoint returned', response.status, bodyText);
+                throw new Error('Token request failed');
+            }
+            const data = await response.json();
+            this.token = data.token;
+            this.tokenExpiry = Date.now() + (data.expires_in * 1000);
+            sessionStorage.setItem('kindness_token', this.token);
+            sessionStorage.setItem('kindness_token_expiry', this.tokenExpiry);
+            console.log('[KINDNESS-CLIENT] received token, expiry=', this.tokenExpiry);
+            return this.token;
+        } catch (error) {
+            console.error('Failed to get kindness token:', error);
+            return null;
+        }
+    }
+    
+    async awardKindness(postId, buttonElement) {
+        const token = await this.ensureToken(postId);
+        if (!token) {
+            alert('Unable to get kindness token');
+            return;
+        }
+        try {
+            // Redeem via query params as fallback to avoid body parsing issues
+            console.log('[KINDNESS-CLIENT] POST /api/kindness/redeem via query params post_id=', postId);
+            const response = await fetch(`/api/kindness/redeem?post_id=${encodeURIComponent(postId)}&token=${encodeURIComponent(token)}`, {
+                method: 'POST'
+            });
+            const data = await response.json();
+            if (response.ok && data.success) {
+                // Update UI optimistically
+                this.updateKindnessDisplay(postId, data.new_points);
+                // Broadcast to other open tabs/windows via localStorage
+                try {
+                    const payload = { post_id: postId, new_points: data.new_points, ts: Date.now() };
+                    // Use setItem -> removeItem trick to ensure storage event fires across browsers and for repeated identical payloads
+                        try {
+                        localStorage.setItem('jeet_kindness_update', JSON.stringify(payload));
+                        // Also post via BroadcastChannel if available for immediate delivery
+                        try {
+                            if (this._bc) {
+                                this._bc.postMessage(payload);
+                            }
+                        } catch (bcErr) {
+                            console.debug('[KINDNESS-CLIENT] BroadcastChannel post error:', bcErr);
+                        }
+                        // Small timeout to allow other tabs to receive the set event, then remove to allow future identical payloads
+                        setTimeout(() => {
+                            try {
+                                localStorage.removeItem('jeet_kindness_update');
+                            } catch (remErr) {
+                                console.debug('[KINDNESS-CLIENT] error removing kindness broadcast key:', remErr);
+                            }
+                        }, 200);
+                    } catch (err) {
+                        console.debug('[KINDNESS-CLIENT] unable to write kindness broadcast to localStorage:', err);
+                    }
+                } catch (err) {
+                    console.debug('[KINDNESS-CLIENT] unable to write kindness broadcast to localStorage:', err);
+                }
+
+                // Update button state in this tab only
+                if (buttonElement) {
+                    buttonElement.disabled = true;
+                    buttonElement.textContent = 'Kindness Given!';
+                }
+
+                // Clear used token
+                sessionStorage.removeItem('kindness_token');
+                sessionStorage.removeItem('kindness_token_expiry');
+                this.token = null;
+            } else {
+                alert(data.error || 'Failed to award kindness');
+            }
+        } catch (error) {
+            console.error('Failed to award kindness:', error);
+            alert('Network error');
+        }
+    }
+    
+    updateKindnessDisplay(postId, newCount) {
+        const countElement = document.querySelector(`[data-kindness-count="${postId}"]`);
+        if (countElement) {
+            // Coerce to explicit numeric value and avoid 'undefined' or non-numeric strings
+            const displayKp = Number.isFinite(Number(newCount)) ? Number(newCount) : 0;
+            // Keep display format consistent with initial render: emoji + number
+            countElement.textContent = `🌈 ${displayKp}`;
+        }
+    }
+}
+
+// Initialize kindness manager
+const kindnessManager = new KindnessManager();
+
+document.addEventListener('DOMContentLoaded', function() {
+    document.addEventListener('click', function(e) {
+        if (e.target.classList && e.target.classList.contains('kindness-btn')) {
+            const postId = parseInt(e.target.dataset.postId);
+            kindnessManager.awardKindness(postId, e.target);
+        }
+    });
+});
 
 // Emoji Picker Integration
 function isMobileDevice() {
