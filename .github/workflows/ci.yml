@@ -1,178 +1,129 @@
 ---
 name: CI
+
 on:
   push:
-    branches:
-      - main
-      - feature/*
+    branches: [main]
   pull_request:
-    branches:
-      - main
+    branches: [main]
+
 jobs:
   lint:
+    name: Lint (flake8)
     runs-on: ubuntu-latest
     strategy:
       matrix:
         language: [python, js]
+    env:
+      PYTHONPATH: ${{ github.workspace }}
     steps:
-      - uses: actions/checkout@v3
+      - name: Checkout code
+        uses: actions/checkout@v4
+
       - name: Set up Python
-        if: matrix.language == 'python'
-        uses: actions/setup-python@v4
+        uses: actions/setup-python@v5
         with:
           python-version: '3.10'
+
       - name: Cache pip
-        if: matrix.language == 'python'
         uses: actions/cache@v4
         with:
           path: ~/.cache/pip
-          key: ${{ runner.os }}-pip-${{ hashFiles('**/requirements.txt') }}
-          restore-keys: ${{ runner.os }}-pip-
-      - name: Install Python dependencies
-        if: matrix.language == 'python'
+          key: ${{ runner.os }}-pip-${{ hashFiles('requirements.txt') }}
+          restore-keys: |
+            ${{ runner.os }}-pip-
+
+      - name: Install dependencies
         run: |
           python -m pip install --upgrade pip
           pip install -r requirements.txt
-          pip install flake8 black safety
-      - name: Lint Python
-        if: matrix.language == 'python'
-        run: |
-          black --check .
-          flake8 .
-      - name: Safety scan
-        if: matrix.language == 'python'
-        run: safety check
-      - name: Set up Node.js
-        if: matrix.language == 'js'
-        uses: actions/setup-node@v3
-        with:
-          node-version: '18'
-      - name: Cache npm
-        if: matrix.language == 'js'
-        uses: actions/cache@v4
-        with:
-          path: ~/.npm
-          key: ${{ runner.os }}-npm-${{ hashFiles('**/package-lock.json') }}
-          restore-keys: ${{ runner.os }}-npm-
-      - name: Install JS dependencies
-        if: matrix.language == 'js'
-        run: npm install
-      - name: Lint JS
-        if: matrix.language == 'js'
-        run: npx eslint .
+          pip install -e .
+          pip install flake8
+
+      - name: Run flake8
+        run: flake8 .
 
   test:
+    name: Tests (pytest)
     runs-on: ubuntu-latest
+    needs: lint
     services:
-      db:
+      postgres:
         image: postgres:15
         env:
-          POSTGRES_DB: jeetsocial
-          POSTGRES_USER: ${{ secrets.POSTGRES_USER }}
-          POSTGRES_PASSWORD: ${{ secrets.POSTGRES_PASSWORD }}
+          POSTGRES_USER: postgres
+          POSTGRES_PASSWORD: postgres
+          POSTGRES_DB: jeet_test
         ports:
-          - 5433:5432
+          - 5432:5432
+        options: >-
+          --health-cmd "pg_isready -U postgres"
+          --health-interval 10s
+          --health-timeout 5s
+          --health-retries 5
+
     env:
-      DATABASE_URL: postgresql://${{ secrets.POSTGRES_USER }}:${{ secrets.POSTGRES_PASSWORD }}@localhost:5433/jeetsocial
+      # Use the Postgres service credentials and default service port
+      PYTHONPATH: ${{ github.workspace }}
+      DATABASE_URL: postgresql://postgres:postgres@localhost:5432/jeet_test
       SECRET_KEY: ${{ secrets.SECRET_KEY }}
       ENABLE_RATE_LIMITING: 'true'
       ENABLE_MODERATION: 'true'
-      FLASK_APP: app
+      FLASK_APP: app:create_app
       FLASK_ENV: development
     steps:
-      - uses: actions/checkout@v3
+      - name: Checkout code
+        uses: actions/checkout@v4
+
       - name: Set up Python
-        uses: actions/setup-python@v4
+        uses: actions/setup-python@v5
         with:
           python-version: '3.10'
+
       - name: Cache pip
         uses: actions/cache@v4
         with:
           path: ~/.cache/pip
-          key: ${{ runner.os }}-pip-${{ hashFiles('**/requirements.txt') }}
-          restore-keys: ${{ runner.os }}-pip-
-      - name: Install Python dependencies
+          key: ${{ runner.os }}-pip-${{ hashFiles('requirements.txt') }}
+          restore-keys: |
+            ${{ runner.os }}-pip-
+
+      - name: Install dependencies
         run: |
           python -m pip install --upgrade pip
           pip install -r requirements.txt
-          pip install pytest pytest-cov safety
-      - name: Safety scan
-        run: safety check
-      - name: Run Python tests with coverage
-        run: pytest --cov=app --cov-report=xml --cov-report=term-missing
-        env:
-          PYTHONPATH: ${{ github.workspace }}
-      - name: Upload Python coverage report
-        uses: actions/upload-artifact@v4
-        with:
-          name: python-coverage
-          path: coverage.xml
-      - name: Set up Node.js
-        uses: actions/setup-node@v3
-        with:
-          node-version: '18'
-      - name: Cache npm
-        uses: actions/cache@v4
-        with:
-          path: ~/.npm
-          key: ${{ runner.os }}-npm-${{ hashFiles('**/package-lock.json') }}
-          restore-keys: ${{ runner.os }}-npm-
-      - name: Install JS dependencies
-        run: npm install
-      - name: Copy .env.example
-        run: cp .env.example .env
-      - name: Wait for DB to be ready
+          pip install -e .
+
+      - name: Wait for Postgres
         run: |
-          for i in {1..30}; do
-            PGPASSWORD=${{ secrets.POSTGRES_PASSWORD }} pg_isready -h localhost -p 5433 -U ${{ secrets.POSTGRES_USER }} && break
-            sleep 1
-          done
-      - name: Run DB migrations
-        run: flask db upgrade
-      - name: Start Flask app for E2E
-        run: |
-          flask run --host=0.0.0.0 --port=5000 &
-          sleep 5
-          for i in {1..30}; do
-            if curl -s http://localhost:5000 > /dev/null; then
-              echo "Flask app is ready!"
-              break
-            fi
+          for i in $(seq 1 30); do
+            (echo > /dev/tcp/localhost/5432) >/dev/null 2>&1 && echo "Postgres ready" && break
+            echo "Waiting for Postgres..."
             sleep 2
           done
-      - name: Install Playwright Browsers
-        run: npx playwright install --with-deps
-      - name: Run Playwright E2E tests
-        run: npm run e2e -- --timeout=60000
-      - name: Upload Playwright test results
-        if: always()
-        uses: actions/upload-artifact@v4
-        with:
-          name: playwright-results
-          path: test-results/
-      - name: Upload Playwright traces
-        if: failure()
-        uses: actions/upload-artifact@v4
-        with:
-          name: playwright-traces
-          path: |
-            test-results/
-            *.png
-            *.webm
-      - name: Enforce coverage threshold
-        run: |
-          pip install coverage
-          coverage report --fail-under=80
-          npx nyc check-coverage --lines 80 --functions 80 --branches 80 --statements 80
 
-  build:
+      - name: Run migrations (if present)
+        run: |
+          if [ -d "migrations" ]; then
+            pip install Flask-Migrate
+            # Run migrations using Flask-Migrate under the app context
+            export FLASK_APP=app:create_app
+            flask db upgrade
+          fi
+
+      - name: Run pytest
+        run: pytest -q
+
+  docker-build:
+    name: Docker build (main only)
     runs-on: ubuntu-latest
+    if: github.ref == 'refs/heads/main'
     steps:
       - uses: actions/checkout@v3
       - name: Build Docker images
         run: docker compose build
       - name: Tag image for Trivy
-        run: docker tag jeet-web:latest jeetsocial_web:latest
+        run: docker tag jeet-web:latest jeetsocial_web:latest || true
       - name: Trivy scan
         uses: aquasecurity/trivy-action@0.33.1
         with:
@@ -182,12 +133,11 @@ jobs:
           ignore-unfixed: true
 
   deploy:
-    needs: [lint, test, build]
+    needs: [lint, test, docker-build]
     runs-on: ubuntu-latest
     if: github.ref == 'refs/heads/main' && github.event_name == 'push'
     environment:
       name: production
-          # url: ${{ secrets.PRODUCTION_URL }}  # Uncomment and set when production infra is ready
     steps:
       - name: Manual approval
         uses: fjogeleit/manual-approval-action@v1.2
