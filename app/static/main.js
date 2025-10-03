@@ -526,7 +526,7 @@ class KindnessManager {
         originalCount = match ? parseInt(match[1], 10) : 0;
         // Update ARIA live region for screen readers with optimistic announcement
         const liveRegion = document.getElementById('kindness-live');
-        if (liveRegion) liveRegion.textContent = `Kindness awarded for post ${postId}. New count ${originalCount + 1}`;
+        if (liveRegion) liveRegion.textContent = `Kindness Given for post ${postId}. New count ${originalCount + 1}`;
         countElement.textContent = `🌈 ${originalCount + 1}`;
         countElement.classList.add('bump');
         setTimeout(() => countElement.classList.remove('bump'), 350);
@@ -591,7 +591,7 @@ class KindnessManager {
             sessionStorage.removeItem('kindness_token');
             sessionStorage.removeItem('kindness_token_expiry');
             this.token = null;
-            showToast('Kindness awarded! 🌈', 'success');
+            showToast('Kindness Given!', 'success');
         } else {
             showToast(data.error || 'Failed to award kindness', 'error');
             if (countElement) countElement.textContent = `🌈 ${originalCount}`;

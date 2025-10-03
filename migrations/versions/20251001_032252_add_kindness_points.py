@@ -27,15 +27,17 @@ def upgrade():
     elif "post" in table_names:
         posts_table = "post"
     else:
-        # If neither exists (clean DB), create 'posts' table first
+        # If neither exists (clean DB), create legacy singular 'post' table to
+        # remain compatible with the SQLAlchemy model and initial migration.
         op.create_table(
-            "posts",
-            sa.Column("id", sa.Integer(), primary_key=True),
+            "post",
+            sa.Column("id", sa.Integer(), nullable=False),
             sa.Column("username", sa.String(length=32), nullable=False),
             sa.Column("message", sa.Text(), nullable=False),
             sa.Column("timestamp", sa.DateTime(), nullable=True),
+            sa.PrimaryKeyConstraint("id"),
         )
-        posts_table = "posts"
+        posts_table = "post"
 
     # Add kindness_points column to the detected posts table
     op.add_column(

@@ -36,6 +36,11 @@ def issue_kindness_token():
 
     """Issue a new kindness token for a specific post."""
     if not os.getenv("ENABLE_KINDNESS_POINTS", "0") == "1":
+        try:
+            val = os.getenv("ENABLE_KINDNESS_POINTS", "0")
+            current_app.logger.debug(f"[KINDNESS-SERVER] ENABLE_KINDNESS_POINTS={val}")
+        except Exception:
+            pass
         return jsonify({"error": "Feature disabled"}), 404
 
     # Accept JSON, form-encoded, or raw bodies
@@ -113,6 +118,11 @@ def redeem_kindness_token():
 
     """Redeem token to award kindness point to a post."""
     if not os.getenv("ENABLE_KINDNESS_POINTS", "0") == "1":
+        try:
+            val = os.getenv("ENABLE_KINDNESS_POINTS", "0")
+            current_app.logger.debug(f"[KINDNESS-SERVER] ENABLE_KINDNESS_POINTS={val}")
+        except Exception:
+            pass
         return jsonify({"error": "Feature disabled"}), 404
     # Tolerant parsing similar to token issuance
     try:
@@ -372,6 +382,22 @@ def _create_post_impl():
 
 def create_post():
     return _create_post_impl()
+
+
+# Debug: lightweight flags endpoint (dev only)
+@bp.route("/_debug/flags", methods=["GET"])
+def debug_flags():
+    """Return a small set of non-secret runtime flags for local debugging.
+    This endpoint is disabled in production or if `DISABLE_DEBUG_FLAGS` is set.
+    """
+    if (
+        os.getenv("FLASK_ENV") == "production"
+        or os.getenv("DISABLE_DEBUG_FLAGS", "0") == "1"
+    ):
+        return jsonify({"error": "Not available"}), 404
+    keys = ["ENABLE_KINDNESS_POINTS", "RATE_LIMIT", "FLASK_ENV"]
+    flags = {k: os.getenv(k) for k in keys}
+    return jsonify({"flags": flags}), 200
 
 
 RATE_LIMIT = os.environ.get("RATE_LIMIT", "1/minute")

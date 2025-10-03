@@ -10,6 +10,8 @@ from datetime import datetime
 
 
 class Post(db.Model):
+    __tablename__ = "post"
+
     """
     SQLAlchemy model for a social post.
     Fields:
@@ -28,6 +30,7 @@ class Post(db.Model):
 
 
 class KindnessVote(db.Model):
+    __tablename__ = "kindness_votes"
     """
     Records a redeemed kindness token to prevent double-spend.
     Fields:

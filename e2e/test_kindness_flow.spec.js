@@ -30,9 +30,8 @@ test.describe('Kindness points - E2E', () => {
     const firstPost = await page.locator('.post').first();
     const postId = await firstPost.getAttribute('data-id');
 
-    // Read initial kindness count
-    const kindCountLocator = jeet.kindnessCount(postId);
-    let initialText = await kindCountLocator.textContent();
+    // Read initial kindness count (use page object numeric accessor)
+    const initialCount = await jeet.kindnessCountValue(postId);
 
     // Request a kindness token explicitly (ensures server receives post_id)
     let tokenResp = await page.request.post('http://localhost:5000/api/kindness/token', { data: JSON.stringify({ post_id: postId }), headers: { 'Content-Type': 'application/json' } });
@@ -78,8 +77,9 @@ test.describe('Kindness points - E2E', () => {
     const json = await response.json();
     expect(json).toHaveProperty('new_points');
 
-    // Wait for the UI to reflect the updated points
-    await expect(kindCountLocator).toHaveText(new RegExp(String(json.new_points)));
+    // Wait for the UI to reflect the updated points (use page object locator)
+    const kindCountLocatorUpdated = jeet.kindnessCount(postId);
+    await expect(kindCountLocatorUpdated).toHaveText(new RegExp(String(json.new_points)));
   });
 
   test('prevents double redemption of the same token', async ({ page }) => {
