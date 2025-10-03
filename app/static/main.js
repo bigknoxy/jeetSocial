@@ -72,8 +72,8 @@ async function butterSmoothLiveUpdate() {
           <span class="timestamp">${new Date(post.timestamp).toLocaleString()}</span>
           <div class="post-content">${escapeHtml(post.message)}</div>
           <div class="kindness-row">
-<button class="kindness-btn kindness-icon-btn" data-post-id="${post.id}" aria-label="Award kindness to this post" aria-pressed="false" data-tooltip="Award kindness (gives 1 kindness point)"><span class="icon" aria-hidden="true">❤️</span></button>
 <span class="kindness-badge kindness-count" data-kindness-count="${post.id}" aria-live="polite">🌈 ${displayKp}</span>
+<button class="kindness-btn kindness-icon-btn" data-post-id="${post.id}" aria-label="Award kindness to this post" aria-pressed="false" data-tooltip="Award kindness (gives 1 kindness point)"><span class="icon" aria-hidden="true">❤️</span></button>
           </div>
         `;
 
@@ -208,8 +208,8 @@ async function fetchFeedPage(page) {
           <span class="timestamp">${new Date(post.timestamp).toLocaleString()}</span>
             <div class="post-content">${escapeHtml(post.message)}</div>
            <div class="kindness-row">
-<button class="kindness-btn kindness-icon-btn" data-post-id="${post.id}" aria-label="Award kindness to this post" aria-pressed="false" data-tooltip="Award kindness (gives 1 kindness point)"><span class="icon" aria-hidden="true">❤️</span></button>
 <span class="kindness-badge kindness-count" data-kindness-count="${post.id}" aria-live="polite">🌈 ${displayKp}</span>
+<button class="kindness-btn kindness-icon-btn" data-post-id="${post.id}" aria-label="Award kindness to this post" aria-pressed="false" data-tooltip="Award kindness (gives 1 kindness point)"><span class="icon" aria-hidden="true">❤️</span></button>
            </div>
          </div>
        `;
