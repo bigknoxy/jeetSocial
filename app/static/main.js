@@ -56,6 +56,8 @@ async function butterSmoothLiveUpdate() {
         post.kindness_points = Number.isFinite(coerced) ? coerced : 0;
       }
 
+      const displayKp = Number.isFinite(Number(post.kindness_points)) ? Number(post.kindness_points) : 0;
+
       if (!existingIds.includes(postIdStr)) {
         // Create post node
         const div = document.createElement('div');
@@ -63,9 +65,6 @@ async function butterSmoothLiveUpdate() {
         div.style.animation = 'fadeIn 1s';
         div.style.borderLeft = `6px solid ${accentColors[i % accentColors.length]}`;
         div.setAttribute('data-id', post.id);
-
-        // Compute an explicit numeric kindness value to avoid rendering non-numeric values
-        const displayKp = Number.isFinite(Number(post.kindness_points)) ? Number(post.kindness_points) : 0;
 
         div.innerHTML = `
           <span class="username" style="color:${accentColors[i % accentColors.length]}">${post.username}</span>
@@ -85,6 +84,19 @@ async function butterSmoothLiveUpdate() {
         }
 
         inserted = true;
+      } else {
+        // Update existing post kindness badge so cross-device updates become visible
+        try {
+          const countEl = document.querySelector(`[data-kindness-count="${post.id}"]`);
+          if (countEl) {
+            countEl.textContent = `🌈 ${displayKp}`;
+            // Small visual feedback for change
+            countEl.classList.add('bump');
+            setTimeout(() => countEl.classList.remove('bump'), 350);
+          }
+        } catch (err) {
+          console.debug('[LiveFeed] failed to update existing kindness badge', err);
+        }
       }
     });
 
