@@ -50,7 +50,7 @@ test.describe('Wait Strategies and Async Operations', () => {
     // Wait for post to appear with retry logic
     await page.waitForFunction(
       (message) => {
-        const posts = document.querySelectorAll('.post div');
+        const posts = document.querySelectorAll('.post .post-content');
         return Array.from(posts).some(post =>
           post.textContent && post.textContent.includes(message)
         );
@@ -90,7 +90,7 @@ test.describe('Wait Strategies and Async Operations', () => {
     // Wait for first post to be processed before second submission
     await page.waitForFunction(
       (msg) => {
-        const posts = document.querySelectorAll('.post div');
+        const posts = document.querySelectorAll('.post .post-content');
         return Array.from(posts).some(post => post.textContent.includes(msg));
       },
       message1,
@@ -105,7 +105,7 @@ test.describe('Wait Strategies and Async Operations', () => {
     // Wait for second post
     await page.waitForFunction(
       (msg) => {
-        const posts = document.querySelectorAll('.post div');
+        const posts = document.querySelectorAll('.post .post-content');
         return Array.from(posts).some(post => post.textContent.includes(msg));
       },
       message2,
@@ -230,8 +230,8 @@ test.describe('Wait Strategies and Async Operations', () => {
           // Verify post appears
           await page.waitForFunction(
             (msg) => {
-              const posts = document.querySelectorAll('.post div');
-              return Array.from(posts).some(post => post.textContent.includes(msg));
+        const posts = document.querySelectorAll('.post .post-content');
+        return Array.from(posts).some(post => post.textContent.includes(msg));
             },
             testMessage,
             { timeout: 5000 }

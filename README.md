@@ -219,8 +219,22 @@ Response:
 ### Backend (Python/Flask)
 - Run server: `python -m app`
 - Lint: `flake8 .`
-- Test all: `docker compose run web pytest`
-- Test single: `docker compose run web pytest tests/test_posts.py::test_create_post`
+- Test all (Docker): `docker compose run web pytest`
+- Test single (Docker): `docker compose run web pytest tests/test_posts.py::test_create_post`
+
+Local testing (recommended for fast iteration):
+- Create and activate a virtual environment:
+  - `python3 -m venv .venv && source .venv/bin/activate`
+- Install the project in editable mode (makes `app` importable):
+  - `.venv/bin/pip install -e .`
+- Run the full test suite:
+  - `.venv/bin/pytest -q`
+- Run a single test:
+  - `.venv/bin/pytest tests/test_posts.py::test_create_post -q`
+
+Notes:
+- Use the virtual environment for development to avoid global package conflicts.
+- Docker-based test runs mirror CI and are useful for reproducing environment-specific issues.
 
 ### Frontend (JS/HTML)
 - Lint: `eslint .` (if using JS)

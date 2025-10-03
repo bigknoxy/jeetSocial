@@ -23,6 +23,13 @@ class JeetSocialPage {
     this.emojiButton = page.locator('#emoji-btn');
     this.emojiPicker = page.locator('#emoji-picker');
     this.enterToPostToggle = page.locator('#enter-to-post');
+
+    // Post sub-elements (more specific selectors to avoid ambiguity with kindness-row and other divs)
+    this.postContentSelector = '.post-content';
+    this.usernameSelector = '.username';
+    this.timestampSelector = '.timestamp';
+    this.kindnessCountSelector = '.kindness-count';
+    this.kindnessButtonSelector = '.kindness-btn';
   }
 
   /**
@@ -70,7 +77,7 @@ class JeetSocialPage {
   async waitForPostInFeed(message, timeout = 5000) {
     await this.page.waitForFunction(
       (msg) => {
-        const posts = document.querySelectorAll('.post div');
+        const posts = document.querySelectorAll('.post .post-content');
         return Array.from(posts).some(post =>
           post.textContent && post.textContent.includes(msg)
         );
@@ -160,7 +167,7 @@ class JeetSocialPage {
    * @returns {Array<string>} Array of usernames
    */
   async getAllUsernames() {
-    const usernames = await this.page.locator('.username').allTextContents();
+    const usernames = await this.page.locator(this.usernameSelector).allTextContents();
     return usernames;
   }
 
@@ -169,7 +176,7 @@ class JeetSocialPage {
    * @returns {string} Latest post username
    */
   async getLatestUsername() {
-    return await this.page.locator('.username').first().textContent();
+    return await this.page.locator(this.usernameSelector).first().textContent();
   }
 
   /**
@@ -177,7 +184,37 @@ class JeetSocialPage {
    * @returns {string} Latest post message
    */
   async getLatestPostMessage() {
-    return await this.page.locator('.post div').first().textContent();
+    return await this.page.locator(this.postContentSelector).first().textContent();
+  }
+
+  /**
+   * Get kindness count Locator for a post
+   * @param {number|string} postId - Post id
+   * @returns {Locator} Playwright locator for kindness count element
+   */
+  kindnessCount(postId) {
+    return this.page.locator(`${this.kindnessCountSelector}[data-kindness-count="${postId}"]`);
+  }
+
+  /**
+   * Get kindness count numeric value for a post
+   * @param {number|string} postId - Post id
+   * @returns {number} kindness count (numeric)
+   */
+  async kindnessCountValue(postId) {
+    const locator = this.kindnessCount(postId).first();
+    const text = (await locator.textContent()) || '';
+    const match = text.match(/(\d+)/);
+    return match ? parseInt(match[1], 10) : 0;
+  }
+
+  /**
+   * Get kindness button for a post
+   * @param {number|string} postId
+   * @returns {Locator} Playwright locator for kindness button
+   */
+  kindnessButton(postId) {
+    return this.page.locator(`${this.kindnessButtonSelector}[data-post-id="${postId}"]`);
   }
 
   /**
