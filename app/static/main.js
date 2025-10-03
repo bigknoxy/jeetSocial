@@ -16,7 +16,9 @@ let totalPages = 1;
 let pageLimit = 20;
 
 // Initial load
+console.debug('[main.js] loaded');
 window.addEventListener('DOMContentLoaded', () => {
+  console.debug('[main.js] DOMContentLoaded - fetching feed and starting live polling');
   fetchFeedPage(1);
   startLiveFeedPolling();
 });
@@ -35,35 +37,57 @@ async function butterSmoothLiveUpdate() {
   try {
     const resp = await fetch(`/api/posts?page=1&limit=${pageLimit}`);
     const data = await resp.json();
-    const newPosts = data.posts;
+    const newPosts = Array.isArray(data.posts) ? data.posts : [];
     // Debug: log incoming posts payload for E2E visibility
     try { console.debug('[LiveFeed] /api/posts payload', newPosts); } catch(e) {}
     const feed = document.getElementById('feed');
+    if (!feed) return;
     const accentColors = ["#ff4b5c", "#ffb26b", "#ffe347", "#43e97b", "#3fa7d6", "#7c4dff", "#c86dd7"];
     // Get existing post IDs in DOM
     const existingIds = Array.from(feed.children).map(node => node.dataset && node.dataset.id);
     let inserted = false;
-newPosts.forEach((post, i) => {
-      const postIdStr = post.id.toString();
-        // Defensive normalization of incoming post object
-        // Ensure kindness_points is a finite number; otherwise coerce to 0
-        if (typeof post.kindness_points !== 'number' || !Number.isFinite(post.kindness_points)) {
-          const coerced = Number(post.kindness_points);
-          post.kindness_points = Number.isFinite(coerced) ? coerced : 0;
-        }
 
-        if (!existingIds.includes(postIdStr)) {
+    newPosts.forEach((post, i) => {
+      const postIdStr = String(post.id);
+
+      // Defensive normalization of incoming post object
+      if (typeof post.kindness_points !== 'number' || !Number.isFinite(post.kindness_points)) {
+        const coerced = Number(post.kindness_points);
+        post.kindness_points = Number.isFinite(coerced) ? coerced : 0;
+      }
+
+      if (!existingIds.includes(postIdStr)) {
         // Create post node
         const div = document.createElement('div');
         div.className = 'post new-post';
         div.style.animation = 'fadeIn 1s';
         div.style.borderLeft = `6px solid ${accentColors[i % accentColors.length]}`;
         div.setAttribute('data-id', post.id);
+
         // Compute an explicit numeric kindness value to avoid rendering non-numeric values
         const displayKp = Number.isFinite(Number(post.kindness_points)) ? Number(post.kindness_points) : 0;
+
         div.innerHTML = `
           <span class="username" style="color:${accentColors[i % accentColors.length]}">${post.username}</span>
-undefined
+          <span class="timestamp">${new Date(post.timestamp).toLocaleString()}</span>
+          <div class="post-content">${escapeHtml(post.message)}</div>
+          <div class="kindness-row">
+<button class="kindness-btn kindness-icon-btn" data-post-id="${post.id}" aria-label="Award kindness to this post" aria-pressed="false" data-tooltip="Award kindness (gives 1 kindness point)"><span class="icon" aria-hidden="true">❤️</span></button>
+<span class="kindness-badge kindness-count" data-kindness-count="${post.id}" aria-live="polite">🌈 ${displayKp}</span>
+          </div>
+        `;
+
+        // Prepend newest posts to top of feed
+        try {
+          feed.insertBefore(div, feed.firstChild);
+        } catch (insertErr) {
+          feed.appendChild(div);
+        }
+
+        inserted = true;
+      }
+    });
+
     // Animate new posts
     if (inserted) {
       // Optionally, preserve scroll position if user is not at top
@@ -72,10 +96,11 @@ undefined
         showNewPostsBanner();
       }
     }
-  } catch {
-    console.log('[LiveFeed] Butter-smooth update error');
+  } catch (err) {
+    console.log('[LiveFeed] Butter-smooth update error', err);
   }
 }
+
 
 function showNewPostsBanner() {
   let banner = document.getElementById('new-posts-banner');
@@ -183,8 +208,8 @@ async function fetchFeedPage(page) {
           <span class="timestamp">${new Date(post.timestamp).toLocaleString()}</span>
             <div class="post-content">${escapeHtml(post.message)}</div>
            <div class="kindness-row">
-             <button class="kindness-btn rainbow-btn" data-post-id="${post.id}">Kindness +1</button>
-             <span class="kindness-count" data-kindness-count="${post.id}">🌈 ${displayKp}</span>
+<button class="kindness-btn kindness-icon-btn" data-post-id="${post.id}" aria-label="Award kindness to this post" aria-pressed="false" data-tooltip="Award kindness (gives 1 kindness point)"><span class="icon" aria-hidden="true">❤️</span></button>
+<span class="kindness-badge kindness-count" data-kindness-count="${post.id}" aria-live="polite">🌈 ${displayKp}</span>
            </div>
          </div>
        `;
@@ -275,8 +300,19 @@ async function postMessage(e) {
   }
 }
 
-document.getElementById('post-form').addEventListener('submit', postMessage);
-// window.addEventListener('DOMContentLoaded', fetchFeed); // Disabled to prevent feed overwrite
+// Attach post handler defensively
+(function attachPostHandler() {
+  try {
+    const postForm = document.getElementById('post-form');
+    if (postForm && !postForm._hasSubmitHandler) {
+      postForm.addEventListener('submit', postMessage);
+      postForm._hasSubmitHandler = true;
+      console.debug('[main.js] post-form submit handler attached');
+    }
+  } catch (err) {
+    console.debug('[main.js] attachPostHandler error', err);
+  }
+})();
 
 // Enter to Post Toggle Integration
 function setupEnterToPost() {
@@ -284,13 +320,15 @@ function setupEnterToPost() {
   const enterToggle = document.getElementById('enter-to-post');
   const postForm = document.getElementById('post-form');
 
+  if (!textarea) return;
+
   textarea.addEventListener('keydown', function(e) {
     if (
       enterToggle && enterToggle.checked &&
       e.key === 'Enter' && !e.shiftKey && !e.ctrlKey
     ) {
       e.preventDefault();
-      postForm.requestSubmit();
+      if (postForm && typeof postForm.requestSubmit === 'function') postForm.requestSubmit();
     }
   });
 }
@@ -302,6 +340,11 @@ function setupCharacterCounter() {
   const counter = document.getElementById('char-count');
   const postBtn = document.getElementById('post-btn');
   const errorDiv = document.getElementById('error');
+
+  if (!textarea || !counter || !postBtn || !errorDiv) {
+    console.debug('[main.js] setupCharacterCounter: missing elements', { textarea: !!textarea, counter: !!counter, postBtn: !!postBtn, errorDiv: !!errorDiv });
+    return;
+  }
 
   function updateCounter() {
     const length = textarea.value.length;
@@ -341,7 +384,8 @@ function setupCharacterCounter() {
   textarea.addEventListener('focus', function() {
     if (window.innerWidth < 600) {
       setTimeout(function() {
-        document.getElementById('post-form').scrollIntoView({ behavior: 'smooth', block: 'center' });
+        const pf = document.getElementById('post-form');
+        if (pf && typeof pf.scrollIntoView === 'function') pf.scrollIntoView({ behavior: 'smooth', block: 'center' });
       }, 300);
     }
   });
@@ -350,6 +394,21 @@ function setupCharacterCounter() {
 window.addEventListener('DOMContentLoaded', setupCharacterCounter);
 
 // Kindness Points Manager
+// Toast notification helper
+function showToast(message, type = '', duration = 2500) {
+    const toast = document.getElementById('toast');
+    if (!toast) return;
+    toast.textContent = message;
+    toast.className = '';
+    if (type) toast.classList.add(type);
+    toast.classList.add('show');
+    setTimeout(() => {
+        toast.classList.remove('show');
+        toast.classList.remove('error');
+        toast.classList.remove('success');
+    }, duration);
+}
+
 class KindnessManager {
     constructor() {
         this.token = sessionStorage.getItem('kindness_token');
@@ -450,69 +509,111 @@ class KindnessManager {
         }
     }
     
+    /**
+ * Optimistic kindness award logic:
+ * - Immediately increments badge and animates for fast feedback
+ * - Disables button to prevent double-award
+ * - On API success: updates badge, broadcasts to other tabs, shows success toast
+ * - On error: reverts badge, re-enables button, refocuses for accessibility, shows error toast
+ */
     async awardKindness(postId, buttonElement) {
-        const token = await this.ensureToken(postId);
-        if (!token) {
-            alert('Unable to get kindness token');
-            return;
+    // Optimistic UI: increment count, animate, disable button
+    const countElement = document.querySelector(`[data-kindness-count="${postId}"]`);
+    let originalCount = 0;
+    if (countElement) {
+        const text = (countElement.textContent || '').trim();
+        const match = text.match(/(\d+)/);
+        originalCount = match ? parseInt(match[1], 10) : 0;
+        // Update ARIA live region for screen readers with optimistic announcement
+        const liveRegion = document.getElementById('kindness-live');
+        if (liveRegion) liveRegion.textContent = `Kindness awarded for post ${postId}. New count ${originalCount + 1}`;
+        countElement.textContent = `🌈 ${originalCount + 1}`;
+        countElement.classList.add('bump');
+        setTimeout(() => countElement.classList.remove('bump'), 350);
+    }
+    if (buttonElement) {
+        buttonElement.disabled = true;
+        buttonElement.setAttribute('aria-pressed', 'true');
+    }
+    let token;
+    try {
+        token = await this.ensureToken(postId);
+    } catch (err) {
+        showToast('Unable to get kindness token', 'error');
+        if (countElement) countElement.textContent = `🌈 ${originalCount}`;
+        if (buttonElement) {
+            buttonElement.disabled = false;
+            buttonElement.setAttribute('aria-pressed', 'false');
         }
-        try {
-            // Redeem via query params as fallback to avoid body parsing issues
-            console.log('[KINDNESS-CLIENT] POST /api/kindness/redeem via query params post_id=', postId);
-            const response = await fetch(`/api/kindness/redeem?post_id=${encodeURIComponent(postId)}&token=${encodeURIComponent(token)}`, {
-                method: 'POST'
-            });
-            const data = await response.json();
-            if (response.ok && data.success) {
-                // Update UI optimistically
-                this.updateKindnessDisplay(postId, data.new_points);
-                // Broadcast to other open tabs/windows via localStorage
+        return;
+    }
+    if (!token) {
+        showToast('Unable to get kindness token', 'error');
+        if (countElement) countElement.textContent = `🌈 ${originalCount}`;
+        if (buttonElement) {
+            buttonElement.disabled = false;
+            buttonElement.setAttribute('aria-pressed', 'false');
+        }
+        return;
+    }
+    try {
+        const response = await fetch(`/api/kindness/redeem?post_id=${encodeURIComponent(postId)}&token=${encodeURIComponent(token)}`, {
+            method: 'POST'
+        });
+        const data = await response.json();
+        if (response.ok && data.success) {
+            this.updateKindnessDisplay(postId, data.new_points);
+            // Broadcast to other open tabs/windows via localStorage
+            try {
+                const payload = { post_id: postId, new_points: data.new_points, ts: Date.now() };
                 try {
-                    const payload = { post_id: postId, new_points: data.new_points, ts: Date.now() };
-                    // Use setItem -> removeItem trick to ensure storage event fires across browsers and for repeated identical payloads
-                        try {
-                        localStorage.setItem('jeet_kindness_update', JSON.stringify(payload));
-                        // Also post via BroadcastChannel if available for immediate delivery
-                        try {
-                            if (this._bc) {
-                                this._bc.postMessage(payload);
-                            }
-                        } catch (bcErr) {
-                            console.debug('[KINDNESS-CLIENT] BroadcastChannel post error:', bcErr);
-                        }
-                        // Small timeout to allow other tabs to receive the set event, then remove to allow future identical payloads
-                        setTimeout(() => {
-                            try {
-                                localStorage.removeItem('jeet_kindness_update');
-                            } catch (remErr) {
-                                console.debug('[KINDNESS-CLIENT] error removing kindness broadcast key:', remErr);
-                            }
-                        }, 200);
-                    } catch (err) {
-                        console.debug('[KINDNESS-CLIENT] unable to write kindness broadcast to localStorage:', err);
+                    localStorage.setItem('jeet_kindness_update', JSON.stringify(payload));
+                    if (this._bc) {
+                        this._bc.postMessage(payload);
                     }
+                    setTimeout(() => {
+                        try {
+                            localStorage.removeItem('jeet_kindness_update');
+                        } catch (remErr) {
+                            console.debug('[KINDNESS-CLIENT] error removing kindness broadcast key:', remErr);
+                        }
+                    }, 200);
                 } catch (err) {
                     console.debug('[KINDNESS-CLIENT] unable to write kindness broadcast to localStorage:', err);
                 }
-
-                // Update button state in this tab only
-                if (buttonElement) {
-                    buttonElement.disabled = true;
-                    buttonElement.textContent = 'Kindness Given!';
-                }
-
-                // Clear used token
-                sessionStorage.removeItem('kindness_token');
-                sessionStorage.removeItem('kindness_token_expiry');
-                this.token = null;
-            } else {
-                alert(data.error || 'Failed to award kindness');
+            } catch (err) {
+                console.debug('[KINDNESS-CLIENT] unable to write kindness broadcast to localStorage:', err);
             }
-        } catch (error) {
-            console.error('Failed to award kindness:', error);
-            alert('Network error');
+            if (buttonElement) {
+                buttonElement.disabled = true;
+                buttonElement.setAttribute('aria-pressed', 'true');
+            }
+            sessionStorage.removeItem('kindness_token');
+            sessionStorage.removeItem('kindness_token_expiry');
+            this.token = null;
+            showToast('Kindness awarded! 🌈', 'success');
+        } else {
+            showToast(data.error || 'Failed to award kindness', 'error');
+            if (countElement) countElement.textContent = `🌈 ${originalCount}`;
+ if (buttonElement) {
+            buttonElement.disabled = false;
+            buttonElement.setAttribute('aria-pressed', 'false');
+            // Accessibility: refocus button on error for keyboard users
+            if (typeof buttonElement.focus === 'function') buttonElement.focus();
+        }
+        }
+    } catch (error) {
+        console.error('Failed to award kindness:', error);
+        showToast('Network error', 'error');
+        if (countElement) countElement.textContent = `🌈 ${originalCount}`;
+        if (buttonElement) {
+            buttonElement.disabled = false;
+            buttonElement.setAttribute('aria-pressed', 'false');
         }
     }
+}
+
+
     
     updateKindnessDisplay(postId, newCount) {
         const countElement = document.querySelector(`[data-kindness-count="${postId}"]`);
@@ -521,6 +622,15 @@ class KindnessManager {
             const displayKp = Number.isFinite(Number(newCount)) ? Number(newCount) : 0;
             // Keep display format consistent with initial render: emoji + number
             countElement.textContent = `🌈 ${displayKp}`;
+            // Announce change to offscreen live region for screen readers
+            try {
+                const liveRegion = document.getElementById('kindness-live');
+                if (liveRegion) {
+                    liveRegion.textContent = `Kindness count for post ${postId} is now ${displayKp}`;
+                }
+            } catch (err) {
+                console.debug('[KINDNESS-CLIENT] updateKindnessDisplay aria announcement failed', err);
+            }
         }
     }
 }
@@ -528,11 +638,80 @@ class KindnessManager {
 // Initialize kindness manager
 const kindnessManager = new KindnessManager();
 
+// Accessible tooltip implementation and first-time toast explaining 🌈 points
+(function setupKindnessUxExtras() {
+  // Tooltip element (re-used)
+  const tooltip = document.createElement('div');
+  tooltip.className = 'kindness-tooltip';
+  tooltip.setAttribute('role','tooltip');
+  document.body.appendChild(tooltip);
+
+  let tooltipTimeout = null;
+  function showTooltipFromElement(el) {
+    try {
+      const text = el.dataset && el.dataset.tooltip ? el.dataset.tooltip : el.getAttribute('aria-label') || 'Award kindness';
+      tooltip.textContent = text;
+      const rect = el.getBoundingClientRect();
+      // Position above the element centered
+      const left = rect.left + (rect.width/2) - (tooltip.offsetWidth/2);
+      const top = rect.top - tooltip.offsetHeight - 8;
+      tooltip.style.left = Math.max(8, left) + 'px';
+      tooltip.style.top = Math.max(8, top) + 'px';
+      tooltip.classList.add('show');
+      if (tooltipTimeout) clearTimeout(tooltipTimeout);
+      // Auto-hide after 2.5s
+      tooltipTimeout = setTimeout(() => tooltip.classList.remove('show'), 2500);
+    } catch (err) {
+      console.debug('[KINDNESS-UX] showTooltip error', err);
+    }
+  }
+  function hideTooltip() { tooltip.classList.remove('show'); }
+
+  document.addEventListener('mouseover', (e) => {
+    const el = e.target.closest && e.target.closest('.kindness-btn');
+    if (el) showTooltipFromElement(el);
+  });
+  document.addEventListener('focusin', (e) => {
+    const el = e.target.closest && e.target.closest('.kindness-btn');
+    if (el) showTooltipFromElement(el);
+  });
+  document.addEventListener('mouseout', (e) => {
+    const el = e.target.closest && e.target.closest('.kindness-btn');
+    if (el) hideTooltip();
+  });
+  document.addEventListener('focusout', (e) => {
+    const el = e.target.closest && e.target.closest('.kindness-btn');
+    if (el) hideTooltip();
+  });
+
+  // First-time toast: explain 🌈 points and cross-tab behavior
+  try {
+    if (!sessionStorage.getItem('jeet_kindness_toast_shown')) {
+      // Show toast once after a small delay so it doesn't compete with page load
+      setTimeout(() => {
+        showToast('Kindness points (🌈) are shared across open tabs. Awarding grants 1 🌈 point to the post.', '', 6000);
+        sessionStorage.setItem('jeet_kindness_toast_shown', '1');
+      }, 1500);
+    }
+  } catch (err) {
+    console.debug('[KINDNESS-UX] first-time toast failed', err);
+  }
+})();
+
+
 document.addEventListener('DOMContentLoaded', function() {
+    // Delegated click handler: support clicks on the icon/span inside the button
     document.addEventListener('click', function(e) {
-        if (e.target.classList && e.target.classList.contains('kindness-btn')) {
-            const postId = parseInt(e.target.dataset.postId);
-            kindnessManager.awardKindness(postId, e.target);
+        // Walk up the DOM to find the kindness button if inner element clicked
+        let target = e.target;
+        while (target && target !== document.body) {
+            if (target.classList && target.classList.contains('kindness-btn')) break;
+            target = target.parentNode;
+        }
+        if (target && target.classList && target.classList.contains('kindness-btn')) {
+            const postId = parseInt(target.dataset.postId, 10);
+            if (!Number.isFinite(postId)) return;
+            kindnessManager.awardKindness(postId, target);
         }
     });
 });
@@ -590,3 +769,30 @@ window.addEventListener('DOMContentLoaded', function() {
   });
 });
 
+
+// Bootstrap: ensure setup functions run even if DOMContentLoaded fired before script execution
+(function bootstrap() {
+  function safeCall(fn) {
+    try {
+      if (typeof fn === 'function') fn();
+    } catch (err) {
+      console.debug('[main.js] bootstrap safeCall error', err);
+    }
+  }
+
+  const runSetupNow = () => {
+    console.debug('[main.js] bootstrap - running setup functions');
+    safeCall(setupEnterToPost);
+    safeCall(setupCharacterCounter);
+    // Ensure feed is loaded and polling started
+    safeCall(() => fetchFeedPage(1));
+    safeCall(startLiveFeedPolling);
+  };
+
+  if (document.readyState === 'complete' || document.readyState === 'interactive') {
+    // DOMContentLoaded may have already fired; run setups immediately
+    setTimeout(runSetupNow, 0);
+  } else {
+    window.addEventListener('DOMContentLoaded', runSetupNow);
+  }
+})();
