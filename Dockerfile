@@ -5,9 +5,12 @@ WORKDIR /app
 # Install build deps and postgres client
 RUN apt-get update && apt-get install -y build-essential postgresql-client curl && rm -rf /var/lib/apt/lists/*
 COPY requirements.txt requirements.txt
-RUN pip install --user --no-cache-dir -r requirements.txt
+RUN pip install --no-cache-dir -r requirements.txt
 
 # Stage 2: Final image
+# Install test/dev dependencies so `pytest` and other tools are available in the final image for running tests inside the container
+COPY requirements.txt requirements.txt
+RUN pip install --no-cache-dir -r requirements.txt
 FROM python:3.10.12-slim
 WORKDIR /app
 # Create non-root user
