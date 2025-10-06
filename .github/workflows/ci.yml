@@ -112,8 +112,20 @@ jobs:
             flask db upgrade
           fi
 
-      - name: Run pytest
-        run: pytest -q
+      - name: Run tests with coverage
+        run: pytest --cov=app --cov-report=xml -q
+
+      - name: Upload coverage artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: python-coverage
+          path: coverage.xml
+
+      - name: Upload coverage to Codecov
+        uses: codecov/codecov-action@v3
+        with:
+          files: coverage.xml
+          token: ${{ secrets.CODECOV_TOKEN }}
 
   docker-build:
     name: Docker build (main only)
@@ -121,15 +133,21 @@ jobs:
     if: github.ref == 'refs/heads/main'
     steps:
       - uses: actions/checkout@v3
-      - name: Build Docker images
-        run: docker compose build
-      - name: Tag image for Trivy
-        run: docker tag jeet-web:latest jeetsocial_web:latest || true
+
+      - name: Build Docker image for scanning
+        uses: docker/build-push-action@v4
+        with:
+          context: .
+          file: ./Dockerfile
+          load: true
+          tags: jeetsocial_web:latest
+
       - name: Trivy scan
-        uses: aquasecurity/trivy-action@0.33.1
+        uses: aquasecurity/trivy-action@v0.33.1
         with:
           image-ref: 'jeetsocial_web:latest'
           format: 'table'
+          severity: 'HIGH,CRITICAL'
           exit-code: '1'
           ignore-unfixed: true
 

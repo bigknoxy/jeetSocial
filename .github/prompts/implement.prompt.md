@@ -18,6 +18,18 @@ $ARGUMENTS
    - **IF EXISTS**: Read research.md for technical decisions and constraints
    - **IF EXISTS**: Read quickstart.md for integration scenarios
 
+# PR formatting guidance
+- When creating PRs, use the repository's PR template at `.github/pull_request_template.md`.
+- PR bodies MUST be formatted as readable bullet lists under these headings: `Summary`, `Changes Included`, `Tests & Linting`, `Constitution Check`, `Follow-up & Notes`, `Reviewer Checklist`.
+- Do not include raw XML or tag-like blocks such as `<commit_analysis>` in PR bodies; use plain text bullet lists instead.
+- Populate the `Constitution Check` section with short bullets for each requirement (Tests-first, Branching, Linting, Documentation).
+   - **REQUIRED**: Read tasks.md for the complete task list and execution plan
+   - **REQUIRED**: Read plan.md for tech stack, architecture, and file structure
+   - **IF EXISTS**: Read data-model.md for entities and relationships
+   - **IF EXISTS**: Read contracts/ for API specifications and test requirements
+   - **IF EXISTS**: Read research.md for technical decisions and constraints
+   - **IF EXISTS**: Read quickstart.md for integration scenarios
+
 3. Parse tasks.md structure and extract:
    - **Task phases**: Setup, Tests, Core, Integration, Polish
    - **Task dependencies**: Sequential vs parallel execution rules
