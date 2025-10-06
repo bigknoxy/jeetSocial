@@ -43,6 +43,22 @@ jobs:
       - name: Run flake8
         run: flake8 .
 
+      - name: Constitution check
+        run: |
+          echo "Checking constitution file for placeholders and version..."
+          if rg -n "TODO\(RATIFICATION_DATE\)" .specify/memory/constitution.md >/dev/null 2>&1; then
+            echo "ERROR: Constitution file contains TODO(RATIFICATION_DATE). Set RATIFICATION_DATE after team ratification or include justification in PR body.";
+            rg -n "TODO\(RATIFICATION_DATE\)" .specify/memory/constitution.md || true;
+            exit 1;
+          fi
+          # Ensure expected version present
+          if ! rg -n "Version":?\s*2\.1\.2 .specify/memory/constitution.md >/dev/null 2>&1; then
+            echo "ERROR: Constitution Version mismatch or Version not set to 2.1.2. Ensure .specify/memory/constitution.md contains 'Version: 2.1.2'";
+            rg -n "Version" .specify/memory/constitution.md || true;
+            exit 1;
+          fi
+          echo "Constitution check passed."
+
   test:
     name: Tests (pytest)
     runs-on: ubuntu-latest
