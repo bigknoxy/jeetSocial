@@ -1,0 +1,8 @@
+flask
+flask_sqlalchemy
+psycopg2-binary
+flask-limiter
+requests
+python-dotenv
+flask-migrate
+alembic

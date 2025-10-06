@@ -115,7 +115,7 @@ You can set up your environment automatically with the provided script, or manua
    ```
 2. **Install dependencies:**
    ```bash
-   pip install -r requirements.txt
+   pip install -r requirements-runtime.txt
    ```
 3. **Copy and edit .env.example:**
    ```bash
@@ -225,7 +225,7 @@ python3 -m venv .venv
 # Upgrade pip/setuptools/wheel inside the venv
 .venv/bin/python -m pip install --upgrade pip setuptools wheel
 # Install dependencies and the package in editable mode
-.venv/bin/pip install -r requirements.txt
+.venv/bin/pip install -r requirements-runtime.txt
 .venv/bin/pip install -e .
 # Run linter and tests from the venv
 .venv/bin/flake8 .
