@@ -264,6 +264,25 @@ Notes:
 - Submit PRs to `main` after all tests pass
 - See [AGENTS.md](./AGENTS.md) for project guidelines and coding standards
 
+## Constitution & TDD
+This project follows the jeetSocial Constitution (see `.specify/memory/constitution.md`, Version 2.1.2). The Constitution enforces mandatory Test-Driven Development (TDD) and governance rules that all contributors and automated agents must follow.
+
+Key points:
+- **TDD is mandatory:** write tests that fail before implementing behavior; confirm tests fail (Red), implement the minimal code to make them pass (Green), then refactor (Refactor).
+- **Linters:** run `flake8 .` and fix issues before opening a PR.
+- **Local verification:** run `pytest` or `docker compose run web pytest` to verify tests locally.
+- **PR Requirements:** PRs that change behavior must include failing tests demonstrating the requirement or bugfix, and must pass CI (lint + tests). Governance changes to the Constitution must set `RATIFICATION_DATE` in the constitution file or include an explicit justification in the PR body.
+
+Quick verification commands:
+
+```bash
+flake8 .
+pytest
+# or using Docker (mirrors CI):
+docker compose run web pytest
+```
+
+
 ## License
 This project is licensed under the MIT License. See [LICENSE](./LICENSE) for details.
 
