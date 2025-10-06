@@ -130,7 +130,7 @@ jobs:
   docker-build:
     name: Docker build (main only)
     runs-on: ubuntu-latest
-    if: github.ref == 'refs/heads/main'
+    if: github.event_name == 'pull_request' || (github.event_name == 'push' && github.ref == 'refs/heads/main')
     steps:
       - uses: actions/checkout@v3
 
@@ -143,7 +143,7 @@ jobs:
           tags: jeetsocial_web:latest
 
       - name: Trivy scan
-        uses: aquasecurity/trivy-action@v0.33.1
+        uses: aquasecurity/trivy-action@0.33.1
         with:
           image-ref: 'jeetsocial_web:latest'
           format: 'table'
