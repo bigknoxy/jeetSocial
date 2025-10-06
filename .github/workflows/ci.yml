@@ -43,6 +43,7 @@ jobs:
       - name: Run flake8
         run: flake8 .
 
+
   test:
     name: Tests (pytest)
     runs-on: ubuntu-latest
