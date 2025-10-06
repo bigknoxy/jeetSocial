@@ -150,6 +150,10 @@ textarea:focus { border-color: #ff4b5c; box-shadow: 0 0 0 2px #ff4b5c33; outline
 @keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
 .new-post { background: var(--container-contrast); box-shadow: 0 0 8px var(--accent); }
 
+/* Bump animation for optimistic updates (kindness badge) */
+@keyframes bump { 0% { transform: scale(1); } 40% { transform: scale(1.12); } 100% { transform: scale(1); } }
+.bump { display: inline-block; animation: bump 320ms ease; }
+
 /* Responsive */
 @media (max-width: 768px) {
   .container { max-width: 98vw; margin: 1em auto; padding: 1em; }

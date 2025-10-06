@@ -52,3 +52,4 @@ context
 __pycache__/
 .config/opencode/context/
 node_modules/
+.playwright-browsers/

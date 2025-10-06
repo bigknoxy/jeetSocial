@@ -85,13 +85,14 @@ test.describe('Feed Display and Post Rendering', () => {
 
     // Wait for the post to appear and specifically look for our unique message
     // Wait for any post containing 'Special chars test' (less strict)
-    await page.waitForFunction(
-      () => {
-        const posts = document.querySelectorAll('.post div');
-        return Array.from(posts).some(post => post.textContent.includes('Special chars test'));
-      },
-      { timeout: 5000 }
-    );
+      await page.waitForFunction(
+        () => {
+          const posts = document.querySelectorAll('.post .post-content');
+          return Array.from(posts).some(post => post.textContent.includes('Special chars test'));
+        },
+        { timeout: 5000 }
+      );
+
 
     // Find the post containing our unique test message by checking all posts
     const posts = page.locator('.post');
@@ -100,10 +101,11 @@ test.describe('Feed Display and Post Rendering', () => {
     let foundPostContent = '';
     for (let i = 0; i < postCount; i++) {
       const postText = await posts.nth(i).textContent();
-      if (postText.includes('Special chars test')) {
-        foundPostContent = await posts.nth(i).locator('div').textContent();
-        break;
-      }
+        if (postText.includes('Special chars test')) {
+          foundPostContent = await posts.nth(i).locator('.post-content').textContent();
+          break;
+        }
+
     }
 
     // Debug output for actual post content
@@ -143,7 +145,7 @@ test.describe('Feed Display and Post Rendering', () => {
     // Wait for the specific new post to appear in the feed
     await page.waitForFunction(
       (message) => {
-        const posts = document.querySelectorAll('.post div');
+        const posts = document.querySelectorAll('.post .post-content');
         return Array.from(posts).some(post => post.textContent.includes(message));
       },
       testMessage,
@@ -183,7 +185,7 @@ test.describe('Feed Display and Post Rendering', () => {
     // Wait for first post to appear
     await page.waitForFunction(
       (message) => {
-        const posts = document.querySelectorAll('.post div');
+        const posts = document.querySelectorAll('.post .post-content');
         return Array.from(posts).some(post => post.textContent.includes(message));
       },
       firstMessage,
@@ -199,7 +201,7 @@ test.describe('Feed Display and Post Rendering', () => {
     // Wait for second post to appear
     await page.waitForFunction(
       (message) => {
-        const posts = document.querySelectorAll('.post div');
+        const posts = document.querySelectorAll('.post .post-content');
         return Array.from(posts).some(post => post.textContent.includes(message));
       },
       secondMessage,
