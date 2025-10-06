@@ -98,4 +98,4 @@ Integration and contract tests are required for all public APIs and for interact
   - The CI pipeline SHOULD be configured to fail builds for missing or failing tests, flake8 violations, or changes that remove required moderation checks.
   - Maintain a compliance log for substantive governance changes for audit and accountability.
 
-**Version**: 2.1.2 | **Ratified**: TODO(RATIFICATION_DATE): set on team approval | **Last Amended**: 2025-10-06
+**Version**: 2.1.2 | **Ratified**: 2025-10-06 | **Last Amended**: 2025-10-06
