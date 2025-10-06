@@ -15,6 +15,7 @@ from app.utils import (
     generate_kindness_token,
     verify_kindness_token,
     hash_token_for_storage,
+    format_display_timestamp,
 )
 import os
 
@@ -93,7 +94,7 @@ def issue_kindness_token():
     post_id = data["post_id"]
 
     # Verify post exists
-    post = Post.query.get(post_id)
+    post = db.session.get(Post, post_id)
     if not post:
         return jsonify({"error": "Post not found"}), 404
 
@@ -195,7 +196,7 @@ def redeem_kindness_token():
     except Exception:
         return jsonify({"error": "Invalid post_id"}), 400
     # Check if post exists
-    post = Post.query.get(post_id)
+    post = db.session.get(Post, post_id)
     if not post:
         return jsonify({"error": "Post not found"}), 404
     # Create token hash for uniqueness
@@ -257,7 +258,7 @@ def redeem_kindness_token():
 @bp.route("/api/posts/<int:post_id>/kindness", methods=["GET"])
 def get_post_kindness(post_id):
     """Get kindness points for a specific post."""
-    post = Post.query.get(post_id)
+    post = db.session.get(Post, post_id)
     if not post:
         return jsonify({"error": "Post not found"}), 404
     return jsonify({"kindness_points": post.kindness_points}), 200
@@ -341,6 +342,17 @@ def get_posts():
             future = bool(p.timestamp and p.timestamp > now)
         except Exception:
             future = False
+        # If client supplies a `tz` query param, compute a server-side
+        # human-friendly display object using format_display_timestamp so
+        # tests can assert deterministic display output. Otherwise fall back to
+        # canonical UTC ISO string to preserve backward compatibility.
+        viewer_tz = request.args.get("tz")
+        display_obj = None
+        if viewer_tz and creation_ts:
+            try:
+                display_obj = format_display_timestamp(str(creation_ts), viewer_tz)
+            except Exception:
+                display_obj = None
         items.append(
             {
                 "id": p.id,
@@ -350,7 +362,10 @@ def get_posts():
                 "timestamp": creation_ts,
                 "creation_timestamp": creation_ts,
                 "kindness_points": int(getattr(p, "kindness_points", 0) or 0),
-                "meta": {"display": creation_ts, "future": future},
+                "meta": {
+                    "display": display_obj if display_obj is not None else creation_ts,
+                    "future": future,
+                },
             }
         )
 
@@ -377,7 +392,7 @@ def get_post(post_id):
     """Return a single post by id with canonical fields and meta."""
     from datetime import datetime as _dt
 
-    post = Post.query.get(post_id)
+    post = db.session.get(Post, post_id)
     if not post:
         return jsonify({"error": "Not found"}), 404
 
@@ -398,6 +413,15 @@ def get_post(post_id):
     except Exception:
         future = False
 
+    # Support optional `tz` query param for server-computed display fields
+    viewer_tz = request.args.get("tz")
+    display_obj = None
+    if viewer_tz:
+        try:
+            display_obj = format_display_timestamp(str(creation_ts), viewer_tz)
+        except Exception:
+            display_obj = None
+
     return jsonify(
         {
             "id": post.id,
@@ -405,7 +429,10 @@ def get_post(post_id):
             "message": post.message,
             "content": post.message,
             "creation_timestamp": creation_ts,
-            "meta": {"display": creation_ts, "future": future},
+            "meta": {
+                "display": display_obj if display_obj is not None else creation_ts,
+                "future": future,
+            },
         }
     )
 
