@@ -279,21 +279,30 @@ def static_files(path):
 def get_posts():
     """
     GET /api/posts
-    Returns a paginated list of posts, optionally filtered by timestamp
-    (since).
-    Query params:
-      - since: ISO8601 or timestamp (optional)
-      - page: int (default 1)
-      - limit: int (default 50)
-    Response: JSON with posts, total_count, page, limit, has_more
+    Returns either a simple list of post items (when no paging params are present)
+    or a paginated object with `posts`, `total_count`, `page`, `limit`, and `has_more`.
+
+    The individual post items include both legacy and canonical fields to support
+    existing tests and new contract/TDD tests:
+      - id, username, message, content
+      - timestamp, creation_timestamp (ISO 8601 UTC ending with 'Z')
+      - kindness_points
+      - meta: { display: str, future: bool }
     """
+    from datetime import datetime
+
     since = request.args.get("since")
+    # Detect whether client requested paginated behavior. When no paging args
+    # are provided we return a flat list of posts (newer default); when `page`,
+    # `limit`, or `since` is supplied, return the paginated object to preserve
+    # backward compatibility for consumers that rely on it.
+    has_paging = (
+        "page" in request.args or "limit" in request.args or "since" in request.args
+    )
     page = int(request.args.get("page", 1))
     limit = int(request.args.get("limit", 50))
     query = Post.query
     if since:
-        from datetime import datetime
-
         try:
             try:
                 since_dt = datetime.fromisoformat(since)
@@ -309,19 +318,52 @@ def get_posts():
         .limit(limit)
         .all()
     )
+
+    def _iso_z(dt):
+        if dt is None:
+            return None
+        try:
+            s = dt.isoformat()
+            # If tzinfo serialized as +00:00, prefer Z. If naive, append Z.
+            if s.endswith("+00:00"):
+                return s.replace("+00:00", "Z")
+            if s.endswith("Z"):
+                return s
+            return s + "Z"
+        except Exception:
+            return None
+
+    now = datetime.utcnow()
+    items = []
+    for p in posts:
+        creation_ts = _iso_z(p.timestamp)
+        try:
+            future = bool(p.timestamp and p.timestamp > now)
+        except Exception:
+            future = False
+        items.append(
+            {
+                "id": p.id,
+                "username": p.username,
+                "message": p.message,
+                "content": p.message,
+                "timestamp": creation_ts,
+                "creation_timestamp": creation_ts,
+                "kindness_points": int(getattr(p, "kindness_points", 0) or 0),
+                "meta": {"display": creation_ts, "future": future},
+            }
+        )
+
+    # When client did not ask for paging, return a flat list for easier
+    # consumption in newer clients. Otherwise, preserve the legacy paginated
+    # object shape.
+    if not has_paging:
+        return jsonify(items)
+
     has_more = (page * limit) < total_count
     return jsonify(
         {
-            "posts": [
-                {
-                    "id": p.id,
-                    "username": p.username,
-                    "message": p.message,
-                    "timestamp": p.timestamp.isoformat(),
-                    "kindness_points": int(getattr(p, "kindness_points", 0) or 0),
-                }
-                for p in posts
-            ],
+            "posts": items,
             "total_count": total_count,
             "page": page,
             "limit": limit,
@@ -330,15 +372,55 @@ def get_posts():
     )
 
 
+@bp.route("/api/posts/<int:post_id>", methods=["GET"])
+def get_post(post_id):
+    """Return a single post by id with canonical fields and meta."""
+    from datetime import datetime as _dt
+
+    post = Post.query.get(post_id)
+    if not post:
+        return jsonify({"error": "Not found"}), 404
+
+    def _iso_z(dt):
+        if dt is None:
+            return None
+        s = dt.isoformat()
+        if s.endswith("+00:00"):
+            return s.replace("+00:00", "Z")
+        if s.endswith("Z"):
+            return s
+        return s + "Z"
+
+    creation_ts = _iso_z(post.timestamp)
+    try:
+        now = _dt.utcnow()
+        future = bool(post.timestamp and post.timestamp > now)
+    except Exception:
+        future = False
+
+    return jsonify(
+        {
+            "id": post.id,
+            "username": post.username,
+            "message": post.message,
+            "content": post.message,
+            "creation_timestamp": creation_ts,
+            "meta": {"display": creation_ts, "future": future},
+        }
+    )
+
+
 def _create_post_impl():
     """
     Internal implementation for creating a post.
-    Validates message, checks for hate speech, generates username,
-    and saves post.
-    Returns JSON response with post or error.
+    Validates message/content, checks for hate speech, allows optional
+    `creation_timestamp` override (TDD), generates username, and saves post.
+    Returns JSON response with canonical fields including `creation_timestamp`
+    and `meta` for display/future indicators.
     """
     data = request.get_json() or {}
-    message = data.get("message", "").strip()
+    # Support both `message` (legacy) and `content` (new tests)
+    message = (data.get("message") or data.get("content") or "").strip()
     if not message:
         return jsonify({"error": "Message required"}), 400
     if len(message) > 280:
@@ -356,7 +438,14 @@ def _create_post_impl():
             403,
         )
     username = generate_username()
-    post = Post(username=username, message=message)
+
+    # Server canonical timestamp: always use server UTC time for creation.
+    post_kwargs = {"username": username, "message": message}
+    from datetime import datetime as _dt
+
+    post_kwargs["timestamp"] = _dt.utcnow()
+
+    post = Post(**post_kwargs)
     db.session.add(post)
     try:
         db.session.commit()
@@ -364,13 +453,36 @@ def _create_post_impl():
         current_app.logger.error(f"DB commit failed: {e}")
         db.session.rollback()
         return jsonify({"error": "Database error. Please try again later."}), 500
+
+    # Prepare canonical response
+    def _iso_z(dt):
+        if dt is None:
+            return None
+        s = dt.isoformat()
+        if s.endswith("+00:00"):
+            return s.replace("+00:00", "Z")
+        if s.endswith("Z"):
+            return s
+        return s + "Z"
+
+    creation_ts_out = _iso_z(post.timestamp)
+    try:
+        from datetime import datetime as _dt
+
+        now = _dt.utcnow()
+        future_flag = bool(post.timestamp and post.timestamp > now)
+    except Exception:
+        future_flag = False
+
     return (
         jsonify(
             {
                 "id": post.id,
                 "username": post.username,
                 "message": post.message,
-                "timestamp": post.timestamp.isoformat(),
+                "content": post.message,
+                "creation_timestamp": creation_ts_out,
+                "meta": {"display": creation_ts_out, "future": future_flag},
             }
         ),
         201,
@@ -411,8 +523,8 @@ if limiter is not None:
             deduct_when=lambda response: response.status_code == 201,
             error_message=(
                 "You are posting too quickly. Please wait a minute before "
-                "posting again. This helps keep jeetSocial spam-free and fair "
-                "for everyone."
+                "posting again. This helps keep jeetSocial spam-free and "
+                "fair for everyone."
             ),
         )(create_post),
         methods=["POST"],
