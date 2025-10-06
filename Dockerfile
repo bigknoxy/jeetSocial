@@ -17,10 +17,10 @@ WORKDIR /app
 RUN useradd --create-home --shell /bin/bash jeetuser
 # Install only runtime deps
 RUN apt-get update && apt-get install -y postgresql-client curl && rm -rf /var/lib/apt/lists/*
-COPY --from=builder --chown=jeetuser:jeetuser /root/.local /root/.local
-RUN if [ -d /root/.local/bin ]; then chmod +x /root/.local/bin/*; fi
+COPY --from=builder --chown=jeetuser:jeetuser /usr/local /usr/local
+RUN if [ -d /usr/local/bin ]; then chmod +x /usr/local/bin/*; fi
 RUN chmod 755 /root
-ENV PATH=/root/.local/bin:$PATH
+ENV PATH=/usr/local/bin:$PATH
 # Copy application files with correct ownership at copy time
 COPY --chown=jeetuser:jeetuser app app
 COPY --chown=jeetuser:jeetuser migrations migrations
@@ -34,7 +34,7 @@ COPY --chown=jeetuser:jeetuser init_db.py init_db.py
 RUN mkdir -p /app/instance /app/tmp && chown -R jeetuser:jeetuser /app/instance /app/tmp # Only chown writable dirs, not all of /app
 RUN chmod +x wait-for-it.sh wait-for-db-healthy.sh
 COPY --chown=jeetuser:jeetuser app/static static
-ENV PYTHONPATH=/root/.local/lib/python3.10/site-packages:/app
+ENV PYTHONPATH=/usr/local/lib/python3.10/site-packages:/app
 
 EXPOSE 5000
 USER jeetuser
