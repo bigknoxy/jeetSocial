@@ -312,13 +312,44 @@ def get_posts():
             query = query.filter(Post.timestamp >= since_dt)
         except Exception:
             pass
-    total_count = query.count()
-    posts = (
-        query.order_by(Post.timestamp.desc())
-        .offset((page - 1) * limit)
-        .limit(limit)
-        .all()
-    )
+
+    # Support view=top to return posts ordered by kindness_points (within a time window)
+    view = request.args.get("view", "latest")
+    import time
+
+    start_time = time.time()
+    try:
+        if view == "top":
+            # Use the post_service DB-backed path to get top posts
+            try:
+                from app import post_service
+
+                posts = post_service.top_posts(
+                    session=db.session, limit=limit, window_hours=24
+                )
+                total_count = len(posts)
+            except Exception as e:
+                current_app.logger.error(f"Error in top_posts: {e}")
+                # Fallback to empty list on error
+                posts = []
+                total_count = 0
+        else:
+            total_count = query.count()
+            posts = (
+                query.order_by(Post.timestamp.desc())
+                .offset((page - 1) * limit)
+                .limit(limit)
+                .all()
+            )
+
+        latency = time.time() - start_time
+        current_app.logger.info(
+            f"GET /api/posts view={view} count={len(posts)} " f"latency={latency:.3f}s"
+        )
+    except Exception as e:
+        latency = time.time() - start_time
+        current_app.logger.error(f"Error in GET /api/posts: {e} latency={latency:.3f}s")
+        raise
 
     def _iso_z(dt):
         if dt is None:

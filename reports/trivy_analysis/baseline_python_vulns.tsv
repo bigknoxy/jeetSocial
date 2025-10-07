@@ -1,0 +1,20 @@
+CVE-2023-30861	Flask	2.0.3	2.3.2, 2.2.5	HIGH	https://avd.aquasec.com/nvd/cve-2023-30861
+CVE-2023-25577	Werkzeug	2.0.3	2.2.3	HIGH	https://avd.aquasec.com/nvd/cve-2023-25577
+CVE-2024-34069	Werkzeug	2.0.3	3.0.3	HIGH	https://avd.aquasec.com/nvd/cve-2024-34069
+CVE-2023-46136	Werkzeug	2.0.3	3.0.1, 2.3.8	MEDIUM	https://avd.aquasec.com/nvd/cve-2023-46136
+CVE-2024-49766	Werkzeug	2.0.3	3.0.6	MEDIUM	https://avd.aquasec.com/nvd/cve-2024-49766
+CVE-2024-49767	Werkzeug	2.0.3	3.0.6	MEDIUM	https://avd.aquasec.com/nvd/cve-2024-49767
+CVE-2023-23934	Werkzeug	2.0.3	2.2.3	LOW	https://avd.aquasec.com/nvd/cve-2023-23934
+CVE-2021-41495	numpy	1.16.6	1.19	HIGH	https://avd.aquasec.com/nvd/cve-2021-41495
+CVE-2021-33430	numpy	1.16.6	1.21	MEDIUM	https://avd.aquasec.com/nvd/cve-2021-33430
+CVE-2021-34141	numpy	1.16.6	1.22	MEDIUM	https://avd.aquasec.com/nvd/cve-2021-34141
+CVE-2021-41496	numpy	1.16.6	1.19	MEDIUM	https://avd.aquasec.com/nvd/cve-2021-41496
+CVE-2023-5752	pip	21.2.4	23.3	MEDIUM	https://avd.aquasec.com/nvd/cve-2023-5752
+CVE-2025-8869	pip	21.2.4		MEDIUM	https://avd.aquasec.com/nvd/cve-2025-8869
+CVE-2023-32681	requests	2.27.1	2.31.0	MEDIUM	https://avd.aquasec.com/nvd/cve-2023-32681
+CVE-2024-35195	requests	2.27.1	2.32.0	MEDIUM	https://avd.aquasec.com/nvd/cve-2024-35195
+CVE-2024-47081	requests	2.27.1	2.32.4	MEDIUM	https://avd.aquasec.com/nvd/cve-2024-47081
+CVE-2022-40897	setuptools	57.5.0	65.5.1	HIGH	https://avd.aquasec.com/nvd/cve-2022-40897
+CVE-2024-6345	setuptools	57.5.0	70.0.0	HIGH	https://avd.aquasec.com/nvd/cve-2024-6345
+CVE-2025-47273	setuptools	57.5.0	78.1.1	HIGH	https://avd.aquasec.com/nvd/cve-2025-47273
+CVE-2025-50181	urllib3	1.26.20	2.5.0	MEDIUM	https://avd.aquasec.com/nvd/cve-2025-50181

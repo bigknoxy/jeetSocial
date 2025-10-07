@@ -1,0 +1,5 @@
+   1350 MEDIUM
+    677 LOW
+    460 HIGH
+     38 UNKNOWN
+     26 CRITICAL

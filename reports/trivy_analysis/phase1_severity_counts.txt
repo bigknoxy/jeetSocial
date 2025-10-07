@@ -1,0 +1,5 @@
+   2926 MEDIUM
+   1074 HIGH
+    243 LOW
+     57 UNKNOWN
+     11 CRITICAL
