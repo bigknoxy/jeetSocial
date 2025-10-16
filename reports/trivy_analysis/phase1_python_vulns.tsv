@@ -1,5 +1,0 @@
-CVE-2023-5752	pip	23.0.1	23.3	MEDIUM	https://avd.aquasec.com/nvd/cve-2023-5752
-CVE-2025-8869	pip	23.0.1		MEDIUM	https://avd.aquasec.com/nvd/cve-2025-8869
-CVE-2025-8869	pip	25.2		MEDIUM	https://avd.aquasec.com/nvd/cve-2025-8869
-CVE-2024-6345	setuptools	65.5.1	70.0.0	HIGH	https://avd.aquasec.com/nvd/cve-2024-6345
-CVE-2025-47273	setuptools	65.5.1	78.1.1	HIGH	https://avd.aquasec.com/nvd/cve-2025-47273
