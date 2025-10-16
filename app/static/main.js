@@ -40,8 +40,8 @@ async function butterSmoothLiveUpdate() {
     const resp = await fetch(`/api/posts?page=1&limit=${pageLimit}${viewParam}`);
     const data = await resp.json();
     const newPosts = Array.isArray(data.posts) ? data.posts : [];
-    // Debug: log incoming posts payload for E2E visibility
-    try { console.debug('[LiveFeed] /api/posts payload', newPosts); } catch(e) {}
+     // Debug: log incoming posts payload for E2E visibility
+     try { console.debug('[LiveFeed] /api/posts payload', newPosts); } catch { /* ignore */ }
     const feed = document.getElementById('feed');
     if (!feed) return;
     const accentColors = ["#ff4b5c", "#ffb26b", "#ffe347", "#43e97b", "#3fa7d6", "#7c4dff", "#c86dd7"];
@@ -111,8 +111,7 @@ async function butterSmoothLiveUpdate() {
       }
     }
    } catch (err) {
-    // eslint-disable-next-line no-unused-vars, no-empty
-    console.log('[LiveFeed] Butter-smooth update error', err);
+     console.log('[LiveFeed] Butter-smooth update error', err);
   }
 }
 
@@ -197,8 +196,8 @@ async function fetchFeedPage(page) {
      const resp = await fetch(`/api/posts?page=${page}&limit=${pageLimit}${viewParam}`);
      const data = await resp.json();
     const posts = data.posts;
-    // Debug: log incoming posts payload for E2E visibility
-    try { console.debug('[FetchFeed] /api/posts payload', posts); } catch(e) {}
+     // Debug: log incoming posts payload for E2E visibility
+     try { console.debug('[FetchFeed] /api/posts payload', posts); } catch { /* ignore */ }
     const accentColors = ["#ff4b5c", "#ffb26b", "#ffe347", "#43e97b", "#3fa7d6", "#7c4dff", "#c86dd7"];
     // Remove skeleton loader and show posts
     // Defensive normalization of posts array to ensure kindness_points is numeric
@@ -208,9 +207,9 @@ async function fetchFeedPage(page) {
           const coerced = Number(p.kindness_points);
           p.kindness_points = Number.isFinite(coerced) ? coerced : 0;
         }
-      } catch (err) {
-        console.debug('[KINDNESS-CLIENT] storage handler error:', err);
-      }
+             } catch {
+                 console.debug('[KINDNESS-CLIENT] storage handler error');
+             }
       return p;
     });
 
@@ -237,8 +236,7 @@ if (banner) banner.remove();
     totalPages = Math.max(1, Math.ceil(data.total_count / pageLimit));
     renderPagingControls();
    } catch (err) {
-    // eslint-disable-next-line no-unused-vars, no-empty
-    console.log('[FetchFeed] Error loading feed', err);
+     console.log('[FetchFeed] Error loading feed', err);
     feed.innerHTML = '<em>Error loading feed.</em>';
   }
 }
@@ -555,17 +553,17 @@ class KindnessManager {
         buttonElement.setAttribute('aria-pressed', 'true');
     }
     let token;
-    try {
-        token = await this.ensureToken(postId);
-    } catch (err) {
-        showToast('Unable to get kindness token', 'error');
-        if (countElement) countElement.textContent = `🌈 ${originalCount}`;
-        if (buttonElement) {
-            buttonElement.disabled = false;
-            buttonElement.setAttribute('aria-pressed', 'false');
-        }
-        return;
-    }
+     try {
+         token = await this.ensureToken(postId);
+     } catch {
+         showToast('Unable to get kindness token', 'error');
+         if (countElement) countElement.textContent = `🌈 ${originalCount}`;
+         if (buttonElement) {
+             buttonElement.disabled = false;
+             buttonElement.setAttribute('aria-pressed', 'false');
+         }
+         return;
+     }
     if (!token) {
         showToast('Unable to get kindness token', 'error');
         if (countElement) countElement.textContent = `🌈 ${originalCount}`;
@@ -647,9 +645,9 @@ class KindnessManager {
                 if (liveRegion) {
                     liveRegion.textContent = `Kindness count for post ${postId} is now ${displayKp}`;
                 }
-            } catch (err) {
-                console.debug('[KINDNESS-CLIENT] updateKindnessDisplay aria announcement failed', err);
-            }
+             } catch {
+                 console.debug('[KINDNESS-CLIENT] updateKindnessDisplay aria announcement failed');
+             }
         }
     }
 }
@@ -788,43 +786,81 @@ window.addEventListener('DOMContentLoaded', function() {
    });
  });
 
-// View Toggle
-function setupViewToggle() {
-  const toggleBtn = document.getElementById('view-toggle-btn');
-  if (!toggleBtn) return;
+ // View Toggle
+ function setupViewToggle() {
+   const recentBtn = document.getElementById('view-toggle-recent');
+   const topBtn = document.getElementById('view-toggle-top');
+   if (!recentBtn || !topBtn) return;
 
-  toggleBtn.addEventListener('click', function() {
-    if (currentView === 'latest') {
-      currentView = 'top';
-      toggleBtn.textContent = 'Top';
-    } else {
-      currentView = 'latest';
-      toggleBtn.textContent = 'Latest';
-    }
-    // Update URL
-    const url = new URL(window.location);
-    if (currentView === 'latest') {
-      url.searchParams.delete('view');
-    } else {
-      url.searchParams.set('view', currentView);
-    }
-    window.history.pushState({}, '', url);
-    // Refetch feed
-    fetchFeedPage(currentPage);
-  });
-}
+   function setActive(view) {
+     if (view === 'top') {
+       recentBtn.classList.remove('active');
+       topBtn.classList.add('active');
+       recentBtn.setAttribute('aria-selected', 'false');
+       topBtn.setAttribute('aria-selected', 'true');
+       recentBtn.setAttribute('tabindex', '-1');
+       topBtn.setAttribute('tabindex', '0');
+       topBtn.focus();
+     } else {
+       recentBtn.classList.add('active');
+       topBtn.classList.remove('active');
+       recentBtn.setAttribute('aria-selected', 'true');
+       topBtn.setAttribute('aria-selected', 'false');
+       recentBtn.setAttribute('tabindex', '0');
+       topBtn.setAttribute('tabindex', '-1');
+       recentBtn.focus();
+     }
+   }
 
-// On page load, check URL for view
-window.addEventListener('DOMContentLoaded', function() {
-  const urlParams = new URLSearchParams(window.location.search);
-  const viewParam = urlParams.get('view');
-  if (viewParam === 'top') {
-    currentView = 'top';
-    const toggleBtn = document.getElementById('view-toggle-btn');
-    if (toggleBtn) toggleBtn.textContent = 'Top';
-  }
-  setupViewToggle();
-});
+   recentBtn.addEventListener('click', function() {
+     if (currentView !== 'latest') {
+       currentView = 'latest';
+       setActive('latest');
+       // Update URL
+       const url = new URL(window.location);
+       url.searchParams.delete('view');
+       window.history.pushState({}, '', url);
+       // Refetch feed
+       fetchFeedPage(currentPage);
+     }
+   });
+
+   topBtn.addEventListener('click', function() {
+     if (currentView !== 'top') {
+       currentView = 'top';
+       setActive('top');
+       // Update URL
+       const url = new URL(window.location);
+       url.searchParams.set('view', 'top');
+       window.history.pushState({}, '', url);
+       // Refetch feed
+       fetchFeedPage(currentPage);
+     }
+   });
+
+   // Keyboard navigation
+   const tabs = [recentBtn, topBtn];
+   tabs.forEach((btn, index) => {
+     btn.addEventListener('keydown', function(e) {
+       if (e.key === 'ArrowLeft' || e.key === 'ArrowRight') {
+         e.preventDefault();
+         const nextIndex = e.key === 'ArrowLeft' ? (index - 1 + tabs.length) % tabs.length : (index + 1) % tabs.length;
+         tabs[nextIndex].focus();
+         tabs[nextIndex].click();
+       }
+     });
+   });
+ }
+
+ // On page load, check URL for view
+ window.addEventListener('DOMContentLoaded', function() {
+   const urlParams = new URLSearchParams(window.location.search);
+   const viewParam = urlParams.get('view');
+   if (viewParam === 'top') {
+     currentView = 'top';
+   }
+   setupViewToggle();
+ });
 
 
 // Bootstrap: ensure setup functions run even if DOMContentLoaded fired before script execution

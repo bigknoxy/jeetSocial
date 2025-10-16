@@ -23,7 +23,8 @@ class JeetSocialPage {
     this.emojiButton = page.locator('#emoji-btn');
     this.emojiPicker = page.locator('#emoji-picker');
     this.enterToPostToggle = page.locator('#enter-to-post');
-    this.viewToggle = page.locator('#view-toggle');
+     this.viewToggleRecent = page.locator('#view-toggle-recent');
+     this.viewToggleTop = page.locator('#view-toggle-top');
 
     // Post sub-elements (more specific selectors to avoid ambiguity with kindness-row and other divs)
     this.postContentSelector = '.post-content';
@@ -296,22 +297,21 @@ class JeetSocialPage {
      await this.waitForPageLoad();
    }
 
-   /**
-    * Click the view toggle button
-    */
+    /**
+     * Click the view toggle button to switch to top view
+     */
    async clickViewToggle() {
-     await this.viewToggle.click();
-   }
+      await this.viewToggleTop.click();
+    }
 
-   /**
-    * Get the current view from URL query param
-    * @returns {string} 'latest' or 'top'
-    */
+    /**
+     * Get the current view from active tab button
+     * @returns {string} 'latest' or 'top'
+     */
    async getCurrentView() {
-     const url = this.page.url();
-     const urlObj = new URL(url);
-     return urlObj.searchParams.get('view') || 'latest';
-   }
+      const isTopActive = await this.viewToggleTop.evaluate(el => el.classList.contains('active'));
+      return isTopActive ? 'top' : 'latest';
+    }
 }
 
 module.exports = JeetSocialPage;

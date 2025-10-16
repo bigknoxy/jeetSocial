@@ -170,7 +170,83 @@ test.describe('Kindness points - E2E', () => {
      await jeet.clickViewToggle();
      await page.waitForURL('**/view=latest');
 
-     const latestView = await jeet.getCurrentView();
-     expect(latestView).toBe('latest');
-   });
- });
+      const latestView = await jeet.getCurrentView();
+      expect(latestView).toBe('latest');
+    });
+
+    test('visual tab check - two buttons with active state', async ({ page }) => {
+      const jeet = new JeetSocialPage(page);
+
+      // Check that both tab buttons are present
+      const recentBtn = page.locator('#view-toggle-recent');
+      const topBtn = page.locator('#view-toggle-top');
+      await expect(recentBtn).toBeVisible();
+      await expect(topBtn).toBeVisible();
+
+      // Check that Recent is active by default
+      await expect(recentBtn).toHaveClass(/active/);
+      await expect(topBtn).not.toHaveClass(/active/);
+
+      // Check ARIA attributes
+      await expect(recentBtn).toHaveAttribute('aria-selected', 'true');
+      await expect(topBtn).toHaveAttribute('aria-selected', 'false');
+
+      // Click Top and check state changes
+      await topBtn.click();
+      await expect(recentBtn).not.toHaveClass(/active/);
+      await expect(topBtn).toHaveClass(/active/);
+      await expect(recentBtn).toHaveAttribute('aria-selected', 'false');
+      await expect(topBtn).toHaveAttribute('aria-selected', 'true');
+    });
+
+    test('accessibility check - keyboard navigation and ARIA', async ({ page }) => {
+      const jeet = new JeetSocialPage(page);
+
+      const recentBtn = page.locator('#view-toggle-recent');
+      const topBtn = page.locator('#view-toggle-top');
+
+      // Focus on Recent tab
+      await recentBtn.focus();
+      await expect(recentBtn).toBeFocused();
+
+      // Navigate with arrow keys
+      await page.keyboard.press('ArrowRight');
+      await expect(topBtn).toBeFocused();
+
+      // Activate with Enter or Space
+      await page.keyboard.press('Enter');
+      await expect(topBtn).toHaveClass(/active/);
+
+      // Navigate back
+      await page.keyboard.press('ArrowLeft');
+      await expect(recentBtn).toBeFocused();
+      await page.keyboard.press('Enter');
+      await expect(recentBtn).toHaveClass(/active/);
+
+      // Check tablist role
+      const tablist = page.locator('.view-tabs');
+      await expect(tablist).toHaveAttribute('role', 'tablist');
+    });
+
+    test('responsiveness check - mobile layout stacks tabs', async ({ page }) => {
+      const jeet = new JeetSocialPage(page);
+
+      // Set mobile viewport
+      await page.setViewportSize({ width: 480, height: 800 });
+
+      // Reload to apply responsive styles
+      await page.reload({ waitUntil: 'networkidle' });
+
+      const tablist = page.locator('.view-tabs');
+      const recentBtn = page.locator('#view-toggle-recent');
+      const topBtn = page.locator('#view-toggle-top');
+
+      // Check that tabs are stacked vertically on mobile
+      const tablistBox = await tablist.boundingBox();
+      const recentBox = await recentBtn.boundingBox();
+      const topBox = await topBtn.boundingBox();
+
+      // On mobile, tabs should be stacked (topBtn below recentBtn)
+      expect(topBox.y).toBeGreaterThan(recentBox.y + recentBox.height);
+    });
+  });
