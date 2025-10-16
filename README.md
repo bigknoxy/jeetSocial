@@ -10,6 +10,10 @@
 ## Project Purpose & Kindness Mission
 jeetSocial is a minimal, anonymous social platform designed to encourage kindness and privacy. All posts are anonymous and assigned random usernames. No personal data is collected, and all posts are filtered for hate speech using an extensive word/phrase list. The platform exists to spread and encourage kindness through anonymous sharing and support.
 
+Posts can be viewed in two modes:
+- **Latest**: Ordered by creation time (most recent first)
+- **Top**: Ordered by kindness points (within the last 24 hours, tie-broken by creation time)
+
 ## Features
 - Anonymous posting with random usernames
 - 280 character limit per post (enforced in both frontend and backend)
@@ -115,7 +119,7 @@ You can set up your environment automatically with the provided script, or manua
    ```
 2. **Install dependencies:**
    ```bash
-   pip install -r requirements.txt
+   pip install -r requirements-runtime.txt
    ```
 3. **Copy and edit .env.example:**
    ```bash
@@ -225,7 +229,7 @@ python3 -m venv .venv
 # Upgrade pip/setuptools/wheel inside the venv
 .venv/bin/python -m pip install --upgrade pip setuptools wheel
 # Install dependencies and the package in editable mode
-.venv/bin/pip install -r requirements.txt
+.venv/bin/pip install -r requirements-runtime.txt
 .venv/bin/pip install -e .
 # Run linter and tests from the venv
 .venv/bin/flake8 .

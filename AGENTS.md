@@ -296,3 +296,33 @@ This ensures your workflow runs correctly before triggering GitHub Actions.
   - Resolve any conflicts and ensure the codebase remains stable after merging.
 
 ---
+
+### Documentation & Search Comparison
+
+**Use `webfetch` for:**
+- Official documentation (Bun, React, Next.js, etc.)
+- Direct URLs to specific docs pages
+- Most reliable for authoritative information
+- Latest feature documentation
+
+**Use `exa_web_search` for:**
+- Finding official documentation when you don't have the URL
+- Searching for specific features/topics
+- Getting multiple authoritative sources
+- Latest releases and announcements
+
+**Use `exa_get_code_context` for:**
+- Real-world code examples and patterns
+- Library/SDK usage from GitHub repos
+- Community best practices
+- Finding how others solve similar problems
+
+**Priority Order:**
+1. `webfetch` (if you have the exact URL)
+2. `exa_web_search` (to find official docs)
+3. `exa_get_code_context` (for code examples)
+
+**Key Findings:**
+- `exa_web_search` reliably finds official documentation
+- `exa_get_code_context` often misses official docs, returns examples from other frameworks
+- For documentation queries, `exa_web_search` > `exa_get_code_context

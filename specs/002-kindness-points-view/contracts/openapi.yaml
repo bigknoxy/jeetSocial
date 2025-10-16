@@ -1,0 +1,42 @@
+openapi: 3.0.0
+info:
+  title: jeetSocial Posts API (subset for Top/Latest views)
+  version: "0.1.0"
+paths:
+  /posts:
+    get:
+      summary: Retrieve posts for feed
+      parameters:
+        - in: query
+          name: view
+          schema:
+            type: string
+            enum: [latest, top]
+          description: View mode; `latest` (default) returns posts ordered by recency, `top` returns posts ordered by kindness points within last 24 hours
+      responses:
+        '200':
+          description: A list of posts
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  posts:
+                    type: array
+                    items:
+                      type: object
+                      properties:
+                        id:
+                          type: integer
+                        content:
+                          type: string
+                        created_at:
+                          type: string
+                          format: date-time
+                        kindness_points:
+                          type: integer
+              examples:
+                latest:
+                  summary: Latest view example
+                  value:
+                    posts: []

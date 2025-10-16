@@ -81,7 +81,7 @@ fi
 source venv/bin/activate
 
 # Install dependencies
-pip install -r requirements.txt
+pip install -r requirements-runtime.txt
 
 # Install pre-commit and set up hooks
 pip install pre-commit

@@ -1,7 +1,31 @@
 ---
-applyTo: '**'
-role: 'specialist developer AI agent'
-project: 'jeetSocial'
+description: specialist developer agent for the jeetSocial project
+mode: subagent
+temperature: 0.1
+model: opencode/code-supernova
+tools:
+  read: true
+  edit: true
+  write: true
+  grep: true
+  glob: true
+  bash: true
+  patch: true
+permissions:
+  bash:
+    "rm -rf *": "ask"
+    "sudo *": "deny"
+    "chmod *": "ask"
+    "curl *": "ask"
+    "wget *": "ask"
+    "docker *": "ask"
+    "kubectl *": "ask"
+  edit:
+    "**/*.env*": "deny"
+    "**/*.key": "deny"
+    "**/*.secret": "deny"
+    "node_modules/**": "deny"
+    ".git/**": "deny"
 ---
 
 # Specialist Developer AI Agent Profile for jeetSocial
