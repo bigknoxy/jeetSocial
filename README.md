@@ -14,6 +14,8 @@ Posts can be viewed in two modes:
 - **Latest**: Ordered by creation time (most recent first)
 - **Top**: Ordered by kindness points (within the last 24 hours, tie-broken by creation time)
 
+The homepage includes a toggle button to switch between Latest and Top views, updating the URL and feed accordingly.
+
 ## Features
 - Anonymous posting with random usernames
 - 280 character limit per post (enforced in both frontend and backend)
@@ -174,7 +176,7 @@ README.md
 ## API Documentation
 
 ### Endpoints
-- `GET /api/posts`: Fetch posts (supports paging, `since` param)
+- `GET /api/posts`: Fetch posts (supports paging, `since`, `view` params)
 - `POST /api/posts`: Create a new post (body: `{ message: "..." }`)
     - **Note:** Message must be 280 characters or fewer. If exceeded, returns 400 with `{ "error": "Message exceeds 280 character limit" }`.
 - `GET /feed`: Main feed page
@@ -182,13 +184,17 @@ README.md
 
 #### Example: Fetch Posts
 ```bash
+# Latest posts (default)
 curl -X GET 'http://localhost:5000/api/posts?page=1&limit=20'
+
+# Top posts
+curl -X GET 'http://localhost:5000/api/posts?view=top&limit=20'
 ```
 Response:
 ```json
 {
   "posts": [
-    { "id": 1, "username": "RandomUser", "timestamp": "2025-08-20T12:34:56Z", "message": "Hello world!" },
+    { "id": 1, "username": "RandomUser", "timestamp": "2025-08-20T12:34:56Z", "message": "Hello world!", "kindness_points": 5 },
     ...
   ],
   "page": 1,

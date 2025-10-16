@@ -228,8 +228,11 @@
 </form>
 <!-- Emoji Picker CDN -->
 <script type="module" src="https://cdn.jsdelivr.net/npm/emoji-picker-element@^1/index.js"></script>
- <h2 style="margin-top:2em;">Recent Posts</h2>
-  <div id="feed">
+  <div style="display: flex; align-items: center; gap: 1em; margin-top: 2em; margin-bottom: 1em;">
+    <h2 style="margin: 0;">Recent Posts</h2>
+    <button id="view-toggle-btn" style="background: linear-gradient(90deg, #ff4b5c, #ffb26b, #ffe347, #43e97b, #3fa7d6, #7c4dff, #c86dd7); color: #fff; border: none; border-radius: 4px; padding: 0.5em 1em; font-weight: bold; cursor: pointer; font-size: 1em;">Latest</button>
+  </div>
+   <div id="feed">
     <div class="skeleton-loader" id="skeleton-loader">
       <div class="skeleton-post"><div class="skeleton-animate"></div></div>
       <div class="skeleton-post"><div class="skeleton-animate"></div></div>

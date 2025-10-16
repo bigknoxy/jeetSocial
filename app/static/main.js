@@ -14,6 +14,7 @@ Frontend logic for jeetSocial:
 let currentPage = 1;
 let totalPages = 1;
 let pageLimit = 20;
+let currentView = 'latest';
 
 // Initial load
 console.debug('[main.js] loaded');
@@ -35,7 +36,8 @@ function startLiveFeedPolling() {
 // Butter-smooth live update function
 async function butterSmoothLiveUpdate() {
   try {
-    const resp = await fetch(`/api/posts?page=1&limit=${pageLimit}`);
+    const viewParam = currentView !== 'latest' ? `&view=${currentView}` : '';
+    const resp = await fetch(`/api/posts?page=1&limit=${pageLimit}${viewParam}`);
     const data = await resp.json();
     const newPosts = Array.isArray(data.posts) ? data.posts : [];
     // Debug: log incoming posts payload for E2E visibility
@@ -79,7 +81,7 @@ async function butterSmoothLiveUpdate() {
         // Prepend newest posts to top of feed
         try {
           feed.insertBefore(div, feed.firstChild);
-        } catch (insertErr) {
+        } catch {
           feed.appendChild(div);
         }
 
@@ -108,7 +110,8 @@ async function butterSmoothLiveUpdate() {
         showNewPostsBanner();
       }
     }
-  } catch (err) {
+   } catch (err) {
+    // eslint-disable-next-line no-unused-vars, no-empty
     console.log('[LiveFeed] Butter-smooth update error', err);
   }
 }
@@ -189,9 +192,10 @@ async function fetchFeedPage(page) {
       <div class="skeleton-post"><div class="skeleton-animate"></div></div>
     </div>
   `;
-  try {
-    const resp = await fetch(`/api/posts?page=${page}&limit=${pageLimit}`);
-    const data = await resp.json();
+   try {
+     const viewParam = currentView !== 'latest' ? `&view=${currentView}` : '';
+     const resp = await fetch(`/api/posts?page=${page}&limit=${pageLimit}${viewParam}`);
+     const data = await resp.json();
     const posts = data.posts;
     // Debug: log incoming posts payload for E2E visibility
     try { console.debug('[FetchFeed] /api/posts payload', posts); } catch(e) {}
@@ -204,8 +208,8 @@ async function fetchFeedPage(page) {
           const coerced = Number(p.kindness_points);
           p.kindness_points = Number.isFinite(coerced) ? coerced : 0;
         }
-      } catch (e) {
-        p.kindness_points = 0;
+      } catch (err) {
+        console.debug('[KINDNESS-CLIENT] storage handler error:', err);
       }
       return p;
     });
@@ -232,7 +236,9 @@ if (banner) banner.remove();
     currentPage = data.page;
     totalPages = Math.max(1, Math.ceil(data.total_count / pageLimit));
     renderPagingControls();
-  } catch {
+   } catch (err) {
+    // eslint-disable-next-line no-unused-vars, no-empty
+    console.log('[FetchFeed] Error loading feed', err);
     feed.innerHTML = '<em>Error loading feed.</em>';
   }
 }
@@ -307,7 +313,8 @@ async function postMessage(e) {
         }
       }
     }
-  } catch {
+   } catch (err) {
+    console.log('[PostMessage] Network error', err);
     errorDiv.textContent = 'Network error.';
   }
 }
@@ -321,7 +328,7 @@ async function postMessage(e) {
       postForm._hasSubmitHandler = true;
       console.debug('[main.js] post-form submit handler attached');
     }
-  } catch (err) {
+   } catch (err) {
     console.debug('[main.js] attachPostHandler error', err);
   }
 })();
@@ -429,17 +436,17 @@ class KindnessManager {
         console.log('[KINDNESS-CLIENT] constructor - initial token present?', !!this.token, 'expiry=', this.tokenExpiry);
 
         // Listen for cross-tab kindness updates broadcast via localStorage
-        window.addEventListener('storage', (e) => {
+        window.addEventListener('storage', (event) => {
             try {
                 // Log raw event for E2E debugging
-                console.debug('[KINDNESS-CLIENT] storage event received', { key: e.key, newValue: e.newValue, oldValue: e.oldValue });
-                if (!e.key || e.key !== 'jeet_kindness_update') return;
+                console.debug('[KINDNESS-CLIENT] storage event received', { key: event.key, newValue: event.newValue, oldValue: event.oldValue });
+                if (!event.key || event.key !== 'jeet_kindness_update') return;
                 // If the key was removed (newValue === null) ignore the removal event
-                if (e.newValue === null) {
+                if (event.newValue === null) {
                     console.debug('[KINDNESS-CLIENT] storage event: key removed, ignoring');
                     return;
                 }
-                const payload = JSON.parse(e.newValue);
+                const payload = JSON.parse(event.newValue);
                 if (!payload || !payload.post_id || typeof payload.new_points === 'undefined' || !payload.ts) {
                     console.debug('[KINDNESS-CLIENT] storage event: payload invalid', payload);
                     return;
@@ -458,9 +465,9 @@ class KindnessManager {
         try {
             if (typeof BroadcastChannel !== 'undefined') {
                 this._bc = new BroadcastChannel('jeet_kindness');
-                this._bc.addEventListener('message', (ev) => {
+                this._bc.addEventListener('message', (event) => {
                     try {
-                        const payload = ev.data;
+                        const payload = event.data;
                         console.debug('[KINDNESS-CLIENT] BroadcastChannel message received', payload);
                         if (!payload || !payload.post_id || typeof payload.new_points === 'undefined' || !payload.ts) return;
                         if (payload.ts <= this._lastAppliedKindnessTs) return;
@@ -483,8 +490,8 @@ class KindnessManager {
             const ssExpiry = sessionStorage.getItem('kindness_token_expiry');
             if (ssToken) this.token = ssToken;
             if (ssExpiry) this.tokenExpiry = ssExpiry;
-        } catch (e) {
-            console.debug('[KINDNESS-CLIENT] unable to read sessionStorage:', e);
+         } catch (err) {
+            console.debug('[KINDNESS-CLIENT] unable to read sessionStorage:', err);
         }
 
         // Debug logging to help E2E visibility
@@ -515,8 +522,8 @@ class KindnessManager {
             sessionStorage.setItem('kindness_token_expiry', this.tokenExpiry);
             console.log('[KINDNESS-CLIENT] received token, expiry=', this.tokenExpiry);
             return this.token;
-        } catch (error) {
-            console.error('Failed to get kindness token:', error);
+        } catch (err) {
+            console.error('Failed to get kindness token:', err);
             return null;
         }
     }
@@ -773,12 +780,50 @@ window.addEventListener('DOMContentLoaded', function() {
     emojiPicker.style.display = 'none';
   });
 
-  // Hide picker if clicking outside
-  document.addEventListener('click', function(e) {
-    if (!emojiPicker.contains(e.target) && e.target !== emojiBtn) {
-      emojiPicker.style.display = 'none';
+   // Hide picker if clicking outside
+   document.addEventListener('click', function(e) {
+     if (!emojiPicker.contains(e.target) && e.target !== emojiBtn) {
+       emojiPicker.style.display = 'none';
+     }
+   });
+ });
+
+// View Toggle
+function setupViewToggle() {
+  const toggleBtn = document.getElementById('view-toggle-btn');
+  if (!toggleBtn) return;
+
+  toggleBtn.addEventListener('click', function() {
+    if (currentView === 'latest') {
+      currentView = 'top';
+      toggleBtn.textContent = 'Top';
+    } else {
+      currentView = 'latest';
+      toggleBtn.textContent = 'Latest';
     }
+    // Update URL
+    const url = new URL(window.location);
+    if (currentView === 'latest') {
+      url.searchParams.delete('view');
+    } else {
+      url.searchParams.set('view', currentView);
+    }
+    window.history.pushState({}, '', url);
+    // Refetch feed
+    fetchFeedPage(currentPage);
   });
+}
+
+// On page load, check URL for view
+window.addEventListener('DOMContentLoaded', function() {
+  const urlParams = new URLSearchParams(window.location.search);
+  const viewParam = urlParams.get('view');
+  if (viewParam === 'top') {
+    currentView = 'top';
+    const toggleBtn = document.getElementById('view-toggle-btn');
+    if (toggleBtn) toggleBtn.textContent = 'Top';
+  }
+  setupViewToggle();
 });
 
 
@@ -787,19 +832,20 @@ window.addEventListener('DOMContentLoaded', function() {
   function safeCall(fn) {
     try {
       if (typeof fn === 'function') fn();
-    } catch (err) {
-      console.debug('[main.js] bootstrap safeCall error', err);
-    }
+   } catch (err) {
+    console.debug('[main.js] bootstrap safeCall error', err);
+  }
   }
 
-  const runSetupNow = () => {
-    console.debug('[main.js] bootstrap - running setup functions');
-    safeCall(setupEnterToPost);
-    safeCall(setupCharacterCounter);
-    // Ensure feed is loaded and polling started
-    safeCall(() => fetchFeedPage(1));
-    safeCall(startLiveFeedPolling);
-  };
+   const runSetupNow = () => {
+     console.debug('[main.js] bootstrap - running setup functions');
+     safeCall(setupEnterToPost);
+     safeCall(setupCharacterCounter);
+     safeCall(setupViewToggle);
+     // Ensure feed is loaded and polling started
+     safeCall(() => fetchFeedPage(1));
+     safeCall(startLiveFeedPolling);
+   };
 
   if (document.readyState === 'complete' || document.readyState === 'interactive') {
     // DOMContentLoaded may have already fired; run setups immediately

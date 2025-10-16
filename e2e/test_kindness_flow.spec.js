@@ -137,6 +137,40 @@ test.describe('Kindness points - E2E', () => {
       expect(j2.new_points).toBeGreaterThanOrEqual(j1.new_points);
     } else {
       expect([400,401,403,409]).toContain(r2.status());
-    }
-  });
-});
+     }
+   });
+
+   test('toggles between Latest and Top view', async ({ page }) => {
+     const jeet = new JeetSocialPage(page);
+
+     // Ensure there are at least 2 posts with different kindness points
+     await jeet.waitForPostCount(2, 10000);
+
+     // Get initial posts order (should be latest by default)
+     const initialPosts = await jeet.getAllPostTexts();
+     const initialView = await jeet.getCurrentView();
+     expect(initialView).toBe('latest');
+
+     // Click the view toggle
+     await jeet.clickViewToggle();
+
+     // Wait for URL to update
+     await page.waitForURL('**/view=top');
+
+     // Get posts after toggle
+     const topPosts = await jeet.getAllPostTexts();
+     const topView = await jeet.getCurrentView();
+     expect(topView).toBe('top');
+
+     // Posts should be reordered (top view orders by kindness_points)
+     // This will fail until UI toggle is implemented
+     expect(topPosts).not.toEqual(initialPosts);
+
+     // Click toggle again to go back to latest
+     await jeet.clickViewToggle();
+     await page.waitForURL('**/view=latest');
+
+     const latestView = await jeet.getCurrentView();
+     expect(latestView).toBe('latest');
+   });
+ });

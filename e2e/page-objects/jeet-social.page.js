@@ -23,6 +23,7 @@ class JeetSocialPage {
     this.emojiButton = page.locator('#emoji-btn');
     this.emojiPicker = page.locator('#emoji-picker');
     this.enterToPostToggle = page.locator('#enter-to-post');
+    this.viewToggle = page.locator('#view-toggle');
 
     // Post sub-elements (more specific selectors to avoid ambiguity with kindness-row and other divs)
     this.postContentSelector = '.post-content';
@@ -287,13 +288,30 @@ class JeetSocialPage {
     );
   }
 
-  /**
-   * Reload the page and wait for it to load
-   */
-  async reload() {
-    await this.page.reload({ waitUntil: 'networkidle' });
-    await this.waitForPageLoad();
-  }
+   /**
+    * Reload the page and wait for it to load
+    */
+   async reload() {
+     await this.page.reload({ waitUntil: 'networkidle' });
+     await this.waitForPageLoad();
+   }
+
+   /**
+    * Click the view toggle button
+    */
+   async clickViewToggle() {
+     await this.viewToggle.click();
+   }
+
+   /**
+    * Get the current view from URL query param
+    * @returns {string} 'latest' or 'top'
+    */
+   async getCurrentView() {
+     const url = this.page.url();
+     const urlObj = new URL(url);
+     return urlObj.searchParams.get('view') || 'latest';
+   }
 }
 
 module.exports = JeetSocialPage;

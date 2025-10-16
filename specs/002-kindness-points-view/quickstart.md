@@ -20,3 +20,10 @@ This quickstart shows how to exercise the new `view` parameter to fetch `latest`
 - Run unit and integration tests: `pytest tests/`
 - Lint: `flake8 .`
 
+6. Using the UI Toggle:
+- The homepage includes a "Latest" / "Top" toggle button next to "Recent Posts".
+- Clicking the button switches between latest and top view.
+- The URL updates with ?view=top for top view, and no param for latest.
+- The feed refetches and reorders accordingly.
+- Test the toggle with E2E tests: `npm run e2e`
+
