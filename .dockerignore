@@ -17,11 +17,10 @@ venv
 .venv
 .pytest_cache
 .cache
-.opencode
-.config/opencode
-context
-tests
-.git
+ .opencode
+ .config/opencode
+ context
+ .git
 .env
 .env.*
 .nyc_output

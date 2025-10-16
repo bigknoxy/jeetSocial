@@ -10,6 +10,10 @@
 ## Project Purpose & Kindness Mission
 jeetSocial is a minimal, anonymous social platform designed to encourage kindness and privacy. All posts are anonymous and assigned random usernames. No personal data is collected, and all posts are filtered for hate speech using an extensive word/phrase list. The platform exists to spread and encourage kindness through anonymous sharing and support.
 
+Posts can be viewed in two modes:
+- **Latest**: Ordered by creation time (most recent first)
+- **Top**: Ordered by kindness points (within the last 24 hours, tie-broken by creation time)
+
 ## Features
 - Anonymous posting with random usernames
 - 280 character limit per post (enforced in both frontend and backend)
