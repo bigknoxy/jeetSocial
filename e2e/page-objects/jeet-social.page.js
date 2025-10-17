@@ -23,6 +23,8 @@ class JeetSocialPage {
     this.emojiButton = page.locator('#emoji-btn');
     this.emojiPicker = page.locator('#emoji-picker');
     this.enterToPostToggle = page.locator('#enter-to-post');
+     this.viewToggleRecent = page.locator('#view-toggle-recent');
+     this.viewToggleTop = page.locator('#view-toggle-top');
 
     // Post sub-elements (more specific selectors to avoid ambiguity with kindness-row and other divs)
     this.postContentSelector = '.post-content';
@@ -287,13 +289,29 @@ class JeetSocialPage {
     );
   }
 
-  /**
-   * Reload the page and wait for it to load
-   */
-  async reload() {
-    await this.page.reload({ waitUntil: 'networkidle' });
-    await this.waitForPageLoad();
-  }
+   /**
+    * Reload the page and wait for it to load
+    */
+   async reload() {
+     await this.page.reload({ waitUntil: 'networkidle' });
+     await this.waitForPageLoad();
+   }
+
+    /**
+     * Click the view toggle button to switch to top view
+     */
+   async clickViewToggle() {
+      await this.viewToggleTop.click();
+    }
+
+    /**
+     * Get the current view from active tab button
+     * @returns {string} 'latest' or 'top'
+     */
+   async getCurrentView() {
+      const isTopActive = await this.viewToggleTop.evaluate(el => el.classList.contains('active'));
+      return isTopActive ? 'top' : 'latest';
+    }
 }
 
 module.exports = JeetSocialPage;

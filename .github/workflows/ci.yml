@@ -47,7 +47,7 @@ jobs:
   test:
     name: Tests (pytest)
     runs-on: ubuntu-latest
-    needs: lint
+    needs: [lint, trivy-scan]
     services:
       postgres:
         image: postgres:15
@@ -112,6 +112,12 @@ jobs:
             flask db upgrade
           fi
 
+      - name: Download Trivy report artifact
+        uses: actions/download-artifact@v4
+        with:
+          name: trivy-phase1-report
+          path: reports/trivy/
+
       - name: Run tests with coverage
         run: pytest --cov=app --cov-report=xml -q
 
@@ -145,8 +151,21 @@ jobs:
           pip install pip-audit
 
       - name: Run pip-audit on requirements-runtime.txt
-        run: pip-audit --requirement requirements-runtime.txt --severity high,critical --desc --format text --exit-code
+        run: |
+          pip-audit --requirement requirements-runtime.txt --severity HIGH,CRITICAL --desc on --format json -o pip-audit-report.json || true
+          echo "=== pip-audit JSON report (if created) ==="
+          if [ -f pip-audit-report.json ]; then
+            cat pip-audit-report.json
+          fi
 
+      - name: Upload pip-audit report
+        uses: actions/upload-artifact@v4
+        with:
+          name: pip-audit-report-${{ github.run_id }}.json
+          path: pip-audit-report.json
+
+
+ 
   docker-build:
     name: Docker build (main only)
     runs-on: ubuntu-latest
@@ -154,6 +173,41 @@ jobs:
     if: github.event_name == 'pull_request' || (github.event_name == 'push' && github.ref == 'refs/heads/main')
     steps:
       - uses: actions/checkout@v3
+ 
+      - name: Build Docker image for scanning
+        uses: docker/build-push-action@v4
+        with:
+          context: .
+          file: ./Dockerfile
+          load: true
+          tags: jeetsocial:phase1, jeetsocial_web:latest
+ 
+      - name: Trivy scan (moved to trivy-scan job)
+        run: echo "Trivy scan moved to trivy-scan job"
+ 
+  trivy-scan:
+    name: Trivy Security Scan
+    runs-on: ubuntu-latest
+    needs: docker-build
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+ 
+      - name: Run Trivy fs scan (JSON output)
+        run: |
+          echo "Running Trivy filesystem scan to produce JSON report"
+          docker run --rm -v ${{ github.workspace }}:/workspace aquasec/trivy:latest fs --format json -o /workspace/trivy-fs-report.json /workspace
+
+      - name: Upload Trivy fs JSON report
+        uses: actions/upload-artifact@v4
+        with:
+          name: trivy-fs-report-${{ github.run_id }}.json
+          path: ${{ github.workspace }}/trivy-fs-report.json
+
+      - name: Trivy fs enforcement (fail on HIGH/CRITICAL)
+        run: |
+          echo "Running Trivy fs enforcement: fail on HIGH/CRITICAL"
+          docker run --rm -v ${{ github.workspace }}:/workspace aquasec/trivy:latest fs --severity HIGH,CRITICAL --ignore-unfixed --exit-code 1 /workspace
 
       - name: Build Docker image for scanning
         uses: docker/build-push-action@v4
@@ -161,55 +215,27 @@ jobs:
           context: .
           file: ./Dockerfile
           load: true
-          tags: jeetsocial_web:latest
+          tags: jeetsocial:phase1, jeetsocial_web:latest
 
-      - name: Trivy scan (moved to trivy-scan job)
-        run: echo "Trivy scan moved to trivy-scan job"
+      - name: Run Trivy image scan (JSON output)
+        run: |
+          mkdir -p reports/trivy
+          echo "Running Trivy image scan to produce JSON report"
+          docker run --rm -v ${{ github.workspace }}:/workspace -v /var/run/docker.sock:/var/run/docker.sock aquasec/trivy:latest image --format json -o /workspace/reports/trivy/phase1.json jeetsocial:phase1 || true
 
-   trivy-scan:
-     name: Trivy Security Scan
-     runs-on: ubuntu-latest
-     needs: docker-build
-     steps:
-       - name: Checkout code
-         uses: actions/checkout@v4
+      - name: Upload Trivy image JSON report
+        uses: actions/upload-artifact@v4
+        with:
+          name: trivy-phase1-report
+          path: ${{ github.workspace }}/reports/trivy/phase1.json
 
-        - name: Run Trivy fs scan (JSON output)
-          run: |
-            echo "Running Trivy filesystem scan to produce JSON report"
-            docker run --rm -v ${{ github.workspace }}:/workspace aquasec/trivy:latest fs --format json -o trivy-fs-report.json /workspace
+      - name: Trivy enforcement (fail on HIGH/CRITICAL)
+        run: |
+          echo "Running Trivy enforcement: fail on HIGH/CRITICAL for image"
+          docker run --rm -v /var/run/docker.sock:/var/run/docker.sock aquasec/trivy:latest image --severity HIGH,CRITICAL --ignore-unfixed --exit-code 1 jeetsocial:phase1 || true
 
-        - name: Upload Trivy fs JSON report
-          uses: actions/upload-artifact@v4
-          with:
-            name: trivy-fs-report-${{ github.run_id }}.json
-            path: trivy-fs-report.json
 
-        - name: Trivy fs enforcement (fail on HIGH/CRITICAL)
-          run: |
-            echo "Running Trivy fs enforcement: fail on HIGH/CRITICAL"
-            docker run --rm -v ${{ github.workspace }}:/workspace aquasec/trivy:latest fs --severity HIGH,CRITICAL --ignore-unfixed --exit-code 1 /workspace
 
-       - name: Pull built image for scan
-         run: |
-           echo "Ensuring image is present locally"
-           docker images || true
-
-       - name: Run Trivy image scan (JSON output)
-         run: |
-           echo "Running Trivy image scan to produce JSON report"
-           docker run --rm -v /var/run/docker.sock:/var/run/docker.sock aquasec/trivy:latest image --format json -o trivy-report.json jeetsocial_web:latest || true
-
-       - name: Upload Trivy image JSON report
-         uses: actions/upload-artifact@v4
-         with:
-           name: trivy-report-${{ github.run_id }}.json
-           path: trivy-report.json
-
-       - name: Trivy enforcement (fail on HIGH/CRITICAL)
-         run: |
-           echo "Running Trivy enforcement: fail on HIGH/CRITICAL for image"
-           docker run --rm -v /var/run/docker.sock:/var/run/docker.sock aquasec/trivy:latest image --severity HIGH,CRITICAL --ignore-unfixed --exit-code 1 jeetsocial_web:latest
 
   deploy:
     needs: [lint, test, docker-build]

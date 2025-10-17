@@ -14,6 +14,7 @@ Frontend logic for jeetSocial:
 let currentPage = 1;
 let totalPages = 1;
 let pageLimit = 20;
+let currentView = 'latest';
 
 // Initial load
 console.debug('[main.js] loaded');
@@ -35,11 +36,12 @@ function startLiveFeedPolling() {
 // Butter-smooth live update function
 async function butterSmoothLiveUpdate() {
   try {
-    const resp = await fetch(`/api/posts?page=1&limit=${pageLimit}`);
+    const viewParam = currentView !== 'latest' ? `&view=${currentView}` : '';
+    const resp = await fetch(`/api/posts?page=1&limit=${pageLimit}${viewParam}`);
     const data = await resp.json();
     const newPosts = Array.isArray(data.posts) ? data.posts : [];
-    // Debug: log incoming posts payload for E2E visibility
-    try { console.debug('[LiveFeed] /api/posts payload', newPosts); } catch(e) {}
+     // Debug: log incoming posts payload for E2E visibility
+     try { console.debug('[LiveFeed] /api/posts payload', newPosts); } catch { /* ignore */ }
     const feed = document.getElementById('feed');
     if (!feed) return;
     const accentColors = ["#ff4b5c", "#ffb26b", "#ffe347", "#43e97b", "#3fa7d6", "#7c4dff", "#c86dd7"];
@@ -79,7 +81,7 @@ async function butterSmoothLiveUpdate() {
         // Prepend newest posts to top of feed
         try {
           feed.insertBefore(div, feed.firstChild);
-        } catch (insertErr) {
+        } catch {
           feed.appendChild(div);
         }
 
@@ -108,8 +110,8 @@ async function butterSmoothLiveUpdate() {
         showNewPostsBanner();
       }
     }
-  } catch (err) {
-    console.log('[LiveFeed] Butter-smooth update error', err);
+   } catch (err) {
+     console.log('[LiveFeed] Butter-smooth update error', err);
   }
 }
 
@@ -189,12 +191,13 @@ async function fetchFeedPage(page) {
       <div class="skeleton-post"><div class="skeleton-animate"></div></div>
     </div>
   `;
-  try {
-    const resp = await fetch(`/api/posts?page=${page}&limit=${pageLimit}`);
-    const data = await resp.json();
+   try {
+     const viewParam = currentView !== 'latest' ? `&view=${currentView}` : '';
+     const resp = await fetch(`/api/posts?page=${page}&limit=${pageLimit}${viewParam}`);
+     const data = await resp.json();
     const posts = data.posts;
-    // Debug: log incoming posts payload for E2E visibility
-    try { console.debug('[FetchFeed] /api/posts payload', posts); } catch(e) {}
+     // Debug: log incoming posts payload for E2E visibility
+     try { console.debug('[FetchFeed] /api/posts payload', posts); } catch { /* ignore */ }
     const accentColors = ["#ff4b5c", "#ffb26b", "#ffe347", "#43e97b", "#3fa7d6", "#7c4dff", "#c86dd7"];
     // Remove skeleton loader and show posts
     // Defensive normalization of posts array to ensure kindness_points is numeric
@@ -204,9 +207,9 @@ async function fetchFeedPage(page) {
           const coerced = Number(p.kindness_points);
           p.kindness_points = Number.isFinite(coerced) ? coerced : 0;
         }
-      } catch (e) {
-        p.kindness_points = 0;
-      }
+             } catch {
+                 console.debug('[KINDNESS-CLIENT] storage handler error');
+             }
       return p;
     });
 
@@ -232,7 +235,8 @@ if (banner) banner.remove();
     currentPage = data.page;
     totalPages = Math.max(1, Math.ceil(data.total_count / pageLimit));
     renderPagingControls();
-  } catch {
+   } catch (err) {
+     console.log('[FetchFeed] Error loading feed', err);
     feed.innerHTML = '<em>Error loading feed.</em>';
   }
 }
@@ -307,7 +311,8 @@ async function postMessage(e) {
         }
       }
     }
-  } catch {
+   } catch (err) {
+    console.log('[PostMessage] Network error', err);
     errorDiv.textContent = 'Network error.';
   }
 }
@@ -321,7 +326,7 @@ async function postMessage(e) {
       postForm._hasSubmitHandler = true;
       console.debug('[main.js] post-form submit handler attached');
     }
-  } catch (err) {
+   } catch (err) {
     console.debug('[main.js] attachPostHandler error', err);
   }
 })();
@@ -429,17 +434,17 @@ class KindnessManager {
         console.log('[KINDNESS-CLIENT] constructor - initial token present?', !!this.token, 'expiry=', this.tokenExpiry);
 
         // Listen for cross-tab kindness updates broadcast via localStorage
-        window.addEventListener('storage', (e) => {
+        window.addEventListener('storage', (event) => {
             try {
                 // Log raw event for E2E debugging
-                console.debug('[KINDNESS-CLIENT] storage event received', { key: e.key, newValue: e.newValue, oldValue: e.oldValue });
-                if (!e.key || e.key !== 'jeet_kindness_update') return;
+                console.debug('[KINDNESS-CLIENT] storage event received', { key: event.key, newValue: event.newValue, oldValue: event.oldValue });
+                if (!event.key || event.key !== 'jeet_kindness_update') return;
                 // If the key was removed (newValue === null) ignore the removal event
-                if (e.newValue === null) {
+                if (event.newValue === null) {
                     console.debug('[KINDNESS-CLIENT] storage event: key removed, ignoring');
                     return;
                 }
-                const payload = JSON.parse(e.newValue);
+                const payload = JSON.parse(event.newValue);
                 if (!payload || !payload.post_id || typeof payload.new_points === 'undefined' || !payload.ts) {
                     console.debug('[KINDNESS-CLIENT] storage event: payload invalid', payload);
                     return;
@@ -458,9 +463,9 @@ class KindnessManager {
         try {
             if (typeof BroadcastChannel !== 'undefined') {
                 this._bc = new BroadcastChannel('jeet_kindness');
-                this._bc.addEventListener('message', (ev) => {
+                this._bc.addEventListener('message', (event) => {
                     try {
-                        const payload = ev.data;
+                        const payload = event.data;
                         console.debug('[KINDNESS-CLIENT] BroadcastChannel message received', payload);
                         if (!payload || !payload.post_id || typeof payload.new_points === 'undefined' || !payload.ts) return;
                         if (payload.ts <= this._lastAppliedKindnessTs) return;
@@ -483,8 +488,8 @@ class KindnessManager {
             const ssExpiry = sessionStorage.getItem('kindness_token_expiry');
             if (ssToken) this.token = ssToken;
             if (ssExpiry) this.tokenExpiry = ssExpiry;
-        } catch (e) {
-            console.debug('[KINDNESS-CLIENT] unable to read sessionStorage:', e);
+         } catch (err) {
+            console.debug('[KINDNESS-CLIENT] unable to read sessionStorage:', err);
         }
 
         // Debug logging to help E2E visibility
@@ -515,8 +520,8 @@ class KindnessManager {
             sessionStorage.setItem('kindness_token_expiry', this.tokenExpiry);
             console.log('[KINDNESS-CLIENT] received token, expiry=', this.tokenExpiry);
             return this.token;
-        } catch (error) {
-            console.error('Failed to get kindness token:', error);
+        } catch (err) {
+            console.error('Failed to get kindness token:', err);
             return null;
         }
     }
@@ -548,17 +553,17 @@ class KindnessManager {
         buttonElement.setAttribute('aria-pressed', 'true');
     }
     let token;
-    try {
-        token = await this.ensureToken(postId);
-    } catch (err) {
-        showToast('Unable to get kindness token', 'error');
-        if (countElement) countElement.textContent = `🌈 ${originalCount}`;
-        if (buttonElement) {
-            buttonElement.disabled = false;
-            buttonElement.setAttribute('aria-pressed', 'false');
-        }
-        return;
-    }
+     try {
+         token = await this.ensureToken(postId);
+     } catch {
+         showToast('Unable to get kindness token', 'error');
+         if (countElement) countElement.textContent = `🌈 ${originalCount}`;
+         if (buttonElement) {
+             buttonElement.disabled = false;
+             buttonElement.setAttribute('aria-pressed', 'false');
+         }
+         return;
+     }
     if (!token) {
         showToast('Unable to get kindness token', 'error');
         if (countElement) countElement.textContent = `🌈 ${originalCount}`;
@@ -640,9 +645,9 @@ class KindnessManager {
                 if (liveRegion) {
                     liveRegion.textContent = `Kindness count for post ${postId} is now ${displayKp}`;
                 }
-            } catch (err) {
-                console.debug('[KINDNESS-CLIENT] updateKindnessDisplay aria announcement failed', err);
-            }
+             } catch {
+                 console.debug('[KINDNESS-CLIENT] updateKindnessDisplay aria announcement failed');
+             }
         }
     }
 }
@@ -773,13 +778,92 @@ window.addEventListener('DOMContentLoaded', function() {
     emojiPicker.style.display = 'none';
   });
 
-  // Hide picker if clicking outside
-  document.addEventListener('click', function(e) {
-    if (!emojiPicker.contains(e.target) && e.target !== emojiBtn) {
-      emojiPicker.style.display = 'none';
+   // Hide picker if clicking outside
+   document.addEventListener('click', function(e) {
+     if (!emojiPicker.contains(e.target) && e.target !== emojiBtn) {
+       emojiPicker.style.display = 'none';
+     }
+   });
+ });
+
+ // View Toggle
+ function setupViewToggle() {
+   const recentBtn = document.getElementById('view-toggle-recent');
+   const topBtn = document.getElementById('view-toggle-top');
+   if (!recentBtn || !topBtn) return;
+
+    function setActive(view) {
+      const heading = document.getElementById('feed-heading');
+      if (view === 'top') {
+        recentBtn.classList.remove('active');
+        topBtn.classList.add('active');
+        recentBtn.setAttribute('aria-selected', 'false');
+        topBtn.setAttribute('aria-selected', 'true');
+        recentBtn.setAttribute('tabindex', '-1');
+        topBtn.setAttribute('tabindex', '0');
+        topBtn.focus();
+        if (heading) heading.textContent = 'Top Posts — last 24 hours';
+      } else {
+        recentBtn.classList.add('active');
+        topBtn.classList.remove('active');
+        recentBtn.setAttribute('aria-selected', 'true');
+        topBtn.setAttribute('aria-selected', 'false');
+        recentBtn.setAttribute('tabindex', '0');
+        topBtn.setAttribute('tabindex', '-1');
+        recentBtn.focus();
+        if (heading) heading.textContent = 'Recent Posts';
+      }
     }
-  });
-});
+
+   recentBtn.addEventListener('click', function() {
+     if (currentView !== 'latest') {
+       currentView = 'latest';
+       setActive('latest');
+       // Update URL
+       const url = new URL(window.location);
+       url.searchParams.delete('view');
+       window.history.pushState({}, '', url);
+       // Refetch feed
+       fetchFeedPage(currentPage);
+     }
+   });
+
+   topBtn.addEventListener('click', function() {
+     if (currentView !== 'top') {
+       currentView = 'top';
+       setActive('top');
+       // Update URL
+       const url = new URL(window.location);
+       url.searchParams.set('view', 'top');
+       window.history.pushState({}, '', url);
+       // Refetch feed
+       fetchFeedPage(currentPage);
+     }
+   });
+
+   // Keyboard navigation
+   const tabs = [recentBtn, topBtn];
+   tabs.forEach((btn, index) => {
+     btn.addEventListener('keydown', function(e) {
+       if (e.key === 'ArrowLeft' || e.key === 'ArrowRight') {
+         e.preventDefault();
+         const nextIndex = e.key === 'ArrowLeft' ? (index - 1 + tabs.length) % tabs.length : (index + 1) % tabs.length;
+         tabs[nextIndex].focus();
+         tabs[nextIndex].click();
+       }
+     });
+   });
+ }
+
+ // On page load, check URL for view
+ window.addEventListener('DOMContentLoaded', function() {
+   const urlParams = new URLSearchParams(window.location.search);
+   const viewParam = urlParams.get('view');
+   if (viewParam === 'top') {
+     currentView = 'top';
+   }
+   setupViewToggle();
+ });
 
 
 // Bootstrap: ensure setup functions run even if DOMContentLoaded fired before script execution
@@ -787,19 +871,20 @@ window.addEventListener('DOMContentLoaded', function() {
   function safeCall(fn) {
     try {
       if (typeof fn === 'function') fn();
-    } catch (err) {
-      console.debug('[main.js] bootstrap safeCall error', err);
-    }
+   } catch (err) {
+    console.debug('[main.js] bootstrap safeCall error', err);
+  }
   }
 
-  const runSetupNow = () => {
-    console.debug('[main.js] bootstrap - running setup functions');
-    safeCall(setupEnterToPost);
-    safeCall(setupCharacterCounter);
-    // Ensure feed is loaded and polling started
-    safeCall(() => fetchFeedPage(1));
-    safeCall(startLiveFeedPolling);
-  };
+   const runSetupNow = () => {
+     console.debug('[main.js] bootstrap - running setup functions');
+     safeCall(setupEnterToPost);
+     safeCall(setupCharacterCounter);
+     safeCall(setupViewToggle);
+     // Ensure feed is loaded and polling started
+     safeCall(() => fetchFeedPage(1));
+     safeCall(startLiveFeedPolling);
+   };
 
   if (document.readyState === 'complete' || document.readyState === 'interactive') {
     // DOMContentLoaded may have already fired; run setups immediately
