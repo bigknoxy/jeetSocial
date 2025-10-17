@@ -275,13 +275,13 @@
 </form>
 <!-- Emoji Picker CDN -->
 <script type="module" src="https://cdn.jsdelivr.net/npm/emoji-picker-element@^1/index.js"></script>
-   <div style="display: flex; align-items: center; gap: 1em; margin-top: 2em; margin-bottom: 1em;">
-     <h2 style="margin: 0;">Recent Posts</h2>
-     <div class="view-tabs" role="tablist" aria-label="Post view options">
-       <button id="view-toggle-recent" class="view-tab active" role="tab" aria-selected="true" aria-controls="feed" tabindex="0">Recent</button>
-       <button id="view-toggle-top" class="view-tab" role="tab" aria-selected="false" aria-controls="feed" tabindex="-1">Top</button>
-     </div>
-   </div>
+    <div style="display: flex; align-items: center; gap: 1em; margin-top: 2em; margin-bottom: 1em;">
+      <h2 id="feed-heading" style="margin: 0;">Recent Posts</h2>
+      <div class="view-tabs" role="tablist" aria-label="Post view options">
+        <button id="view-toggle-recent" class="view-tab active" role="tab" aria-selected="true" aria-controls="feed" tabindex="0">Recent</button>
+        <button id="view-toggle-top" class="view-tab" role="tab" aria-selected="false" aria-controls="feed" tabindex="-1">Top</button>
+      </div>
+    </div>
    <div id="feed">
     <div class="skeleton-loader" id="skeleton-loader">
       <div class="skeleton-post"><div class="skeleton-animate"></div></div>

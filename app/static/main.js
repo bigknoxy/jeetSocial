@@ -792,25 +792,28 @@ window.addEventListener('DOMContentLoaded', function() {
    const topBtn = document.getElementById('view-toggle-top');
    if (!recentBtn || !topBtn) return;
 
-   function setActive(view) {
-     if (view === 'top') {
-       recentBtn.classList.remove('active');
-       topBtn.classList.add('active');
-       recentBtn.setAttribute('aria-selected', 'false');
-       topBtn.setAttribute('aria-selected', 'true');
-       recentBtn.setAttribute('tabindex', '-1');
-       topBtn.setAttribute('tabindex', '0');
-       topBtn.focus();
-     } else {
-       recentBtn.classList.add('active');
-       topBtn.classList.remove('active');
-       recentBtn.setAttribute('aria-selected', 'true');
-       topBtn.setAttribute('aria-selected', 'false');
-       recentBtn.setAttribute('tabindex', '0');
-       topBtn.setAttribute('tabindex', '-1');
-       recentBtn.focus();
-     }
-   }
+    function setActive(view) {
+      const heading = document.getElementById('feed-heading');
+      if (view === 'top') {
+        recentBtn.classList.remove('active');
+        topBtn.classList.add('active');
+        recentBtn.setAttribute('aria-selected', 'false');
+        topBtn.setAttribute('aria-selected', 'true');
+        recentBtn.setAttribute('tabindex', '-1');
+        topBtn.setAttribute('tabindex', '0');
+        topBtn.focus();
+        if (heading) heading.textContent = 'Top Posts — last 24 hours';
+      } else {
+        recentBtn.classList.add('active');
+        topBtn.classList.remove('active');
+        recentBtn.setAttribute('aria-selected', 'true');
+        topBtn.setAttribute('aria-selected', 'false');
+        recentBtn.setAttribute('tabindex', '0');
+        topBtn.setAttribute('tabindex', '-1');
+        recentBtn.focus();
+        if (heading) heading.textContent = 'Recent Posts';
+      }
+    }
 
    recentBtn.addEventListener('click', function() {
      if (currentView !== 'latest') {
