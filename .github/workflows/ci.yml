@@ -112,20 +112,18 @@ jobs:
             flask db upgrade
           fi
 
-      - name: Download Trivy report artifact
-        uses: actions/download-artifact@v4
+      - name: Build Docker image locally for Trivy
+        uses: docker/build-push-action@v4
         with:
-          name: trivy-phase1-report
-          path: trivy-report-download/
+          context: .
+          file: ./Dockerfile
+          load: true
+          tags: jeetsocial:phase1, jeetsocial_web:latest
 
-      - name: Ensure reports/trivy directory exists and move report
+      - name: Run Trivy image scan (produce reports/trivy/phase1.json)
         run: |
           mkdir -p reports/trivy
-          if [ -f trivy-report-download/trivy-report.json ]; then
-            mv trivy-report-download/trivy-report.json reports/trivy/phase1.json
-          else
-            echo "Trivy artifact not found in download path; continuing to run tests to show failure"
-          fi
+          docker run --rm -v /var/run/docker.sock:/var/run/docker.sock aquasec/trivy:latest image --format json -o reports/trivy/phase1.json jeetsocial:phase1 || true
 
       - name: Run tests with coverage
         run: pytest --cov=app --cov-report=xml -q
