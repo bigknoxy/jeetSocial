@@ -172,12 +172,59 @@
         vertical-align: middle;
         transition: color 0.2s;
       }
-      @media (max-width: 480px) {
-        .toggle-switch { font-size: 0.95em; gap: 0.5em; }
-        .toggle-label { font-size: 0.95em; }
-        .toggle-switch .slider { width: 38px; height: 24px; }
-        .toggle-switch input[type="checkbox"] { width: 38px; height: 24px; }
-      }
+       @media (max-width: 480px) {
+         .toggle-switch { font-size: 0.95em; gap: 0.5em; }
+         .toggle-label { font-size: 0.95em; }
+         .toggle-switch .slider { width: 38px; height: 24px; }
+         .toggle-switch input[type="checkbox"] { width: 38px; height: 24px; }
+       }
+
+       /* View tabs styling */
+       .view-tabs {
+         display: flex;
+         background: #2a2a2a;
+         border-radius: 8px;
+         overflow: hidden;
+         box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+       }
+       .view-tab {
+         background: transparent;
+         color: #b3b3b3;
+         border: none;
+         padding: 0.75em 1.5em;
+         font-size: 1em;
+         font-weight: 500;
+         cursor: pointer;
+         transition: all 0.2s ease;
+         outline: none;
+         min-width: 80px;
+       }
+       .view-tab:hover {
+         background: rgba(67, 233, 123, 0.1);
+         color: #43e97b;
+       }
+       .view-tab:focus {
+         box-shadow: 0 0 0 2px #3fa7d6;
+       }
+       .view-tab.active {
+         background: #43e97b;
+         color: #23232b;
+         font-weight: bold;
+       }
+       .view-tab[aria-selected="false"] {
+         opacity: 0.7;
+       }
+       @media (max-width: 768px) {
+         .view-tabs {
+           flex-direction: column;
+         }
+         .view-tab {
+           border-bottom: 1px solid #3a3a3a;
+         }
+         .view-tab:last-child {
+           border-bottom: none;
+         }
+       }
  </style>
 </head>
 <body>
@@ -228,8 +275,14 @@
 </form>
 <!-- Emoji Picker CDN -->
 <script type="module" src="https://cdn.jsdelivr.net/npm/emoji-picker-element@^1/index.js"></script>
- <h2 style="margin-top:2em;">Recent Posts</h2>
-  <div id="feed">
+    <div style="display: flex; align-items: center; gap: 1em; margin-top: 2em; margin-bottom: 1em;">
+      <h2 id="feed-heading" style="margin: 0;">Recent Posts</h2>
+      <div class="view-tabs" role="tablist" aria-label="Post view options">
+        <button id="view-toggle-recent" class="view-tab active" role="tab" aria-selected="true" aria-controls="feed" tabindex="0">Recent</button>
+        <button id="view-toggle-top" class="view-tab" role="tab" aria-selected="false" aria-controls="feed" tabindex="-1">Top</button>
+      </div>
+    </div>
+   <div id="feed">
     <div class="skeleton-loader" id="skeleton-loader">
       <div class="skeleton-post"><div class="skeleton-animate"></div></div>
       <div class="skeleton-post"><div class="skeleton-animate"></div></div>
