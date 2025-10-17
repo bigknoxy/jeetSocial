@@ -174,7 +174,7 @@ jobs:
           context: .
           file: ./Dockerfile
           load: true
-          tags: jeetsocial_web:latest
+          tags: jeetsocial:phase1, jeetsocial_web:latest
  
       - name: Trivy scan (moved to trivy-scan job)
         run: echo "Trivy scan moved to trivy-scan job"
@@ -211,7 +211,7 @@ jobs:
       - name: Run Trivy image scan (JSON output)
         run: |
           echo "Running Trivy image scan to produce JSON report"
-          docker run --rm -v /var/run/docker.sock:/var/run/docker.sock aquasec/trivy:latest image --format json -o trivy-report.json jeetsocial_web:latest || true
+           docker run --rm -v /var/run/docker.sock:/var/run/docker.sock aquasec/trivy:latest image --format json -o trivy-report.json jeetsocial:phase1 || true
  
       - name: Upload Trivy image JSON report
         uses: actions/upload-artifact@v4
@@ -222,7 +222,7 @@ jobs:
       - name: Trivy enforcement (fail on HIGH/CRITICAL)
         run: |
           echo "Running Trivy enforcement: fail on HIGH/CRITICAL for image"
-          docker run --rm -v /var/run/docker.sock:/var/run/docker.sock aquasec/trivy:latest image --severity HIGH,CRITICAL --ignore-unfixed --exit-code 1 jeetsocial_web:latest
+           docker run --rm -v /var/run/docker.sock:/var/run/docker.sock aquasec/trivy:latest image --severity HIGH,CRITICAL --ignore-unfixed --exit-code 1 jeetsocial:phase1
 
 
   deploy:
