@@ -47,7 +47,7 @@ jobs:
   test:
     name: Tests (pytest)
     runs-on: ubuntu-latest
-    needs: lint
+    needs: [lint, trivy-scan]
     services:
       postgres:
         image: postgres:15
@@ -110,6 +110,21 @@ jobs:
             # Run migrations using Flask-Migrate under the app context
             export FLASK_APP=app:create_app
             flask db upgrade
+          fi
+
+      - name: Download Trivy report artifact
+        uses: actions/download-artifact@v4
+        with:
+          name: trivy-phase1-report
+          path: trivy-report-download/
+
+      - name: Ensure reports/trivy directory exists and move report
+        run: |
+          mkdir -p reports/trivy
+          if [ -f trivy-report-download/trivy-report.json ]; then
+            mv trivy-report-download/trivy-report.json reports/trivy/phase1.json
+          else
+            echo "Trivy artifact not found in download path; continuing to run tests to show failure"
           fi
 
       - name: Run tests with coverage
