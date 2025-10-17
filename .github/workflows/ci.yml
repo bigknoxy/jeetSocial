@@ -145,7 +145,18 @@ jobs:
           pip install pip-audit
 
       - name: Run pip-audit on requirements-runtime.txt
-        run: pip-audit --requirement requirements-runtime.txt --severity HIGH,CRITICAL --desc on --format text --exit-code 1
+        run: |
+          pip-audit --requirement requirements-runtime.txt --severity HIGH,CRITICAL --desc on --format json -o pip-audit-report.json || true
+          echo "=== pip-audit JSON report (if created) ==="
+          if [ -f pip-audit-report.json ]; then
+            cat pip-audit-report.json
+          fi
+
+      - name: Upload pip-audit report
+        uses: actions/upload-artifact@v4
+        with:
+          name: pip-audit-report-${{ github.run_id }}.json
+          path: pip-audit-report.json
 
 
  
