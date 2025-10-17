@@ -1,6 +1,6 @@
 import pytest
 from app import create_app, db
-from app.models import Post, KindnessVote
+from app.models import Post
 
 
 @pytest.fixture

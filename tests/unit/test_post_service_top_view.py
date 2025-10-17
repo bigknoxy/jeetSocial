@@ -32,7 +32,9 @@ def test_top_posts_filters_posts_within_24_hours():
 
 
 def test_top_posts_orders_by_kindness_points_desc_then_timestamp_desc():
-    """Test that top_posts orders posts by kindness_points descending, then timestamp descending."""
+    """Ensure top_posts orders by kindness_points descending, then timestamp descending.
+    This verifies that posts with equal kindness_points are ordered by newer timestamps first.
+    """
     # Arrange
     now = datetime.utcnow()
     posts = [
@@ -66,7 +68,8 @@ def test_top_posts_orders_by_kindness_points_desc_then_timestamp_desc():
     result = top_posts(posts, window_hours=24)
 
     # Assert
-    # Expected order: post2 (20 points), post1 (15 points, newer), post3 (15 points, older), post4 (10 points)
+    # Expected order: post2 (20 points), post1 (15 points, newer),
+    # post3 (15 points, older), post4 (10 points)
     assert result[0].id == 2  # Highest points
     assert result[1].id == 1  # Same points as post3 but newer
     assert result[2].id == 3  # Same points as post1 but older
