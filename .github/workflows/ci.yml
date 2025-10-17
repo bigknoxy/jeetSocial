@@ -145,7 +145,8 @@ jobs:
           pip install pip-audit
 
       - name: Run pip-audit on requirements-runtime.txt
-        run: pip-audit --requirement requirements-runtime.txt --severity high,critical --desc --format text --exit-code
+        run: pip-audit --requirement requirements-runtime.txt --severity HIGH,CRITICAL --desc on --format text --exit-code 1
+
 
  
   docker-build:
