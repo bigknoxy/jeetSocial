@@ -43,11 +43,45 @@ jobs:
       - name: Run flake8
         run: flake8 .
 
+  docker-trivy-report:
+    name: Build Docker & Trivy JSON report
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Build Docker image with both tags
+        run: |
+          docker build -t jeetsocial:phase1 -t jeetsocial_web:latest .
+      - name: List Docker images
+        run: docker images --format '{{.Repository}}:{{.Tag}} {{.ID}}'
+
+      - name: Ensure reports/trivy exists
+        run: mkdir -p reports/trivy
+
+      - name: Run Trivy scan and generate JSON report
+        run: |
+          docker run --rm -v /var/run/docker.sock:/var/run/docker.sock \
+            -v ${{ github.workspace }}:/workspace \
+            aquasec/trivy:latest image jeetsocial:phase1 \
+            --format json --output /workspace/reports/trivy/phase1.json || true
+
+      - name: Debug Trivy report
+        run: |
+          ls -la reports/trivy
+          head -c 200 reports/trivy/phase1.json || true
+          stat --format="Size: %s bytes" reports/trivy/phase1.json
+
+      - name: Upload Trivy JSON report artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: trivy-phase1-report
+          path: reports/trivy/phase1.json
 
   test:
     name: Tests (pytest)
     runs-on: ubuntu-latest
-    needs: lint
+    needs: [lint, docker-trivy-report]
     services:
       postgres:
         image: postgres:15
@@ -75,6 +109,12 @@ jobs:
     steps:
       - name: Checkout code
         uses: actions/checkout@v4
+
+      - name: Download Trivy JSON report
+        uses: actions/download-artifact@v4
+        with:
+          name: trivy-phase1-report
+          path: reports/trivy
 
       - name: Set up Python
         uses: actions/setup-python@v5
@@ -158,8 +198,6 @@ jobs:
           name: pip-audit-report-${{ github.run_id }}.json
           path: pip-audit-report.json
 
-
- 
   docker-build:
     name: Docker build (main only)
     runs-on: ubuntu-latest
@@ -167,7 +205,7 @@ jobs:
     if: github.event_name == 'pull_request' || (github.event_name == 'push' && github.ref == 'refs/heads/main')
     steps:
       - uses: actions/checkout@v3
- 
+
       - name: Build Docker image for scanning
         uses: docker/build-push-action@v4
         with:
@@ -175,10 +213,10 @@ jobs:
           file: ./Dockerfile
           load: true
           tags: jeetsocial_web:latest
- 
+
       - name: Trivy scan (moved to trivy-scan job)
         run: echo "Trivy scan moved to trivy-scan job"
- 
+
   trivy-scan:
     name: Trivy Security Scan
     runs-on: ubuntu-latest
@@ -186,44 +224,43 @@ jobs:
     steps:
       - name: Checkout code
         uses: actions/checkout@v4
- 
+
       - name: Run Trivy fs scan (JSON output)
         run: |
           echo "Running Trivy filesystem scan to produce JSON report"
           docker run --rm -v ${{ github.workspace }}:/workspace aquasec/trivy:latest fs --format json -o trivy-fs-report.json /workspace
- 
+
       - name: Upload Trivy fs JSON report
         uses: actions/upload-artifact@v4
         with:
           name: trivy-fs-report-${{ github.run_id }}.json
           path: trivy-fs-report.json
- 
+
       - name: Trivy fs enforcement (fail on HIGH/CRITICAL)
         run: |
           echo "Running Trivy fs enforcement: fail on HIGH/CRITICAL"
           docker run --rm -v ${{ github.workspace }}:/workspace aquasec/trivy:latest fs --severity HIGH,CRITICAL --ignore-unfixed --exit-code 1 /workspace
- 
+
       - name: Pull built image for scan
         run: |
           echo "Ensuring image is present locally"
           docker images || true
- 
+
       - name: Run Trivy image scan (JSON output)
         run: |
           echo "Running Trivy image scan to produce JSON report"
           docker run --rm -v /var/run/docker.sock:/var/run/docker.sock aquasec/trivy:latest image --format json -o trivy-report.json jeetsocial_web:latest || true
- 
+
       - name: Upload Trivy image JSON report
         uses: actions/upload-artifact@v4
         with:
           name: trivy-report-${{ github.run_id }}.json
           path: trivy-report.json
- 
+
       - name: Trivy enforcement (fail on HIGH/CRITICAL)
         run: |
           echo "Running Trivy enforcement: fail on HIGH/CRITICAL for image"
           docker run --rm -v /var/run/docker.sock:/var/run/docker.sock aquasec/trivy:latest image --severity HIGH,CRITICAL --ignore-unfixed --exit-code 1 jeetsocial_web:latest
-
 
   deploy:
     needs: [lint, test, docker-build]
