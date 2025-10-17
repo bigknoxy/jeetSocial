@@ -196,19 +196,19 @@ jobs:
       - name: Run Trivy fs scan (JSON output)
         run: |
           echo "Running Trivy filesystem scan to produce JSON report"
-          docker run --rm -v ${{ github.workspace }}:/workspace aquasec/trivy:latest fs --format json -o trivy-fs-report.json /workspace
- 
+          docker run --rm -v ${{ github.workspace }}:/workspace aquasec/trivy:latest fs --format json -o /workspace/trivy-fs-report.json /workspace
+
       - name: Upload Trivy fs JSON report
         uses: actions/upload-artifact@v4
         with:
           name: trivy-fs-report-${{ github.run_id }}.json
-          path: trivy-fs-report.json
- 
+          path: ${{ github.workspace }}/trivy-fs-report.json
+
       - name: Trivy fs enforcement (fail on HIGH/CRITICAL)
         run: |
           echo "Running Trivy fs enforcement: fail on HIGH/CRITICAL"
           docker run --rm -v ${{ github.workspace }}:/workspace aquasec/trivy:latest fs --severity HIGH,CRITICAL --ignore-unfixed --exit-code 1 /workspace
- 
+
       - name: Build Docker image for scanning
         uses: docker/build-push-action@v4
         with:
@@ -221,18 +221,19 @@ jobs:
         run: |
           mkdir -p reports/trivy
           echo "Running Trivy image scan to produce JSON report"
-          docker run --rm -v /var/run/docker.sock:/var/run/docker.sock aquasec/trivy:latest image --format json -o reports/trivy/phase1.json jeetsocial:phase1 || true
+          docker run --rm -v ${{ github.workspace }}:/workspace -v /var/run/docker.sock:/var/run/docker.sock aquasec/trivy:latest image --format json -o /workspace/reports/trivy/phase1.json jeetsocial:phase1 || true
 
       - name: Upload Trivy image JSON report
         uses: actions/upload-artifact@v4
         with:
           name: trivy-phase1-report
-          path: reports/trivy/phase1.json
+          path: ${{ github.workspace }}/reports/trivy/phase1.json
 
       - name: Trivy enforcement (fail on HIGH/CRITICAL)
         run: |
           echo "Running Trivy enforcement: fail on HIGH/CRITICAL for image"
           docker run --rm -v /var/run/docker.sock:/var/run/docker.sock aquasec/trivy:latest image --severity HIGH,CRITICAL --ignore-unfixed --exit-code 1 jeetsocial:phase1 || true
+
 
 
 
