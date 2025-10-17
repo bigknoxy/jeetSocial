@@ -33,7 +33,7 @@ def test_top_posts_filters_posts_within_24_hours():
 
 def test_top_posts_orders_by_kindness_points_desc_then_timestamp_desc():
     """Ensure top_posts orders by kindness_points descending, then timestamp descending.
-    This verifies that posts with equal kindness_points are ordered by newer timestamps first.
+    Verifies posts with equal kindness_points are ordered by newer timestamps first.
     """
     # Arrange
     now = datetime.utcnow()
