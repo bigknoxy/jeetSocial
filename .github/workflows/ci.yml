@@ -240,7 +240,10 @@ jobs:
   deploy:
     needs: [lint, test, docker-build]
     runs-on: ubuntu-latest
-    if: github.ref == 'refs/heads/main' && github.event_name == 'push'
+    # Deployment is temporarily disabled — kept here for reference.
+    # Re-enable by restoring the original condition:
+    # if: github.ref == 'refs/heads/main' && github.event_name == 'push'
+    if: false
     environment:
       name: production
     steps:
