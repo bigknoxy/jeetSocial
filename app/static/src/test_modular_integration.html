@@ -1,0 +1,261 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Modular Integration Test - jeetSocial</title>
+    <style>
+        body { font-family: Arial, sans-serif; margin: 20px; background: #18181b; color: #f5f5f5; }
+        .test-section { margin: 20px 0; padding: 15px; border: 1px solid #ccc; background: #222; }
+        .success { color: #43e97b; }
+        .error { color: #ff4b5c; }
+        .log { background: #f0f0f0; padding: 10px; margin: 10px 0; max-height: 200px; overflow-y: auto; background: #23232b; color: #f5f5f5; }
+        button { margin: 5px; padding: 8px 16px; background: #43e97b; color: #23232b; border: none; border-radius: 4px; cursor: pointer; }
+        button:hover { background: #3fa7d6; }
+        pre { background: #23232b; padding: 10px; border-radius: 4px; overflow-x: auto; }
+    </style>
+</head>
+<body>
+    <h1>Modular Integration Test</h1>
+    
+    <div class="test-section">
+        <h2>Module Loading Status</h2>
+        <div id="loading-status">Checking...</div>
+        <button onclick="checkModuleLoading()">Recheck Loading</button>
+    </div>
+    
+    <div class="test-section">
+        <h2>Store Integration Test</h2>
+        <div id="store-test">Not tested</div>
+        <button onclick="testStoreIntegration()">Test Store</button>
+    </div>
+    
+    <div class="test-section">
+        <h2>Component Integration Test</h2>
+        <div id="component-test">Not tested</div>
+        <button onclick="testComponentIntegration()">Test Components</button>
+    </div>
+    
+    <div class="test-section">
+        <h2>State Flow Test</h2>
+        <div id="state-test">Not tested</div>
+        <button onclick="testStateFlow()">Test State Flow</button>
+    </div>
+    
+    <div class="test-section">
+        <h2>Test Log</h2>
+        <div id="test-log" class="log"></div>
+        <button onclick="clearLog()">Clear Log</button>
+    </div>
+
+    <!-- Load all modules in correct order -->
+    <script src="/static/src/state/Store.js"></script>
+    <script src="/static/src/utils/helpers.js"></script>
+    <script src="/static/src/services/StorageService.js"></script>
+    <script src="/static/src/services/ApiService.js"></script>
+    <script src="/static/src/components/UI/CharacterCounter.js"></script>
+    <script src="/static/src/components/UI/EmojiPicker.js"></script>
+    <script src="/static/src/components/UI/ViewToggle.js"></script>
+    <script src="/static/src/components/Feed/FeedManager.js"></script>
+    <script src="/static/src/components/Kindness/KindnessManager.js"></script>
+    
+    <script>
+        let testCounter = 0;
+        
+        function log(message, isError = false) {
+            const logDiv = document.getElementById('test-log');
+            const timestamp = new Date().toLocaleTimeString();
+            const className = isError ? 'error' : 'success';
+            logDiv.innerHTML += `<span class="${className}">[${timestamp}] ${message}</span><br>`;
+            logDiv.scrollTop = logDiv.scrollHeight;
+        }
+        
+        function checkModuleLoading() {
+            const statusDiv = document.getElementById('loading-status');
+            const modules = [
+                'Store',
+                'Helpers', 
+                'StorageService',
+                'ApiService',
+                'CharacterCounter',
+                'EmojiPicker', 
+                'ViewToggle',
+                'FeedManager',
+                'KindnessManager'
+            ];
+            
+            let results = [];
+            let allLoaded = true;
+            
+            modules.forEach(module => {
+                const isLoaded = window[module] !== undefined;
+                results.push(`${module}: ${isLoaded ? '✅' : '❌'}`);
+                if (!isLoaded) allLoaded = false;
+            });
+            
+            statusDiv.innerHTML = `
+                <div class="${allLoaded ? 'success' : 'error'}">
+                    All modules loaded: ${allLoaded ? '✅ Yes' : '❌ No'}<br>
+                    <pre>${results.join('\n')}</pre>
+                </div>
+            `;
+            
+            log(`Module loading check: ${allLoaded ? 'All modules loaded successfully' : 'Some modules failed to load'}`);
+            return allLoaded;
+        }
+        
+        function testStoreIntegration() {
+            const testDiv = document.getElementById('store-test');
+            
+            try {
+                // Test Store initialization
+                if (!window.Store) {
+                    throw new Error('Store not loaded');
+                }
+                
+                // Test basic state operations
+                const initialState = window.Store.getState();
+                if (!initialState || typeof initialState.pagination === 'undefined') {
+                    throw new Error('Store state structure invalid');
+                }
+                
+                // Test state updates
+                window.Store.setState({
+                    pagination: { currentPage: 5, totalPages: 10, pageLimit: 20, currentView: 'top' }
+                }, 'test-integration');
+                
+                const updatedState = window.Store.getState();
+                if (updatedState.pagination.currentPage !== 5) {
+                    throw new Error('Store state update failed');
+                }
+                
+                // Test subscriptions
+                let subscriptionTriggered = false;
+                const unsubscribe = window.Store.subscribe('pagination.currentPage', (newValue) => {
+                    subscriptionTriggered = true;
+                });
+                
+                window.Store.setState({
+                    pagination: { ...updatedState.pagination, currentPage: 6 }
+                }, 'test-subscription');
+                
+                if (!subscriptionTriggered) {
+                    throw new Error('Store subscription not triggered');
+                }
+                
+                unsubscribe();
+                
+                // Reset state
+                window.Store.setState({
+                    pagination: { currentPage: 1, totalPages: 1, pageLimit: 20, currentView: 'latest' }
+                }, 'test-reset');
+                
+                testDiv.innerHTML = '<div class="success">✅ Store integration test passed</div>';
+                log('Store integration test: PASSED');
+                
+            } catch (error) {
+                testDiv.innerHTML = `<div class="error">❌ Store integration test failed: ${error.message}</div>`;
+                log(`Store integration test: FAILED - ${error.message}`, true);
+            }
+        }
+        
+        function testComponentIntegration() {
+            const testDiv = document.getElementById('component-test');
+            
+            try {
+                // Test component instantiation
+                if (!window.FeedManager || !window.KindnessManager) {
+                    throw new Error('Core components not loaded');
+                }
+                
+                // Test FeedManager
+                const feedManager = new FeedManager(window.Store);
+                if (!feedManager.setState || !feedManager.fetchFeedPage) {
+                    throw new Error('FeedManager methods missing');
+                }
+                
+                // Test KindnessManager  
+                const kindnessManager = new KindnessManager(window.Store);
+                if (!kindnessManager.setupCrossTabSync) {
+                    throw new Error('KindnessManager methods missing');
+                }
+                
+                // Test UI components
+                if (!window.CharacterCounter || !window.EmojiPicker || !window.ViewToggle) {
+                    throw new Error('UI components not loaded');
+                }
+                
+                testDiv.innerHTML = '<div class="success">✅ Component integration test passed</div>';
+                log('Component integration test: PASSED');
+                
+            } catch (error) {
+                testDiv.innerHTML = `<div class="error">❌ Component integration test failed: ${error.message}</div>`;
+                log(`Component integration test: FAILED - ${error.message}`, true);
+            }
+        }
+        
+        function testStateFlow() {
+            const testDiv = document.getElementById('state-test');
+            
+            try {
+                // Create components
+                const feedManager = new FeedManager(window.Store);
+                const kindnessManager = new KindnessManager(window.Store);
+                
+                // Test state flow between components
+                let stateChanges = [];
+                
+                // Subscribe to state changes
+                const unsubscribePagination = window.Store.subscribe('pagination', (newValue) => {
+                    stateChanges.push(`pagination: ${JSON.stringify(newValue)}`);
+                });
+                
+                const unsubscribeSession = window.Store.subscribe('session', (newValue) => {
+                    stateChanges.push(`session: ${JSON.stringify(newValue)}`);
+                });
+                
+                // Simulate state changes
+                window.Store.setState({
+                    pagination: { currentPage: 2, totalPages: 5, pageLimit: 20, currentView: 'top' }
+                }, 'state-flow-test-1');
+                
+                window.Store.setState({
+                    session: { username: 'testuser', kindnessPoints: 10 }
+                }, 'state-flow-test-2');
+                
+                // Verify state changes were tracked
+                if (stateChanges.length < 2) {
+                    throw new Error('State flow not properly tracked');
+                }
+                
+                // Cleanup
+                unsubscribePagination();
+                unsubscribeSession();
+                
+                // Reset state
+                window.Store.reset();
+                
+                testDiv.innerHTML = `
+                    <div class="success">✅ State flow test passed</div>
+                    <pre>State changes detected: ${stateChanges.length}</pre>
+                `;
+                log('State flow test: PASSED');
+                
+            } catch (error) {
+                testDiv.innerHTML = `<div class="error">❌ State flow test failed: ${error.message}</div>`;
+                log(`State flow test: FAILED - ${error.message}`, true);
+            }
+        }
+        
+        function clearLog() {
+            document.getElementById('test-log').innerHTML = '';
+        }
+        
+        // Run initial check when page loads
+        window.addEventListener('DOMContentLoaded', () => {
+            log('Modular integration test page loaded');
+            setTimeout(checkModuleLoading, 100); // Small delay to ensure all scripts load
+        });
+    </script>
+</body>
+</html>

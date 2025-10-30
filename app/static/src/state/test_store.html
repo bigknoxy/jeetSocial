@@ -1,0 +1,186 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Store Test - jeetSocial</title>
+    <style>
+        body { font-family: Arial, sans-serif; margin: 20px; }
+        .test-section { margin: 20px 0; padding: 15px; border: 1px solid #ccc; }
+        .state-display { background: #f5f5f5; padding: 10px; margin: 10px 0; }
+        button { margin: 5px; padding: 8px 16px; }
+        .log { background: #f0f0f0; padding: 10px; margin: 10px 0; max-height: 200px; overflow-y: auto; }
+    </style>
+</head>
+<body>
+    <h1>Store State Management Test</h1>
+    
+    <div class="test-section">
+        <h2>Current State</h2>
+        <div id="state-display" class="state-display">Loading...</div>
+        <button onclick="displayState()">Refresh State</button>
+        <button onclick="displayStats()">Show Stats</button>
+    </div>
+    
+    <div class="test-section">
+        <h2>Test Actions</h2>
+        <button onclick="testPagination()">Test Pagination</button>
+        <button onclick="testFeed()">Test Feed Updates</button>
+        <button onclick="testSubscriptions()">Test Subscriptions</button>
+        <button onclick="testPersistence()">Test Persistence</button>
+        <button onclick="resetState()">Reset State</button>
+    </div>
+    
+    <div class="test-section">
+        <h2>Test Log</h2>
+        <div id="test-log" class="log"></div>
+        <button onclick="clearLog()">Clear Log</button>
+    </div>
+
+    <!-- Load Store -->
+    <script src="../state/Store.js"></script>
+    
+    <script>
+        let testCounter = 0;
+        
+        function log(message) {
+            const logDiv = document.getElementById('test-log');
+            const timestamp = new Date().toLocaleTimeString();
+            logDiv.innerHTML += `[${timestamp}] ${message}<br>`;
+            logDiv.scrollTop = logDiv.scrollHeight;
+        }
+        
+        function displayState() {
+            const state = Store.getState();
+            document.getElementById('state-display').textContent = JSON.stringify(state, null, 2);
+            log('State displayed');
+        }
+        
+        function displayStats() {
+            const stats = Store.getStats();
+            log(`Stats: ${JSON.stringify(stats, null, 2)}`);
+        }
+        
+        function testPagination() {
+            log('Testing pagination updates...');
+            
+            // Test page change
+            Store.setState({
+                pagination: {
+                    currentPage: 2,
+                    totalPages: 5,
+                    pageLimit: 20,
+                    currentView: 'latest'
+                }
+            }, 'test-pagination');
+            
+            setTimeout(() => {
+                Store.setState({
+                    pagination: {
+                        currentPage: 3,
+                        totalPages: 5,
+                        pageLimit: 20,
+                        currentView: 'top'
+                    }
+                }, 'test-view-change');
+                log('Pagination test completed');
+            }, 1000);
+        }
+        
+        function testFeed() {
+            log('Testing feed updates...');
+            
+            const mockPosts = [
+                { id: 1, username: 'User1', message: 'Test post 1', kindness_points: 5 },
+                { id: 2, username: 'User2', message: 'Test post 2', kindness_points: 3 }
+            ];
+            
+            Store.setState({
+                feed: {
+                    posts: mockPosts,
+                    isLoading: false,
+                    lastUpdated: Date.now(),
+                    hasNewPosts: true
+                }
+            }, 'test-feed');
+            
+            log('Feed test completed');
+        }
+        
+        function testSubscriptions() {
+            log('Testing subscriptions...');
+            
+            const unsubscribe1 = Store.subscribe('pagination.currentPage', (newValue, oldValue, meta) => {
+                log(`Subscription 1: Page changed from ${oldValue} to ${newValue} (${meta.source})`);
+            });
+            
+            const unsubscribe2 = Store.subscribe('feed.posts', (newValue, oldValue, meta) => {
+                log(`Subscription 2: Posts updated from ${oldValue?.length || 0} to ${newValue?.length || 0} posts`);
+            });
+            
+            // Trigger changes
+            setTimeout(() => {
+                Store.setState({
+                    pagination: { currentPage: 4, totalPages: 5, pageLimit: 20, currentView: 'latest' }
+                }, 'test-subscription');
+                
+                setTimeout(() => {
+                    Store.setState({
+                        feed: { posts: [{ id: 3, username: 'User3', message: 'New post' }], isLoading: false, lastUpdated: Date.now(), hasNewPosts: false }
+                    }, 'test-subscription');
+                    
+                    // Cleanup
+                    setTimeout(() => {
+                        unsubscribe1();
+                        unsubscribe2();
+                        log('Subscriptions test completed and cleaned up');
+                    }, 500);
+                }, 500);
+            }, 500);
+        }
+        
+        function testPersistence() {
+            log('Testing localStorage persistence...');
+            
+            Store.setState({
+                session: {
+                    username: 'testuser',
+                    kindnessPoints: 42
+                }
+            }, 'test-persistence');
+            
+            setTimeout(() => {
+                const storedUsername = localStorage.getItem('jeet_username');
+                const storedPoints = localStorage.getItem('jeet_kindness_points');
+                log(`Stored: username=${storedUsername}, points=${storedPoints}`);
+                log('Persistence test completed');
+            }, 500);
+        }
+        
+        function resetState() {
+            Store.reset();
+            log('State reset to defaults');
+            displayState();
+        }
+        
+        function clearLog() {
+            document.getElementById('test-log').innerHTML = '';
+        }
+        
+        // Initialize display
+        window.addEventListener('DOMContentLoaded', () => {
+            log('Store test page loaded');
+            displayState();
+            
+            // Subscribe to all state changes for logging
+            Store.subscribe('', (newValue, oldValue, meta) => {
+                if (meta.source !== 'test-pagination' && meta.source !== 'test-view-change' && 
+                    meta.source !== 'test-feed' && meta.source !== 'test-subscription' && 
+                    meta.source !== 'test-persistence') {
+                    log(`State changed: ${meta.path} = ${JSON.stringify(newValue)} (${meta.source})`);
+                }
+            }, { id: 'global-logger' });
+        });
+    </script>
+</body>
+</html>

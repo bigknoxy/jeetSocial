@@ -1,0 +1,441 @@
+/**
+ * helpers.js
+ * 
+ * Utility functions for jeetSocial frontend including:
+ * - HTML escaping and sanitization
+ * - Date formatting and manipulation
+ * - String manipulation
+ * - DOM utilities
+ * - Device detection
+ * - Validation helpers
+ */
+
+/**
+ * Escape HTML to prevent XSS attacks
+ */
+function escapeHtml(text) {
+  const div = document.createElement('div');
+  div.textContent = text;
+  // Convert line breaks to <br> after escaping
+  return div.innerHTML.replace(/\n/g, '<br>');
+}
+
+/**
+ * Sanitize HTML (basic version)
+ */
+function sanitizeHtml(html) {
+  const div = document.createElement('div');
+  div.textContent = html;
+  return div.innerHTML;
+}
+
+/**
+ * Format timestamp for display
+ */
+function formatTimestamp(timestamp, options = {}) {
+  const date = new Date(timestamp);
+  const now = new Date();
+  const diffMs = now - date;
+  const diffHours = diffMs / (1000 * 60 * 60);
+  const diffDays = diffMs / (1000 * 60 * 60 * 24);
+
+  // Future indicator
+  if (diffMs < 0) {
+    return { text: 'Future', isFuture: true };
+  }
+
+  // Within last hour
+  if (diffHours < 1) {
+    const minutes = Math.floor(diffMs / (1000 * 60));
+    return { 
+      text: minutes <= 1 ? 'Just now' : `${minutes}m ago`,
+      isRecent: true 
+    };
+  }
+
+  // Within last 24 hours
+  if (diffHours < 24) {
+    return { 
+      text: `${Math.floor(diffHours)}h ago`,
+      isRecent: true 
+    };
+  }
+
+  // Within last week
+  if (diffDays < 7) {
+    return { 
+      text: `${Math.floor(diffDays)}d ago`,
+      isRecent: false 
+    };
+  }
+
+  // Older than a week - show full date
+  const dateStr = date.toLocaleDateString('en-US', {
+    year: 'numeric',
+    month: 'short',
+    day: 'numeric'
+  });
+  
+  return { 
+    text: dateStr,
+    isRecent: false,
+    fullDate: true 
+  };
+}
+
+/**
+ * Check if device is mobile
+ */
+function isMobileDevice() {
+  return /Mobi|Android|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent);
+}
+
+/**
+ * Check if device is tablet
+ */
+function isTabletDevice() {
+  return /iPad|Android(?!.*Mobile)|Tablet/i.test(navigator.userAgent);
+}
+
+/**
+ * Check if device is desktop
+ */
+function isDesktopDevice() {
+  return !isMobileDevice() && !isTabletDevice();
+}
+
+/**
+ * Debounce function calls
+ */
+function debounce(func, wait, immediate = false) {
+  let timeout;
+  return function executedFunction(...args) {
+    const later = () => {
+      timeout = null;
+      if (!immediate) func(...args);
+    };
+    const callNow = immediate && !timeout;
+    clearTimeout(timeout);
+    timeout = setTimeout(later, wait);
+    if (callNow) func(...args);
+  };
+}
+
+/**
+ * Throttle function calls
+ */
+function throttle(func, limit) {
+  let inThrottle;
+  return function(...args) {
+    if (!inThrottle) {
+      func.apply(this, args);
+      inThrottle = true;
+      setTimeout(() => inThrottle = false, limit);
+    }
+  };
+}
+
+/**
+ * Generate random ID
+ */
+function generateId(length = 8) {
+  const chars = 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789';
+  let result = '';
+  for (let i = 0; i < length; i++) {
+    result += chars.charAt(Math.floor(Math.random() * chars.length));
+  }
+  return result;
+}
+
+/**
+ * Check if element is in viewport
+ */
+function isInViewport(element) {
+  const rect = element.getBoundingClientRect();
+  return (
+    rect.top >= 0 &&
+    rect.left >= 0 &&
+    rect.bottom <= (window.innerHeight || document.documentElement.clientHeight) &&
+    rect.right <= (window.innerWidth || document.documentElement.clientWidth)
+  );
+}
+
+/**
+ * Scroll element into view smoothly
+ */
+function scrollIntoView(element, options = {}) {
+  const defaultOptions = {
+    behavior: 'smooth',
+    block: 'center',
+    inline: 'nearest'
+  };
+  
+  if (element && typeof element.scrollIntoView === 'function') {
+    element.scrollIntoView({ ...defaultOptions, ...options });
+  }
+}
+
+/**
+ * Get cookie value by name
+ */
+function getCookie(name) {
+  const value = `; ${document.cookie}`;
+  const parts = value.split(`; ${name}=`);
+  if (parts.length === 2) {
+    return parts.pop().split(';').shift();
+  }
+  return null;
+}
+
+/**
+ * Set cookie
+ */
+function setCookie(name, value, options = {}) {
+  const { expires, maxAge, domain, path, secure, sameSite } = options;
+  let cookieString = `${name}=${encodeURIComponent(value)}`;
+
+  if (expires) {
+    cookieString += `; expires=${expires.toUTCString()}`;
+  }
+  
+  if (maxAge) {
+    cookieString += `; max-age=${maxAge}`;
+  }
+  
+  if (domain) {
+    cookieString += `; domain=${domain}`;
+  }
+  
+  if (path) {
+    cookieString += `; path=${path}`;
+  }
+  
+  if (secure) {
+    cookieString += '; secure';
+  }
+  
+  if (sameSite) {
+    cookieString += `; samesite=${sameSite}`;
+  }
+
+  document.cookie = cookieString;
+}
+
+/**
+ * Delete cookie
+ */
+function deleteCookie(name, options = {}) {
+  const { domain, path } = options;
+  let cookieString = `${name}=; expires=Thu, 01 Jan 1970 00:00:00 GMT`;
+  
+  if (domain) {
+    cookieString += `; domain=${domain}`;
+  }
+  
+  if (path) {
+    cookieString += `; path=${path}`;
+  }
+
+  document.cookie = cookieString;
+}
+
+/**
+ * Copy text to clipboard
+ */
+async function copyToClipboard(text) {
+  try {
+    if (navigator.clipboard && window.isSecureContext) {
+      await navigator.clipboard.writeText(text);
+      return true;
+    } else {
+      // Fallback for older browsers
+      const textArea = document.createElement('textarea');
+      textArea.value = text;
+      textArea.style.position = 'fixed';
+      textArea.style.left = '-999999px';
+      textArea.style.top = '-999999px';
+      document.body.appendChild(textArea);
+      textArea.focus();
+      textArea.select();
+      const result = document.execCommand('copy');
+      document.body.removeChild(textArea);
+      return result;
+    }
+  } catch (error) {
+    console.error('[Helpers] Copy to clipboard failed:', error);
+    return false;
+  }
+}
+
+/**
+ * Format file size
+ */
+function formatFileSize(bytes) {
+  if (bytes === 0) return '0 Bytes';
+  
+  const k = 1024;
+  const sizes = ['Bytes', 'KB', 'MB', 'GB'];
+  const i = Math.floor(Math.log(bytes) / Math.log(k));
+  
+  return parseFloat((bytes / Math.pow(k, i)).toFixed(2)) + ' ' + sizes[i];
+}
+
+/**
+ * Validate email format
+ */
+function isValidEmail(email) {
+  const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+  return emailRegex.test(email);
+}
+
+/**
+ * Validate URL format
+ */
+function isValidUrl(url) {
+  try {
+    new URL(url);
+    return true;
+  } catch {
+    return false;
+  }
+}
+
+/**
+ * Truncate text with ellipsis
+ */
+function truncateText(text, maxLength, suffix = '...') {
+  if (text.length <= maxLength) {
+    return text;
+  }
+  return text.substring(0, maxLength - suffix.length) + suffix;
+}
+
+/**
+ * Capitalize first letter of string
+ */
+function capitalize(str) {
+  if (!str) return str;
+  return str.charAt(0).toUpperCase() + str.slice(1);
+}
+
+/**
+ * Convert string to camelCase
+ */
+function toCamelCase(str) {
+  return str.replace(/([-_][a-z])/g, group =>
+    group
+      .toUpperCase()
+      .replace('-', '')
+      .replace('_', '')
+  );
+}
+
+/**
+ * Convert string to kebab-case
+ */
+function toKebabCase(str) {
+  return str
+    .replace(/([a-z])([A-Z])/g, '$1-$2')
+    .replace(/[\s_]+/g, '-')
+    .toLowerCase();
+}
+
+/**
+ * Get random item from array
+ */
+function getRandomItem(array) {
+  return array[Math.floor(Math.random() * array.length)];
+}
+
+/**
+ * Shuffle array
+ */
+function shuffleArray(array) {
+  const shuffled = [...array];
+  for (let i = shuffled.length - 1; i > 0; i--) {
+    const j = Math.floor(Math.random() * (i + 1));
+    [shuffled[i], shuffled[j]] = [shuffled[j], shuffled[i]];
+  }
+  return shuffled;
+}
+
+/**
+ * Check if color is light or dark
+ */
+function isLightColor(color) {
+  const hex = color.replace('#', '');
+  const r = parseInt(hex.substr(0, 2), 16);
+  const g = parseInt(hex.substr(2, 2), 16);
+  const b = parseInt(hex.substr(4, 2), 16);
+  const brightness = ((r * 299) + (g * 587) + (b * 114)) / 1000;
+  return brightness > 155;
+}
+
+/**
+ * Get contrast color (black or white) for given background
+ */
+function getContrastColor(backgroundColor) {
+  return isLightColor(backgroundColor) ? '#000000' : '#ffffff';
+}
+
+// Export all functions
+if (typeof module !== 'undefined' && module.exports) {
+  module.exports = {
+    escapeHtml,
+    sanitizeHtml,
+    formatTimestamp,
+    isMobileDevice,
+    isTabletDevice,
+    isDesktopDevice,
+    debounce,
+    throttle,
+    generateId,
+    isInViewport,
+    scrollIntoView,
+    getCookie,
+    setCookie,
+    deleteCookie,
+    copyToClipboard,
+    formatFileSize,
+    isValidEmail,
+    isValidUrl,
+    truncateText,
+    capitalize,
+    toCamelCase,
+    toKebabCase,
+    getRandomItem,
+    shuffleArray,
+    isLightColor,
+    getContrastColor
+  };
+} else {
+  // Assign to window object for browser use
+  window.Helpers = {
+    escapeHtml,
+    sanitizeHtml,
+    formatTimestamp,
+    isMobileDevice,
+    isTabletDevice,
+    isDesktopDevice,
+    debounce,
+    throttle,
+    generateId,
+    isInViewport,
+    scrollIntoView,
+    getCookie,
+    setCookie,
+    deleteCookie,
+    copyToClipboard,
+    formatFileSize,
+    isValidEmail,
+    isValidUrl,
+    truncateText,
+    capitalize,
+    toCamelCase,
+    toKebabCase,
+    getRandomItem,
+    shuffleArray,
+    isLightColor,
+    getContrastColor
+  };
+}

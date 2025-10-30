@@ -1,0 +1,117 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>FeedManager Test</title>
+    <style>
+        body { font-family: Arial, sans-serif; margin: 20px; background: #1a1a2e; color: #eee; }
+        .post { margin: 10px 0; padding: 10px; border-radius: 8px; background: #23232b; }
+        .username { font-weight: bold; }
+        .timestamp { font-size: 0.8em; color: #888; }
+        .post-content { margin: 10px 0; }
+        .kindness-row { display: flex; align-items: center; gap: 10px; }
+        .kindness-badge { background: #43e97b; padding: 4px 8px; border-radius: 12px; font-size: 0.8em; }
+        .kindness-btn { background: none; border: none; cursor: pointer; font-size: 1.2em; }
+        #feed { margin: 20px 0; }
+        .test-result { margin: 10px 0; padding: 10px; border-radius: 4px; }
+        .pass { background: #2d5a2d; }
+        .fail { background: #5a2d2d; }
+    </style>
+</head>
+<body>
+    <h1>FeedManager Test</h1>
+    <div id="test-results"></div>
+    <div id="feed"></div>
+    
+    <!-- Load FeedManager and dependencies -->
+    <script src="FeedManager.js"></script>
+    <script src="FeedStyles.js"></script>
+    
+    <script>
+        // Mock fetch for testing
+        const originalFetch = window.fetch;
+        window.fetch = function(url) {
+            return Promise.resolve({
+                json: () => Promise.resolve({
+                    posts: [
+                        {
+                            id: 1,
+                            username: 'TestUser1',
+                            message: 'This is a test post',
+                            timestamp: new Date().toISOString(),
+                            kindness_points: 5
+                        },
+                        {
+                            id: 2,
+                            username: 'TestUser2',
+                            message: 'Another test post',
+                            timestamp: new Date().toISOString(),
+                            kindness_points: 3
+                        }
+                    ],
+                    page: 1,
+                    total_count: 2
+                })
+            });
+        };
+
+        // Test FeedManager
+        function runTests() {
+            const results = document.getElementById('test-results');
+            let testsPassed = 0;
+            let totalTests = 0;
+
+            function test(name, condition) {
+                totalTests++;
+                const div = document.createElement('div');
+                div.className = `test-result ${condition ? 'pass' : 'fail'}`;
+                div.textContent = `${condition ? '✓' : '✗'} ${name}`;
+                results.appendChild(div);
+                if (condition) testsPassed++;
+            }
+
+            // Test 1: FeedManager instantiation
+            try {
+                const feedManager = new FeedManager();
+                test('FeedManager can be instantiated', feedManager instanceof FeedManager);
+                
+                // Test 2: State management
+                const state = feedManager.getState();
+                test('FeedManager has initial state', state && typeof state === 'object');
+                test('Initial currentPage is 1', state.currentPage === 1);
+                test('Initial currentView is latest', state.currentView === 'latest');
+                
+                // Test 3: View setting
+                feedManager.setView('top');
+                const newState = feedManager.getState();
+                test('Can set view to top', newState.currentView === 'top');
+                test('View change resets page to 1', newState.currentPage === 1);
+                
+                // Test 4: HTML escaping
+                const escaped = feedManager.escapeHtml('<script>alert("xss")</script>');
+                test('HTML escaping works', !escaped.includes('<script>'));
+                
+                // Test 5: Feed fetching (mocked)
+                feedManager.fetchFeedPage(1).then(() => {
+                    const feed = document.getElementById('feed');
+                    test('Feed populates with posts', feed.children.length > 0);
+                    
+                    // Summary
+                    const summary = document.createElement('div');
+                    summary.className = 'test-result pass';
+                    summary.innerHTML = `<strong>Tests: ${testsPassed}/${totalTests} passed</strong>`;
+                    results.appendChild(summary);
+                });
+                
+            } catch (error) {
+                test('FeedManager instantiation failed', false);
+                console.error('FeedManager test error:', error);
+            }
+        }
+
+        // Run tests when page loads
+        window.addEventListener('DOMContentLoaded', runTests);
+    </script>
+</body>
+</html>
