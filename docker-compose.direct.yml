@@ -1,0 +1,57 @@
+# Direct execution Docker Compose - bypasses sysctl issues
+# Uses root user and privileged mode for LXC environments
+version: '3.8'
+
+services:
+  web:
+    build: .
+    command: python3 run_socketio.py
+    # Use host networking to bypass port restrictions
+    network_mode: host
+    # Run as root to avoid permission issues in LXC
+    user: "0:0"
+    privileged: true
+    env_file:
+      - .env
+    environment:
+      - USE_SOCKETIO=true
+    depends_on:
+      db:
+        condition: service_healthy
+    # Add security options for LXC compatibility
+    security_opt:
+      - apparmor:unconfined
+      - seccomp:unconfined
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:5678/"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+      start_period: 10s
+    restart: unless-stopped
+
+  db:
+    image: postgres:15
+    # Use host networking to avoid network complications
+    network_mode: host
+    # Run as root to avoid permission issues in LXC
+    user: "0:0"
+    privileged: true
+    environment:
+      POSTGRES_DB: jeetsocial
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: postgres
+    volumes:
+      - pgdata:/var/lib/postgresql/data
+    # Add security options for LXC compatibility
+    security_opt:
+      - apparmor:unconfined
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U postgres"]
+      interval: 5s
+      timeout: 5s
+      retries: 10
+    restart: unless-stopped
+
+volumes:
+  pgdata:

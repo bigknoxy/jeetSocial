@@ -2,7 +2,7 @@
 description: specialist developer agent for the jeetSocial project
 mode: subagent
 temperature: 0.1
-model: opencode/code-supernova
+model: opencode/big-pickle
 tools:
   read: true
   edit: true

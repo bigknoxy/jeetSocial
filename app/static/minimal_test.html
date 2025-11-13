@@ -1,0 +1,39 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Minimal Module Test</title>
+</head>
+<body>
+    <h1>Minimal Module Test</h1>
+    <div id="output"></div>
+    
+    <script type="module">
+        (async function() {
+            console.log('Starting module imports...');
+            
+            try {
+                console.log('Importing WebSocketService...');
+                const { WebSocketService } = await import('/static/dist/services/WebSocketService.js');
+                console.log('WebSocketService imported:', WebSocketService);
+                
+                console.log('Importing KindnessManager...');
+                const { KindnessManager } = await import('/static/dist/components/Kindness/KindnessManager.js');
+                console.log('KindnessManager imported:', KindnessManager);
+                
+                console.log('Creating KindnessManager instance...');
+                const kindnessManager = new KindnessManager();
+                console.log('KindnessManager instance created:', kindnessManager);
+                
+                window.kindnessManager = kindnessManager;
+                console.log('kindnessManager attached to window:', typeof window.kindnessManager);
+                
+                document.getElementById('output').innerHTML = 'SUCCESS: All modules loaded';
+                
+            } catch (error) {
+                console.error('Module import failed:', error);
+                document.getElementById('output').innerHTML = 'ERROR: ' + error.message;
+            }
+        })();
+    </script>
+</body>
+</html>

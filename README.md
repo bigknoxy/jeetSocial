@@ -185,10 +185,10 @@ README.md
 #### Example: Fetch Posts
 ```bash
 # Latest posts (default)
-curl -X GET 'http://localhost:5000/api/posts?page=1&limit=20'
+curl -X GET 'http://localhost:5678/api/posts?page=1&limit=20'
 
 # Top posts
-curl -X GET 'http://localhost:5000/api/posts?view=top&limit=20'
+curl -X GET 'http://localhost:5678/api/posts?view=top&limit=20'
 ```
 Response:
 ```json
@@ -204,7 +204,7 @@ Response:
 
 #### Example: Create Post
 ```bash
-curl -X POST 'http://localhost:5000/api/posts' -H 'Content-Type: application/json' -d '{"message": "Be kind!"}'
+curl -X POST 'http://localhost:5678/api/posts' -H 'Content-Type: application/json' -d '{"message": "Be kind!"}'
 ```
 Response:
 ```json

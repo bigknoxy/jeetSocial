@@ -296,23 +296,27 @@
 
   <!-- Load modular scripts in dependency order -->
   <!-- 1. Core State Management -->
-  <script src="/static/src/state/Store.js"></script>
+  <script src="/static/dist/state/Store.js"></script>
   
   <!-- 2. Utility Services -->
-  <script src="/static/src/utils/helpers.js"></script>
-  <script src="/static/src/services/StorageService.js"></script>
-  <script src="/static/src/services/ApiService.js"></script>
+  <script src="/static/dist/utils/helpers.js"></script>
+  <script src="/static/dist/services/StorageService.js"></script>
+  <script src="/static/dist/services/ApiService.js"></script>
+  <script src="/static/dist/services/WebSocketService.js"></script>
   
   <!-- 3. UI Components -->
-  <script src="/static/src/components/UI/CharacterCounter.js"></script>
-  <script src="/static/src/components/UI/EmojiPicker.js"></script>
-  <script src="/static/src/components/UI/ViewToggle.js"></script>
+  <script src="/static/dist/components/UI/CharacterCounter.js"></script>
+  <script src="/static/dist/components/UI/EmojiPicker.js"></script>
+  <script src="/static/dist/components/UI/ViewToggle.js"></script>
   
   <!-- 4. Core Managers -->
-  <script src="/static/src/components/Feed/FeedManager.js"></script>
-  <script src="/static/src/components/Kindness/KindnessManager.js"></script>
+  <script src="/static/dist/components/Feed/FeedManager.js"></script>
+  <script src="/static/dist/components/Kindness/KindnessManager.js"></script>
   
-  <!-- 5. Main Application Bootstrap -->
+  <!-- 5. Socket.IO Library -->
+  <script src="/static/socket.io.min.js"></script>
+  
+  <!-- 6. Main Application Bootstrap -->
   <script>
     // Initialize application when DOM is ready
     window.addEventListener('DOMContentLoaded', () => {
@@ -330,7 +334,8 @@
       // Start the application
       const initialState = window.Store.getState();
       window.feedManager.fetchFeedPage(initialState.pagination.currentPage);
-      window.feedManager.startLiveFeedPolling();
+      // Note: startLiveFeedPolling is no longer needed with WebSocket
+      // window.feedManager.startLiveFeedPolling();
       
       console.debug('[Modular App] Application initialized successfully');
     });

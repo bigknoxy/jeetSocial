@@ -1,16 +1,23 @@
 {
   "devDependencies": {
     "@playwright/test": "^1.54.2",
+    "@types/jest": "^30.0.0",
+    "@types/node": "^24.9.2",
     "jest": "^29.7.0",
-    "nyc": "^15.1.0"
+    "nyc": "^15.1.0",
+    "typescript": "^5.9.3"
   },
   "scripts": {
     "test": "jest tests/",
     "test:coverage": "nyc jest tests/",
-    "e2e": "npx playwright test e2e/"
+    "e2e": "npx playwright test e2e/",
+    "build:ts": "tsc",
+    "build:ts:watch": "tsc --watch",
+    "build:all": "npm run build:ts"
   },
   "dependencies": {
     "@eslint/js": "^9.33.0",
-    "playwright": "^1.54.2"
+    "playwright": "^1.54.2",
+    "socket.io-client": "^4.8.1"
   }
 }

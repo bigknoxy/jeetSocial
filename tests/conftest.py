@@ -28,7 +28,14 @@ def client():
         "SQLALCHEMY_DATABASE_URI": "sqlite:///:memory:",
         "ENABLE_RATE_LIMITING": False,
     }
-    app = app_pkg.create_app(config_override)
+    result = app_pkg.create_app(config_override)
+    # Handle tuple return from create_app()
+    if isinstance(result, tuple):
+        app, socketio_instance = result
+    else:
+        app = result
+        socketio_instance = None
+
     with app.test_client() as client:
         with app.app_context():
             app_pkg.db.create_all()

@@ -19,6 +19,53 @@ from app.utils import (
 )
 import os
 
+
+# Import WebSocket broadcast functions from websocket module
+def broadcast_new_post(post_data):
+    """Broadcast new post to WebSocket clients."""
+    try:
+        from app.websocket import broadcast_new_post as ws_broadcast_new_post
+
+        ws_broadcast_new_post(post_data)
+    except ImportError:
+        # Fallback if websocket module not available
+        try:
+            from app import socketio
+
+            if socketio:
+                socketio.emit("new_post", post_data, room="feed")
+        except Exception:
+            pass  # Silently fail if WebSocket not available
+
+
+def broadcast_kindness_update(post_id, kindness_points, action="increment"):
+    """Broadcast kindness point update to WebSocket clients."""
+    try:
+        from app.websocket import (
+            broadcast_kindness_update as ws_broadcast_kindness_update,
+        )
+
+        ws_broadcast_kindness_update(post_id, kindness_points, action)
+    except ImportError:
+        # Fallback if websocket module not available
+        try:
+            from app import socketio
+
+            if socketio:
+                room_name = f"post_{post_id}"
+                socketio.emit(
+                    "kindness_update",
+                    {
+                        "post_id": post_id,
+                        "kindness_points": kindness_points,
+                        "action": action,
+                    },
+                    room=room_name,
+                )
+        except Exception:
+            pass  # Silently fail if WebSocket not available
+
+
 bp = Blueprint("routes", __name__)
 
 # Kindness Points API Endpoints
@@ -215,6 +262,19 @@ def redeem_kindness_token():
         db.session.flush()
         post.kindness_points += 1
         db.session.commit()
+
+        # Broadcast kindness update to WebSocket clients
+        try:
+            broadcast_kindness_update(post_id, post.kindness_points, "increment")
+            current_app.logger.info(
+                f"Broadcasted kindness update for post {post_id}: {post.kindness_points} points"
+            )
+        except Exception as e:
+            current_app.logger.error(
+                f"Failed to broadcast kindness update via WebSocket: {e}"
+            )
+            # Continue with HTTP response even if WebSocket broadcast fails
+
         return jsonify({"success": True, "new_points": post.kindness_points}), 200
     except Exception as e:
         import traceback
@@ -531,6 +591,23 @@ def _create_post_impl():
         future_flag = bool(post.timestamp and post.timestamp > now)
     except Exception:
         future_flag = False
+
+    # Broadcast new post to WebSocket clients
+    try:
+        post_data = {
+            "id": post.id,
+            "content": post.message,
+            "username": post.username,
+            "kindness_points": int(getattr(post, "kindness_points", 0) or 0),
+            "created_at": creation_ts_out,
+        }
+        broadcast_new_post(post_data)
+        current_app.logger.info(
+            f"Broadcasted new post {post.id} to WebSocket feed room"
+        )
+    except Exception as e:
+        current_app.logger.error(f"Failed to broadcast new post via WebSocket: {e}")
+        # Continue with HTTP response even if WebSocket broadcast fails
 
     return (
         jsonify(

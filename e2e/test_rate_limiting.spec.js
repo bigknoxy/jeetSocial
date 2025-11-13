@@ -1,6 +1,6 @@
 const { test, expect } = require('@playwright/test');
 
-const BASE_URL = 'http://localhost:5000';
+const BASE_URL = 'http://localhost:5678';
 
 test.describe('Rate Limiting', () => {
   test('verifies rate limiting infrastructure is configured', async ({ page }) => {

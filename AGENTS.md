@@ -326,3 +326,82 @@ This ensures your workflow runs correctly before triggering GitHub Actions.
 - `exa_web_search` reliably finds official documentation
 - `exa_get_code_context` often misses official docs, returns examples from other frameworks
 - For documentation queries, `exa_web_search` > `exa_get_code_context
+
+
+### Memory Update Strategy ✅
+
+• Purpose: Persist only small, meaningful facts to memory_* so the graph stays useful and
+low-noise.
+• Primary Rule: Write immediately for high-significance events (decisions, releases, failed tests,
+config changes). Aggregate low-value churn into scheduled digests.
+• Digest + Event Hybrid: Use event-driven writes for important events and a single daily digest
+(or weekly for high-volume projects) for low-priority observations.
+• Idempotency: Check existence with memory_search_nodes / memory_open_nodes before
+memory_create_entities. Use canonical names (e.g., project:jeetSocial, task:cleanup-long-posts).
+• Batching: Group related observations into one memory_add_observations call to reduce API calls
+and storage churn.
+• Timestamp & Agent Tag: Prefix every observation with an ISO timestamp and agent tag:
+2025-10-17T14:02:00Z [dev-agent]: description.
+• No Secrets / No PII: Never store credentials, tokens, or personal data. Store pointers (s3://...,
+gs://...) instead of payloads.
+• Throttling & Backoff: Rate-limit automated updates; retry failures with exponential backoff.
+Avoid high-frequency writes.
+• Retention & Cleanup: Record timestamps in observations and schedule periodic pruning using
+memory_delete_entities after confirmation.
+• Consistent Relations: Use predictable relation types (depends_on, owned_by, status_of) for easy
+querying.
+• Searchability: Keep names human-readable and unique so memory_search_nodes reliably finds the
+entity.
+
+
+**Examples 📝**
+
+Create a project entity:
+
+{
+  "entities": [
+    {
+      "entityType": "project",
+      "name": "project:jeetSocial",
+      "observations": [
+        "2024-10-01T00:00:00Z [init-agent]: created",
+        "mission: kindness"
+      ]
+    }
+  ]
+}
+
+Append an event-driven observation (immediate write):
+
+{
+  "entityName": "task:cleanup-long-posts",
+  "observations": [
+    "2025-10-17T14:02:00Z [dev-agent]: dry-run completed (42 posts)"
+  ]
+}
+
+Daily digest (batch low-priority items into one observation):
+
+{
+  "entityName": "project:jeetSocial",
+  "observations": [
+    "2025-10-17T23:59:00Z [digest]: tests_failed=5; deployments=2; config_changes=1"
+  ]
+}
+
+Create a relation:
+
+{
+  "relations": [
+    {
+      "from": "task:cleanup-long-posts",
+      "relationType": "depends_on",
+      "to": "project:jeetSocial"
+    }
+  ]
+}
+
+***Operational Instruction (copyable) ⏰*** "Persist to memory_* for high-value events immediately.
+Aggregate low-value changes into a daily digest. Always check existence before create, append
+timestamped agent-tagged observations, batch where possible, never store secrets/PII, and enforce
+rate-limit + backoff. Run periodic pruning with confirmation."

@@ -214,17 +214,52 @@
        .view-tab[aria-selected="false"] {
          opacity: 0.7;
        }
-       @media (max-width: 768px) {
-         .view-tabs {
-           flex-direction: column;
-         }
-         .view-tab {
-           border-bottom: 1px solid #3a3a3a;
-         }
-         .view-tab:last-child {
-           border-bottom: none;
-         }
-       }
+        @media (max-width: 768px) {
+          .view-tabs {
+            flex-direction: column;
+          }
+          .view-tab {
+            border-bottom: 1px solid #3a3a3a;
+          }
+          .view-tab:last-child {
+            border-bottom: none;
+          }
+        }
+
+        /* Feed header and heading styles to prevent layout shift */
+        .feed-header-container {
+          display: flex;
+          align-items: center;
+          gap: 1em;
+          margin-top: 2em;
+          margin-bottom: 1em;
+        }
+        .feed-heading {
+          margin: 0;
+          min-width: 280px;
+          text-align: left;
+          white-space: nowrap;
+          overflow: hidden;
+          text-overflow: ellipsis;
+        }
+        @media (max-width: 768px) {
+          .feed-header-container {
+            flex-direction: column;
+            align-items: stretch;
+            gap: 0.5em;
+          }
+          .feed-heading {
+            min-width: auto;
+            text-align: center;
+            white-space: normal;
+          }
+        }
+        @media (max-width: 480px) {
+          .feed-heading {
+            min-width: 240px;
+            font-size: 1.1em;
+          }
+        }
  </style>
 </head>
 <body>
@@ -275,8 +310,8 @@
 </form>
 <!-- Emoji Picker CDN -->
 <script type="module" src="https://cdn.jsdelivr.net/npm/emoji-picker-element@^1/index.js"></script>
-    <div style="display: flex; align-items: center; gap: 1em; margin-top: 2em; margin-bottom: 1em;">
-      <h2 id="feed-heading" style="margin: 0;">Recent Posts</h2>
+    <div class="feed-header-container" style="display: flex; align-items: center; gap: 1em; margin-top: 2em; margin-bottom: 1em;">
+      <h2 id="feed-heading" class="feed-heading" style="margin: 0; min-width: 280px; text-align: left;">Recent Posts</h2>
       <div class="view-tabs" role="tablist" aria-label="Post view options">
         <button id="view-toggle-recent" class="view-tab active" role="tab" aria-selected="true" aria-controls="feed" tabindex="0">Recent</button>
         <button id="view-toggle-top" class="view-tab" role="tab" aria-selected="false" aria-controls="feed" tabindex="-1">Top</button>
@@ -293,7 +328,10 @@
   <div id="kindness-live" aria-live="polite" aria-atomic="true" style="position: absolute; left: -9999px; width: 1px; height: 1px; overflow: hidden; clip: rect(1px, 1px, 1px, 1px); white-space: nowrap;"></div>
   <!-- Toast notification container -->
   <div id="toast" role="status" aria-live="polite" aria-atomic="true"></div>
-<script src="/static/main.js"></script>
+   <!-- Load module bootstrap (dynamically imports TypeScript modules) -->
+   <script type="module" src="/static/module-bootstrap.js"></script>
+   <!-- Load main application logic (waits for modules to be available) -->
+   <script src="/static/main.js"></script>
   </div>
   <footer style="text-align:center;font-size:0.9em;color:#888;background:#23232b;padding:1em 0;margin-top:2em;">
     &copy; 2025 jeetSocial | <a href="https://github.com/bigknoxy/jeetSocial" target="_blank" style="color:#ffe347;text-decoration:underline;">GitHub</a>

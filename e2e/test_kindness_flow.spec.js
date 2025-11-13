@@ -34,13 +34,13 @@ test.describe('Kindness points - E2E', () => {
     const initialCount = await jeet.kindnessCountValue(postId);
 
     // Request a kindness token explicitly (ensures server receives post_id)
-    let tokenResp = await page.request.post('http://localhost:5000/api/kindness/token', { data: JSON.stringify({ post_id: postId }), headers: { 'Content-Type': 'application/json' } });
+    let tokenResp = await page.request.post('http://localhost:5678/api/kindness/token', { data: JSON.stringify({ post_id: postId }), headers: { 'Content-Type': 'application/json' } });
     if (!tokenResp.ok()) {
       const body = await tokenResp.text().catch(() => '<no body>');
       console.error('Initial token issuance failed:', tokenResp.status(), body);
       // Retry once after short delay
       await new Promise(r => setTimeout(r, 250));
-      tokenResp = await page.request.post('http://localhost:5000/api/kindness/token', { data: JSON.stringify({ post_id: postId }), headers: { 'Content-Type': 'application/json' } });
+      tokenResp = await page.request.post('http://localhost:5678/api/kindness/token', { data: JSON.stringify({ post_id: postId }), headers: { 'Content-Type': 'application/json' } });
       if (!tokenResp.ok()) {
         const body2 = await tokenResp.text().catch(() => '<no body>');
         console.error('Retry token issuance failed:', tokenResp.status(), body2);
@@ -91,13 +91,13 @@ test.describe('Kindness points - E2E', () => {
     const postId = await firstPost.getAttribute('data-id');
 
     // Explicitly request a token and set it in sessionStorage
-    let tokenResp = await page.request.post('http://localhost:5000/api/kindness/token', { data: JSON.stringify({ post_id: postId }), headers: { 'Content-Type': 'application/json' } });
+    let tokenResp = await page.request.post('http://localhost:5678/api/kindness/token', { data: JSON.stringify({ post_id: postId }), headers: { 'Content-Type': 'application/json' } });
     if (!tokenResp.ok()) {
       const body = await tokenResp.text().catch(() => '<no body>');
       console.error('Initial token issuance failed:', tokenResp.status(), body);
       // Retry once after short delay
       await new Promise(r => setTimeout(r, 250));
-      tokenResp = await page.request.post('http://localhost:5000/api/kindness/token', { data: JSON.stringify({ post_id: postId }), headers: { 'Content-Type': 'application/json' } });
+      tokenResp = await page.request.post('http://localhost:5678/api/kindness/token', { data: JSON.stringify({ post_id: postId }), headers: { 'Content-Type': 'application/json' } });
       if (!tokenResp.ok()) {
         const body2 = await tokenResp.text().catch(() => '<no body>');
         console.error('Retry token issuance failed:', tokenResp.status(), body2);
@@ -128,7 +128,7 @@ test.describe('Kindness points - E2E', () => {
     const j1 = await r1.json();
 
     // Attempt a second redemption using the same token via direct API call (should be rejected by server)
-    const respSecond = await page.request.post(`http://localhost:5000/api/kindness/redeem?post_id=${encodeURIComponent(postId)}&token=${encodeURIComponent(token)}`);
+    const respSecond = await page.request.post(`http://localhost:5678/api/kindness/redeem?post_id=${encodeURIComponent(postId)}&token=${encodeURIComponent(token)}`);
     const r2 = respSecond;
     const j2 = await (async () => { try { return await r2.json(); } catch { return null; } })();
 

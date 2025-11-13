@@ -2,7 +2,7 @@
   - **Robust E2E Test Workflow:**
     1. Check if jeetSocial web container is running (`docker ps`)
     2. If not running, start container (`docker compose up --build --remove-orphans`)
-    3. Verify web app is running by inspecting docker logs (look for Flask startup and port 5000) - do this BEFORE you run e2e test
+    3. Verify web app is running by inspecting docker logs (look for Flask startup and port 5678) - do this BEFORE you run e2e test
     4. Run Playwright E2E tests: `npm run e2e`
     5. Verify Results
     6. Shut down container after tests: `docker compose down` (unless you are running more test - then leave it up until last test is passing)

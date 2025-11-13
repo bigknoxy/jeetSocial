@@ -3,7 +3,7 @@ const { test, expect } = require('@playwright/test');
 
 // Helper to create a post via API
 async function createPost(apiContext, message) {
-  const resp = await apiContext.post('http://localhost:5000/api/posts', {
+  const resp = await apiContext.post('http://localhost:5678/api/posts', {
     data: JSON.stringify({ message }),
     headers: { 'Content-Type': 'application/json' }
   });
@@ -12,12 +12,12 @@ async function createPost(apiContext, message) {
 }
 
 test('initial kindness count is numeric and not "undefined"', async ({ page }) => {
-  await page.goto('http://localhost:5000');
+  await page.goto('http://localhost:5678');
   page.on('console', msg => console.log('[PAGE]', msg.type(), msg.text()));
 
   // Create a deterministic post via API
   const postId = await (async () => {
-    const resp = await page.request.post('http://localhost:5000/api/posts', {
+    const resp = await page.request.post('http://localhost:5678/api/posts', {
       data: JSON.stringify({ message: 'E2E kindness initial test ' + Date.now() }),
       headers: { 'Content-Type': 'application/json' }
     });
@@ -29,7 +29,7 @@ test('initial kindness count is numeric and not "undefined"', async ({ page }) =
   await page.evaluate(() => { if (window.fetchFeedPage) fetchFeedPage(1); });
 
   // Fetch the API directly to assert JSON shape
-  const apiResp = await page.request.get('http://localhost:5000/api/posts?page=1&limit=20');
+  const apiResp = await page.request.get('http://localhost:5678/api/posts?page=1&limit=20');
   const apiJson = await apiResp.json();
   // Find our post in the API response
   const found = (apiJson.posts || []).find(p => p.id === postId || String(p.id) === String(postId));

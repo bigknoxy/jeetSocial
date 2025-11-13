@@ -61,6 +61,14 @@ else
   fi
 fi
 
-# Run migrations and start Flask
-flask db upgrade
-flask run --host=0.0.0.0
+# Run migrations using init_db.py script
+python init_db.py
+
+# Check if we should use socketio or regular flask
+if [ "$USE_SOCKETIO" = "true" ]; then
+    echo "Starting with WebSocket support"
+    python run.py
+else
+    echo "Starting with regular Flask"
+    flask --app app:create_app run --host=0.0.0.0
+fi

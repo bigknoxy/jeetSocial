@@ -1,6 +1,6 @@
 const { test, expect } = require('@playwright/test');
 
-const BASE_URL = 'http://localhost:5000';
+const BASE_URL = 'http://localhost:5678';
 
 test.describe('Feed Display and Post Rendering', () => {
   test('displays new posts in feed after submission', async ({ page }) => {

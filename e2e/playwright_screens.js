@@ -3,7 +3,7 @@ const { chromium } = require('playwright');
 (async () => {
   const browser = await chromium.launch();
   const page = await browser.newPage({ viewport: { width: 1280, height: 900 } });
-  const base = 'http://localhost:5000/static';
+  const base = 'http://localhost:5678/static';
   try {
     await page.goto(base + '/index.html', { waitUntil: 'networkidle' });
     await page.screenshot({ path: 'e2e/homepage.png', fullPage: true });

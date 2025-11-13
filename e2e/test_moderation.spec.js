@@ -1,6 +1,6 @@
 const { test, expect } = require('@playwright/test');
 
-const BASE_URL = 'http://localhost:5000'; // Updated to match Docker Compose port
+const BASE_URL = 'http://localhost:5678'; // Updated to match Docker Compose port
 
 test.describe('HuggingFace Moderation', () => {
   test('blocks hate speech and accepts positive posts', async ({ page }) => {

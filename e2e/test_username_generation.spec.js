@@ -1,5 +1,5 @@
 const { test, expect } = require('@playwright/test');
-const BASE_URL = 'http://localhost:5000';
+const BASE_URL = 'http://localhost:5678';
 
 test.describe('Anonymous Username Generation', () => {
   test.beforeEach(async ({ page }) => {

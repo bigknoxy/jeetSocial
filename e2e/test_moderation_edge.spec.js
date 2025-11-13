@@ -1,5 +1,5 @@
 const { test, expect } = require('@playwright/test');
-const BASE_URL = 'http://localhost:5000';
+const BASE_URL = 'http://localhost:5678';
 
 test.describe('Edge Case Moderation', () => {
   test('blocks obfuscated hate speech', async ({ page }) => {

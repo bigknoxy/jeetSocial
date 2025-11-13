@@ -18,102 +18,200 @@ let currentView = 'latest';
 
 // Initial load
 console.debug('[main.js] loaded');
-window.addEventListener('DOMContentLoaded', () => {
-  console.debug('[main.js] DOMContentLoaded - fetching feed and starting live polling');
+
+// Wait for modules to be loaded by module-bootstrap
+function waitForModules() {
+  return new Promise((resolve) => {
+    const checkModules = () => {
+      if (typeof window.kindnessManager !== 'undefined') {
+        console.debug('[main.js] Modules loaded, proceeding');
+        resolve();
+      } else {
+        console.debug('[main.js] Waiting for modules...');
+        setTimeout(checkModules, 100);
+      }
+    };
+    checkModules();
+  });
+}
+
+window.addEventListener('DOMContentLoaded', async () => {
+  console.debug('[main.js] DOMContentLoaded - waiting for modules');
+  await waitForModules();
+  console.debug('[main.js] Modules ready - initializing WebSocket and fetching feed');
+  
+  // NOTE: WebSocket management is now handled exclusively by FeedManager
+  // This prevents race conditions and connection interference
+  console.log('[main.js] WebSocket management delegated to FeedManager');
+  
   fetchFeedPage(1);
-  startLiveFeedPolling();
+  // Note: startLiveFeedPolling() will be replaced by WebSocket updates
 });
 
-let liveFeedInterval = null;
-function startLiveFeedPolling() {
-  if (liveFeedInterval) clearInterval(liveFeedInterval);
-  liveFeedInterval = setInterval(() => {
-    console.log('[LiveFeed] Polling interval fired. currentPage:', currentPage);
-    if (currentPage === 1) butterSmoothLiveUpdate();
-  }, 15000); // 15 seconds
+// WebSocket-based new post handler (replaces polling)
+function handleNewPostFromWebSocket(post) {
+  // Only handle new posts if we're on page 1 (latest view)
+  if (currentPage !== 1 || currentView !== 'latest') return;
+  
+  const feed = document.getElementById('feed');
+  if (!feed) return;
+  
+  // Check if post already exists
+  const existingPost = feed.querySelector(`[data-id="${post.id}"]`);
+  if (existingPost) return;
+  
+  const accentColors = ["#ff4b5c", "#ffb26b", "#ffe347", "#43e97b", "#3fa7d6", "#7c4dff", "#c86dd7"];
+  const colorIndex = Math.floor(Math.random() * accentColors.length);
+  
+  // Defensive normalization of incoming post object
+  if (typeof post.kindness_points !== 'number' || !Number.isFinite(post.kindness_points)) {
+    const coerced = Number(post.kindness_points);
+    post.kindness_points = Number.isFinite(coerced) ? coerced : 0;
+  }
+  
+  const displayKp = Number.isFinite(Number(post.kindness_points)) ? Number(post.kindness_points) : 0;
+  
+  // Create post node
+  const div = document.createElement('div');
+  div.className = 'post new-post';
+  div.style.animation = 'fadeIn 1s';
+  div.style.borderLeft = `6px solid ${accentColors[colorIndex]}`;
+  div.setAttribute('data-id', post.id);
+  
+  div.innerHTML = `
+    <span class="username" style="color:${accentColors[colorIndex]}">${post.username}</span>
+    <span class="timestamp">${new Date(post.timestamp).toLocaleString()}</span>
+    <div class="post-content">${escapeHtml(post.message)}</div>
+    <div class="kindness-row">
+      <span class="kindness-badge kindness-count" data-kindness-count="${post.id}" aria-live="polite">🌈 ${displayKp}</span>
+      <button class="kindness-btn kindness-icon-btn" data-post-id="${post.id}" aria-label="Award kindness to this post" aria-pressed="false" data-tooltip="Award kindness (gives 1 kindness point)"><span class="icon" aria-hidden="true">❤️</span></button>
+    </div>
+  `;
+  
+  // Prepend newest post to top of feed
+  try {
+    feed.insertBefore(div, feed.firstChild);
+  } catch {
+    feed.appendChild(div);
+  }
+  
+  // Show new posts banner if user is not at top
+  if (window.scrollY > 0) {
+    showNewPostsBanner();
+  }
+  
+  // NOTE: WebSocket room management is now handled by FeedManager
+  // This prevents race conditions between multiple WebSocket managers
 }
 
-// Butter-smooth live update function
-async function butterSmoothLiveUpdate() {
-  try {
-    const viewParam = currentView !== 'latest' ? `&view=${currentView}` : '';
-    const resp = await fetch(`/api/posts?page=1&limit=${pageLimit}${viewParam}`);
-    const data = await resp.json();
-    const newPosts = Array.isArray(data.posts) ? data.posts : [];
-     // Debug: log incoming posts payload for E2E visibility
-     try { console.debug('[LiveFeed] /api/posts payload', newPosts); } catch { /* ignore */ }
-    const feed = document.getElementById('feed');
-    if (!feed) return;
-    const accentColors = ["#ff4b5c", "#ffb26b", "#ffe347", "#43e97b", "#3fa7d6", "#7c4dff", "#c86dd7"];
-    // Get existing post IDs in DOM
-    const existingIds = Array.from(feed.children).map(node => node.dataset && node.dataset.id);
-    let inserted = false;
+// Polling fallback function when WebSocket fails
+let pollingInterval = null;
 
-    newPosts.forEach((post, i) => {
-      const postIdStr = String(post.id);
-
-      // Defensive normalization of incoming post object
-      if (typeof post.kindness_points !== 'number' || !Number.isFinite(post.kindness_points)) {
-        const coerced = Number(post.kindness_points);
-        post.kindness_points = Number.isFinite(coerced) ? coerced : 0;
-      }
-
-      const displayKp = Number.isFinite(Number(post.kindness_points)) ? Number(post.kindness_points) : 0;
-
-      if (!existingIds.includes(postIdStr)) {
-        // Create post node
-        const div = document.createElement('div');
-        div.className = 'post new-post';
-        div.style.animation = 'fadeIn 1s';
-        div.style.borderLeft = `6px solid ${accentColors[i % accentColors.length]}`;
-        div.setAttribute('data-id', post.id);
-
-        div.innerHTML = `
-          <span class="username" style="color:${accentColors[i % accentColors.length]}">${post.username}</span>
-          <span class="timestamp">${new Date(post.timestamp).toLocaleString()}</span>
-          <div class="post-content">${escapeHtml(post.message)}</div>
-          <div class="kindness-row">
-<span class="kindness-badge kindness-count" data-kindness-count="${post.id}" aria-live="polite">🌈 ${displayKp}</span>
-<button class="kindness-btn kindness-icon-btn" data-post-id="${post.id}" aria-label="Award kindness to this post" aria-pressed="false" data-tooltip="Award kindness (gives 1 kindness point)"><span class="icon" aria-hidden="true">❤️</span></button>
-          </div>
-        `;
-
-        // Prepend newest posts to top of feed
-        try {
-          feed.insertBefore(div, feed.firstChild);
-        } catch {
-          feed.appendChild(div);
-        }
-
-        inserted = true;
-      } else {
-        // Update existing post kindness badge so cross-device updates become visible
-        try {
-          const countEl = document.querySelector(`[data-kindness-count="${post.id}"]`);
-          if (countEl) {
-            countEl.textContent = `🌈 ${displayKp}`;
-            // Small visual feedback for change
-            countEl.classList.add('bump');
-            setTimeout(() => countEl.classList.remove('bump'), 350);
-          }
-        } catch (err) {
-          console.debug('[LiveFeed] failed to update existing kindness badge', err);
-        }
-      }
-    });
-
-    // Animate new posts
-    if (inserted) {
-      // Optionally, preserve scroll position if user is not at top
-      if (window.scrollY > 0) {
-        // Show "New posts available" banner
-        showNewPostsBanner();
-      }
+function startLiveFeedPolling() {
+  // Stop any existing polling
+  stopLiveFeedPolling();
+  
+  console.log('[LiveFeed] Starting HTTP polling fallback');
+  
+  // Poll every 15 seconds
+  pollingInterval = setInterval(async () => {
+    // Only poll when on first page of latest view
+    if (currentPage !== 1 || currentView !== 'latest') {
+      return;
     }
-   } catch (err) {
-     console.log('[LiveFeed] Butter-smooth update error', err);
+
+    try {
+      // Get the most recent post from the current feed
+      const feed = document.getElementById('feed');
+      if (!feed || !feed.firstChild) {
+        return;
+      }
+
+      const firstPost = feed.firstChild;
+      // Ensure firstPost is an element with getAttribute method
+      if (!firstPost || typeof firstPost.getAttribute !== 'function') {
+        return;
+      }
+      const firstPostId = firstPost.getAttribute('data-id');
+      if (!firstPostId) {
+        return;
+      }
+
+      // Fetch latest posts
+      const resp = await fetch('/api/posts?page=1&limit=5');
+      const data = await resp.json();
+      const latestPosts = data.posts || [];
+
+      // Check for new posts
+      const newPosts = latestPosts.filter(post => {
+        // Check if this post is newer than our first post
+        const firstPostTime = new Date(firstPost.querySelector('.timestamp')?.textContent || 0).getTime();
+        const postTime = new Date(post.timestamp).getTime();
+        return postTime > firstPostTime && post.id !== firstPostId;
+      });
+
+      // Process new posts
+      if (newPosts.length > 0) {
+        console.log(`[LiveFeed] Found ${newPosts.length} new posts via polling`);
+        
+        const accentColors = ["#ff4b5c", "#ffb26b", "#ffe347", "#43e97b", "#3fa7d6", "#7c4dff", "#c86dd7"];
+        
+        // Add new posts to the beginning of the feed
+        newPosts.reverse().forEach(post => {
+          // Defensive normalization of incoming post object
+          if (typeof post.kindness_points !== 'number' || !Number.isFinite(post.kindness_points)) {
+            const coerced = Number(post.kindness_points);
+            post.kindness_points = Number.isFinite(coerced) ? coerced : 0;
+          }
+          
+          const displayKp = Number.isFinite(Number(post.kindness_points)) ? Number(post.kindness_points) : 0;
+          const colorIndex = Math.floor(Math.random() * accentColors.length);
+          
+          // Create post node
+          const div = document.createElement('div');
+          div.className = 'post new-post';
+          div.style.animation = 'fadeIn 1s';
+          div.style.borderLeft = `6px solid ${accentColors[colorIndex]}`;
+          div.setAttribute('data-id', post.id);
+          
+          div.innerHTML = `
+            <span class="username" style="color:${accentColors[colorIndex]}">${post.username}</span>
+            <span class="timestamp">${new Date(post.timestamp).toLocaleString()}</span>
+            <div class="post-content">${escapeHtml(post.message)}</div>
+            <div class="kindness-row">
+              <span class="kindness-badge kindness-count" data-kindness-count="${post.id}" aria-live="polite">🌈 ${displayKp}</span>
+              <button class="kindness-btn kindness-icon-btn" data-post-id="${post.id}" aria-label="Award kindness to this post" aria-pressed="false" data-tooltip="Award kindness (gives 1 kindness point)"><span class="icon" aria-hidden="true">❤️</span></button>
+            </div>
+          `;
+
+          // Prepend to top of feed
+          try {
+            feed.insertBefore(div, feed.firstChild);
+          } catch {
+            feed.appendChild(div);
+          }
+        });
+
+        // Show new posts banner if user is not at top
+        if (window.scrollY > 0) {
+          showNewPostsBanner();
+        }
+      }
+    } catch (error) {
+      console.error('[LiveFeed] Error polling for new posts:', error);
+    }
+  }, 15000); // Poll every 15 seconds
+}
+
+function stopLiveFeedPolling() {
+  if (pollingInterval) {
+    console.log('[LiveFeed] Stopping HTTP polling');
+    clearInterval(pollingInterval);
+    pollingInterval = null;
   }
 }
+
+// butterSmoothLiveUpdate() replaced by WebSocket handleNewPostFromWebSocket()
 
 
 function showNewPostsBanner() {
@@ -141,20 +239,13 @@ function showNewPostsBanner() {
   }
 }
 
-function stopLiveFeedPolling() {
-  if (liveFeedInterval) clearInterval(liveFeedInterval);
-  liveFeedInterval = null;
-}
+// stopLiveFeedPolling() no longer needed - WebSocket handles real-time updates
 
 
 // Paging controls
 function renderPagingControls() {
-  // Pause live polling if not on page 1
-  if (currentPage === 1) {
-    startLiveFeedPolling();
-  } else {
-    stopLiveFeedPolling();
-  }
+  // NOTE: WebSocket room management is now handled by FeedManager
+  // This prevents race conditions between multiple WebSocket managers
 
   const feed = document.getElementById('feed');
   let pagingDiv = document.getElementById('paging-controls');
@@ -232,10 +323,24 @@ async function fetchFeedPage(page) {
 // After full reload, remove new-post banner if present
 const banner = document.getElementById('new-posts-banner');
 if (banner) banner.remove();
-    currentPage = data.page;
-    totalPages = Math.max(1, Math.ceil(data.total_count / pageLimit));
-    renderPagingControls();
-   } catch (err) {
+     currentPage = data.page;
+     totalPages = Math.max(1, Math.ceil(data.total_count / pageLimit));
+     renderPagingControls();
+     
+      // NOTE: WebSocket room management is now handled by FeedManager
+      // This prevents race conditions between multiple WebSocket managers
+     
+     // Initialize KindnessManager subscriptions for visible posts
+     if (typeof window.kindnessManager !== 'undefined') {
+       setTimeout(() => {
+         try {
+           window.kindnessManager.subscribeToVisiblePosts();
+         } catch (err) {
+           console.debug('[main.js] Failed to initialize KindnessManager subscriptions', err);
+         }
+       }, 100);
+     }
+    } catch (err) {
      console.log('[FetchFeed] Error loading feed', err);
     feed.innerHTML = '<em>Error loading feed.</em>';
   }
@@ -297,8 +402,13 @@ async function postMessage(e) {
       // Reset character counter after post
       const counter = document.getElementById('char-count');
       if (counter) counter.textContent = '0/280';
-      fetchFeedPage(currentPage);
-      butterSmoothLiveUpdate();
+      
+      // For page 1, WebSocket will handle the new post automatically
+      // For other pages, refresh the current page
+      if (currentPage !== 1) {
+        fetchFeedPage(currentPage);
+      }
+      // Note: butterSmoothLiveUpdate() is no longer needed - WebSocket handles real-time updates
     } else {
       try {
         const data = await resp.json();
@@ -410,8 +520,7 @@ function setupCharacterCounter() {
 
 window.addEventListener('DOMContentLoaded', setupCharacterCounter);
 
-// Kindness Points Manager
-// Toast notification helper
+// Toast notification helper (used by new TypeScript KindnessManager)
 function showToast(message, type = '', duration = 2500) {
     const toast = document.getElementById('toast');
     if (!toast) return;
@@ -425,235 +534,6 @@ function showToast(message, type = '', duration = 2500) {
         toast.classList.remove('success');
     }, duration);
 }
-
-class KindnessManager {
-    constructor() {
-        this.token = sessionStorage.getItem('kindness_token');
-        this.tokenExpiry = sessionStorage.getItem('kindness_token_expiry');
-        this._lastAppliedKindnessTs = 0; // timestamp of last applied storage event
-        console.log('[KINDNESS-CLIENT] constructor - initial token present?', !!this.token, 'expiry=', this.tokenExpiry);
-
-        // Listen for cross-tab kindness updates broadcast via localStorage
-        window.addEventListener('storage', (event) => {
-            try {
-                // Log raw event for E2E debugging
-                console.debug('[KINDNESS-CLIENT] storage event received', { key: event.key, newValue: event.newValue, oldValue: event.oldValue });
-                if (!event.key || event.key !== 'jeet_kindness_update') return;
-                // If the key was removed (newValue === null) ignore the removal event
-                if (event.newValue === null) {
-                    console.debug('[KINDNESS-CLIENT] storage event: key removed, ignoring');
-                    return;
-                }
-                const payload = JSON.parse(event.newValue);
-                if (!payload || !payload.post_id || typeof payload.new_points === 'undefined' || !payload.ts) {
-                    console.debug('[KINDNESS-CLIENT] storage event: payload invalid', payload);
-                    return;
-                }
-                // Ignore older events
-                if (payload.ts <= this._lastAppliedKindnessTs) return;
-                this._lastAppliedKindnessTs = payload.ts;
-                console.debug('[KINDNESS-CLIENT] storage event – updating kindness for', payload.post_id, 'to', payload.new_points);
-                this.updateKindnessDisplay(payload.post_id, payload.new_points);
-            } catch (err) {
-                console.debug('[KINDNESS-CLIENT] storage handler error:', err);
-            }
-        });
-
-        // BroadcastChannel fallback for more reliable cross-tab messaging
-        try {
-            if (typeof BroadcastChannel !== 'undefined') {
-                this._bc = new BroadcastChannel('jeet_kindness');
-                this._bc.addEventListener('message', (event) => {
-                    try {
-                        const payload = event.data;
-                        console.debug('[KINDNESS-CLIENT] BroadcastChannel message received', payload);
-                        if (!payload || !payload.post_id || typeof payload.new_points === 'undefined' || !payload.ts) return;
-                        if (payload.ts <= this._lastAppliedKindnessTs) return;
-                        this._lastAppliedKindnessTs = payload.ts;
-                        this.updateKindnessDisplay(payload.post_id, payload.new_points);
-                    } catch (err) {
-                        console.debug('[KINDNESS-CLIENT] BroadcastChannel handler error:', err);
-                    }
-                });
-            }
-        } catch (err) {
-            console.debug('[KINDNESS-CLIENT] BroadcastChannel init error:', err);
-        }
-    }
-    
-    async ensureToken(postId) {
-        // Always refresh from sessionStorage in case a token was set after page load
-        try {
-            const ssToken = sessionStorage.getItem('kindness_token');
-            const ssExpiry = sessionStorage.getItem('kindness_token_expiry');
-            if (ssToken) this.token = ssToken;
-            if (ssExpiry) this.tokenExpiry = ssExpiry;
-         } catch (err) {
-            console.debug('[KINDNESS-CLIENT] unable to read sessionStorage:', err);
-        }
-
-        // Debug logging to help E2E visibility
-        console.debug('[KINDNESS-CLIENT] ensureToken start - this.token present?', !!this.token, 'this.tokenExpiry=', this.tokenExpiry);
-
-        // Check if current token is valid
-        if (this.token && this.tokenExpiry && Date.now() < parseInt(this.tokenExpiry)) {
-            console.debug('[KINDNESS-CLIENT] using existing token from sessionStorage');
-            return this.token;
-        }
-
-        // Request new token (include postId to satisfy server requirement)
-        try {
-            // Use query parameter fallback to avoid issues with empty request bodies
-            console.log('[KINDNESS-CLIENT] POST /api/kindness/token via query param post_id=', postId);
-            const response = await fetch(`/api/kindness/token?post_id=${encodeURIComponent(postId)}`, {
-                method: 'POST'
-            });
-            if (!response.ok) {
-                const bodyText = await response.text().catch(() => '<no body>');
-                console.error('[KINDNESS-CLIENT] token endpoint returned', response.status, bodyText);
-                throw new Error('Token request failed');
-            }
-            const data = await response.json();
-            this.token = data.token;
-            this.tokenExpiry = Date.now() + (data.expires_in * 1000);
-            sessionStorage.setItem('kindness_token', this.token);
-            sessionStorage.setItem('kindness_token_expiry', this.tokenExpiry);
-            console.log('[KINDNESS-CLIENT] received token, expiry=', this.tokenExpiry);
-            return this.token;
-        } catch (err) {
-            console.error('Failed to get kindness token:', err);
-            return null;
-        }
-    }
-    
-    /**
- * Optimistic kindness award logic:
- * - Immediately increments badge and animates for fast feedback
- * - Disables button to prevent double-award
- * - On API success: updates badge, broadcasts to other tabs, shows success toast
- * - On error: reverts badge, re-enables button, refocuses for accessibility, shows error toast
- */
-    async awardKindness(postId, buttonElement) {
-    // Optimistic UI: increment count, animate, disable button
-    const countElement = document.querySelector(`[data-kindness-count="${postId}"]`);
-    let originalCount = 0;
-    if (countElement) {
-        const text = (countElement.textContent || '').trim();
-        const match = text.match(/(\d+)/);
-        originalCount = match ? parseInt(match[1], 10) : 0;
-        // Update ARIA live region for screen readers with optimistic announcement
-        const liveRegion = document.getElementById('kindness-live');
-        if (liveRegion) liveRegion.textContent = `Kindness Given for post ${postId}. New count ${originalCount + 1}`;
-        countElement.textContent = `🌈 ${originalCount + 1}`;
-        countElement.classList.add('bump');
-        setTimeout(() => countElement.classList.remove('bump'), 350);
-    }
-    if (buttonElement) {
-        buttonElement.disabled = true;
-        buttonElement.setAttribute('aria-pressed', 'true');
-    }
-    let token;
-     try {
-         token = await this.ensureToken(postId);
-     } catch {
-         showToast('Unable to get kindness token', 'error');
-         if (countElement) countElement.textContent = `🌈 ${originalCount}`;
-         if (buttonElement) {
-             buttonElement.disabled = false;
-             buttonElement.setAttribute('aria-pressed', 'false');
-         }
-         return;
-     }
-    if (!token) {
-        showToast('Unable to get kindness token', 'error');
-        if (countElement) countElement.textContent = `🌈 ${originalCount}`;
-        if (buttonElement) {
-            buttonElement.disabled = false;
-            buttonElement.setAttribute('aria-pressed', 'false');
-        }
-        return;
-    }
-    try {
-        const response = await fetch(`/api/kindness/redeem?post_id=${encodeURIComponent(postId)}&token=${encodeURIComponent(token)}`, {
-            method: 'POST'
-        });
-        const data = await response.json();
-        if (response.ok && data.success) {
-            this.updateKindnessDisplay(postId, data.new_points);
-            // Broadcast to other open tabs/windows via localStorage
-            try {
-                const payload = { post_id: postId, new_points: data.new_points, ts: Date.now() };
-                try {
-                    localStorage.setItem('jeet_kindness_update', JSON.stringify(payload));
-                    if (this._bc) {
-                        this._bc.postMessage(payload);
-                    }
-                    setTimeout(() => {
-                        try {
-                            localStorage.removeItem('jeet_kindness_update');
-                        } catch (remErr) {
-                            console.debug('[KINDNESS-CLIENT] error removing kindness broadcast key:', remErr);
-                        }
-                    }, 200);
-                } catch (err) {
-                    console.debug('[KINDNESS-CLIENT] unable to write kindness broadcast to localStorage:', err);
-                }
-            } catch (err) {
-                console.debug('[KINDNESS-CLIENT] unable to write kindness broadcast to localStorage:', err);
-            }
-            if (buttonElement) {
-                buttonElement.disabled = true;
-                buttonElement.setAttribute('aria-pressed', 'true');
-            }
-            sessionStorage.removeItem('kindness_token');
-            sessionStorage.removeItem('kindness_token_expiry');
-            this.token = null;
-            showToast('Kindness Given!', 'success');
-        } else {
-            showToast(data.error || 'Failed to award kindness', 'error');
-            if (countElement) countElement.textContent = `🌈 ${originalCount}`;
- if (buttonElement) {
-            buttonElement.disabled = false;
-            buttonElement.setAttribute('aria-pressed', 'false');
-            // Accessibility: refocus button on error for keyboard users
-            if (typeof buttonElement.focus === 'function') buttonElement.focus();
-        }
-        }
-    } catch (error) {
-        console.error('Failed to award kindness:', error);
-        showToast('Network error', 'error');
-        if (countElement) countElement.textContent = `🌈 ${originalCount}`;
-        if (buttonElement) {
-            buttonElement.disabled = false;
-            buttonElement.setAttribute('aria-pressed', 'false');
-        }
-    }
-}
-
-
-    
-    updateKindnessDisplay(postId, newCount) {
-        const countElement = document.querySelector(`[data-kindness-count="${postId}"]`);
-        if (countElement) {
-            // Coerce to explicit numeric value and avoid 'undefined' or non-numeric strings
-            const displayKp = Number.isFinite(Number(newCount)) ? Number(newCount) : 0;
-            // Keep display format consistent with initial render: emoji + number
-            countElement.textContent = `🌈 ${displayKp}`;
-            // Announce change to offscreen live region for screen readers
-            try {
-                const liveRegion = document.getElementById('kindness-live');
-                if (liveRegion) {
-                    liveRegion.textContent = `Kindness count for post ${postId} is now ${displayKp}`;
-                }
-             } catch {
-                 console.debug('[KINDNESS-CLIENT] updateKindnessDisplay aria announcement failed');
-             }
-        }
-    }
-}
-
-// Initialize kindness manager
-const kindnessManager = new KindnessManager();
 
 // Accessible tooltip implementation and first-time toast explaining 🌈 points
 (function setupKindnessUxExtras() {
@@ -728,7 +608,20 @@ document.addEventListener('DOMContentLoaded', function() {
         if (target && target.classList && target.classList.contains('kindness-btn')) {
             const postId = parseInt(target.dataset.postId, 10);
             if (!Number.isFinite(postId)) return;
-            kindnessManager.awardKindness(postId, target);
+            
+            // Use new TypeScript KindnessManager if available
+            console.debug('[main.js] KindnessManager available?', typeof window.kindnessManager !== 'undefined');
+            if (typeof window.kindnessManager !== 'undefined') {
+                try {
+                    console.debug('[main.js] Using existing KindnessManager');
+                    window.kindnessManager.awardKindness(postId.toString(), target);
+                } catch (err) {
+                    console.debug('[main.js] Failed to use TypeScript KindnessManager', err);
+                    // Fallback to legacy behavior could go here if needed
+                }
+            } else {
+                console.error('[main.js] KindnessManager not available!');
+            }
         }
     });
 });
@@ -881,9 +774,9 @@ window.addEventListener('DOMContentLoaded', function() {
      safeCall(setupEnterToPost);
      safeCall(setupCharacterCounter);
      safeCall(setupViewToggle);
-     // Ensure feed is loaded and polling started
+     // Ensure feed is loaded (WebSocket handles real-time updates)
      safeCall(() => fetchFeedPage(1));
-     safeCall(startLiveFeedPolling);
+     // Note: startLiveFeedPolling() replaced by WebSocket
    };
 
   if (document.readyState === 'complete' || document.readyState === 'interactive') {

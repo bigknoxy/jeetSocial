@@ -3,7 +3,7 @@ const { test, expect } = require('@playwright/test');
 
 // Helper to create a post via API
 async function createPost(apiContext, message) {
-  const resp = await apiContext.post('http://localhost:5000/api/posts', {
+  const resp = await apiContext.post('http://localhost:5678/api/posts', {
     data: JSON.stringify({ message }),
     headers: { 'Content-Type': 'application/json' }
   });
@@ -54,12 +54,12 @@ test.describe('Kindness real-time', () => {
     });
 
     // Ensure the app is reachable
-    await pageA.goto('http://localhost:5000');
-    await pageB.goto('http://localhost:5000');
+    await pageA.goto('http://localhost:5678');
+    await pageB.goto('http://localhost:5678');
 
     // Create a deterministic post via direct API on page A
     const postId = await (async () => {
-      const resp = await pageA.request.post('http://localhost:5000/api/posts', {
+      const resp = await pageA.request.post('http://localhost:5678/api/posts', {
         data: JSON.stringify({ message: 'E2E kindness realtime test ' + Date.now() }),
         headers: { 'Content-Type': 'application/json' }
       });
@@ -83,7 +83,7 @@ test.describe('Kindness real-time', () => {
     console.log('[INITIAL COUNTS]', { postId, initialCountA, initialCountB });
 
     // On page A: request token for the post and store it in sessionStorage for pageA
-    const tokenResp = await pageA.request.post('http://localhost:5000/api/kindness/token', {
+    const tokenResp = await pageA.request.post('http://localhost:5678/api/kindness/token', {
       data: JSON.stringify({ post_id: postId }),
       headers: { 'Content-Type': 'application/json' }
     });

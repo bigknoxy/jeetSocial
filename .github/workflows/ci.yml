@@ -9,7 +9,7 @@ on:
 
 jobs:
   lint:
-    name: Lint (flake8)
+    name: Lint (flake8 + TypeScript)
     runs-on: ubuntu-latest
     strategy:
       matrix:
@@ -24,6 +24,13 @@ jobs:
         uses: actions/setup-python@v5
         with:
           python-version: '3.10'
+
+      - name: Set up Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '18'
+          cache: 'npm'
+          cache-dependency-path: 'package-lock.json'
 
       - name: Cache pip
         uses: actions/cache@v4
@@ -40,8 +47,18 @@ jobs:
           pip install -e .
           pip install flake8
 
+      - name: Install Node.js dependencies
+        run: |
+          cd app/static
+          npm ci
+
       - name: Run flake8
         run: flake8 .
+
+      - name: Compile TypeScript
+        run: |
+          cd app/static
+          npm run build:ts
 
 
   test:

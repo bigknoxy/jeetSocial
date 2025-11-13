@@ -38,7 +38,7 @@ class JeetSocialPage {
    * Navigate to the jeetSocial homepage
    */
   async goto() {
-    await this.page.goto('http://localhost:5000', { waitUntil: 'networkidle' });
+    await this.page.goto('http://localhost:5678', { waitUntil: 'networkidle' });
   }
 
   /**

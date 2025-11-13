@@ -1,0 +1,30 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Debug Module Loading</title>
+</head>
+<body>
+    <h1>Debug Module Loading</h1>
+    <div id="debug-output"></div>
+    
+    <script type="module" src="/static/module-bootstrap.js"></script>
+    <script>
+        setTimeout(() => {
+            const output = document.getElementById('debug-output');
+            output.innerHTML = `
+                <h2>Module Loading Status:</h2>
+                <p>window.Store: ${typeof window.Store}</p>
+                <p>window.store: ${typeof window.store}</p>
+                <p>window.FeedManager: ${typeof window.FeedManager}</p>
+                <p>window.feedManager: ${typeof window.feedManager}</p>
+                <p>window.KindnessManager: ${typeof window.KindnessManager}</p>
+                <p>window.kindnessManager: ${typeof window.kindnessManager}</p>
+                <p>window.wsService: ${typeof window.wsService}</p>
+                <p>window.WebSocketService: ${typeof window.WebSocketService}</p>
+                <p>window.ApiService: ${typeof window.ApiService}</p>
+                <p>window.apiService: ${typeof window.apiService}</p>
+            `;
+        }, 2000);
+    </script>
+</body>
+</html>

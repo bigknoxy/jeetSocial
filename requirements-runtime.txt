@@ -9,3 +9,5 @@ Alembic==1.16.5
 gunicorn==23.0.0
 Werkzeug>=3.0.6
 urllib3>=2.0.0
+flask-socketio==5.3.6
+python-socketio==5.10.0
