@@ -232,6 +232,9 @@ class Store {
    */
   private mergeDeep(target: any, source: any): void {
     for (const key in source) {
+      if (key === "__proto__" || key === "constructor") {
+        continue; // Prevent prototype pollution.
+      }
       if (source[key] && typeof source[key] === 'object' && !Array.isArray(source[key])) {
         if (!target[key] || typeof target[key] !== 'object') {
           target[key] = {};
