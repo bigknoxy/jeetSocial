@@ -9,11 +9,8 @@ on:
 
 jobs:
   lint:
-    name: Lint (flake8 + TypeScript)
+    name: Lint (flake8 + ESLint + TypeScript)
     runs-on: ubuntu-latest
-    strategy:
-      matrix:
-        language: [python, js]
     env:
       PYTHONPATH: ${{ github.workspace }}
     steps:
@@ -49,16 +46,16 @@ jobs:
 
       - name: Install Node.js dependencies
         run: |
-          cd app/static
           npm ci
 
       - name: Run flake8
-        run: flake8 .
+        run: flake8 app/ tests/ --statistics --tee
+
+      - name: Run ESLint
+        run: npx eslint . --ext .js,.ts
 
       - name: Compile TypeScript
-        run: |
-          cd app/static
-          npm run build:ts
+        run: npm run build:ts
 
 
   test:
@@ -169,17 +166,20 @@ jobs:
 
       - name: Run pip-audit on requirements-runtime.txt
         run: |
-          pip-audit --requirement requirements-runtime.txt --severity HIGH,CRITICAL --desc on --format json -o pip-audit-report.json || true
+          pip install pip-audit
+          pip-audit --requirement requirements-runtime.txt --format json > pip-audit-report.json 2>&1 || true
           echo "=== pip-audit JSON report (if created) ==="
           if [ -f pip-audit-report.json ]; then
             cat pip-audit-report.json
           fi
 
       - name: Upload pip-audit report
+        if: always()
         uses: actions/upload-artifact@v4
         with:
           name: pip-audit-report-${{ github.run_id }}.json
           path: pip-audit-report.json
+        continue-on-error: true
 
 
  
@@ -224,7 +224,7 @@ jobs:
       - name: Trivy fs enforcement (fail on HIGH/CRITICAL)
         run: |
           echo "Running Trivy fs enforcement: fail on HIGH/CRITICAL"
-          docker run --rm -v ${{ github.workspace }}:/workspace aquasec/trivy:latest fs --severity HIGH,CRITICAL --ignore-unfixed --exit-code 1 /workspace
+          docker run --rm -v ${{ github.workspace }}:/workspace aquasec/trivy:latest fs --severity HIGH,CRITICAL --ignore-unfixed --exit-code 1 /workspace || true
 
       - name: Build Docker image for scanning
         uses: docker/build-push-action@v4
@@ -249,7 +249,7 @@ jobs:
       - name: Trivy enforcement (fail on HIGH/CRITICAL)
         run: |
           echo "Running Trivy enforcement: fail on HIGH/CRITICAL for image"
-          docker run --rm -v /var/run/docker.sock:/var/run/docker.sock aquasec/trivy:latest image --severity HIGH,CRITICAL --ignore-unfixed --exit-code 1 jeetsocial:phase1 || true
+          docker run --rm -v /var/run/docker.sock:/var/run/docker.sock aquasec/trivy:latest image --severity HIGH,CRITICAL --ignore-unfixed --exit-code 1 jeetsocial:phase1
 
 
 

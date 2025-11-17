@@ -72,6 +72,19 @@ module.exports = [
     },
   },
   {
-    ignores: ['venv/**', 'coverage/**', 'node_modules/**'],
+    ignores: [
+      'venv/**', 
+      'coverage/**', 
+      'node_modules/**', 
+      '.venv/**',
+      '**/*.min.js',
+      'app/static/dist/**',
+      'app/static/socket.io.min.js',
+      'app/static/src/**/*.ts',
+      'e2e/**/*.js',
+      'test_*.js',
+      'playwright.config.js',
+      'debug_*.js'
+    ],
   },
 ];
