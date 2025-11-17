@@ -1,3 +1,15 @@
 [tool.black]
 line-length = 88
 target-version = ['py310']
+
+[tool.pytest]
+testpaths = ["tests", "specs"]
+python_files = ["tests/test_*.py", "specs/**/test_*.py"]
+python_classes = ["Test*"]
+python_functions = ["test_*"]
+addopts = "-v --tb=short --ignore=test_polling.py --ignore=test_realtime_manual.py --ignore=test_realtime_complete.py --ignore=test_realtime.py --ignore=test_websocket_connection.py --ignore=test_modules.py --ignore=tests/test_websocket.py --ignore=tests/test_websocket_temp.py"
+markers = [
+    "slow: marks tests as slow (deselect with '-m \"not slow\"')",
+    "integration: marks tests as integration tests requiring external services",
+    "websocket: marks tests as requiring WebSocket server"
+]

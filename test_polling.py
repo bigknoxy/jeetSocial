@@ -8,6 +8,10 @@ import time
 import json
 
 
+import pytest
+
+
+@pytest.mark.skip(reason="Integration test requires server running on localhost:5678")
 def test_polling():
     base_url = "http://localhost:5678"
 
