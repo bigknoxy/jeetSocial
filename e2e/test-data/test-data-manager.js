@@ -3,6 +3,8 @@
  * Provides utilities for managing test data and ensuring test isolation
  */
 
+const { randomBytes } = require('crypto');
+
 
 
 class TestDataManager {
@@ -17,7 +19,9 @@ class TestDataManager {
    * @returns {string} Unique test ID
    */
   generateTestId() {
-    return `test-${Date.now()}-${Math.random().toString(36).substr(2, 9)}`;
+    const randomBytes = randomBytes(9);
+    const randomString = randomBytes.toString('hex').substring(0, 9);
+    return `test-${Date.now()}-${randomString}`;
   }
 
   /**

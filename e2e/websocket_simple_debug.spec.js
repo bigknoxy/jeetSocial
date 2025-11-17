@@ -25,26 +25,36 @@ test.describe('WebSocket Simple Connection Test', () => {
     // Monitor network requests
     const networkRequests = [];
     page.on('request', request => {
-      if (request.url().includes('socket.io')) {
-        networkRequests.push({
-          type: 'request',
-          url: request.url(),
-          method: request.method(),
-          timestamp: Date.now()
-        });
-        console.log(`[Network] Request: ${request.method()} ${request.url()}`);
+      try {
+        const url = new URL(request.url());
+        if (url.pathname.includes('socket.io')) {
+          networkRequests.push({
+            type: 'request',
+            url: request.url(),
+            method: request.method(),
+            timestamp: Date.now()
+          });
+          console.log(`[Network] Request: ${request.method()} ${request.url()}`);
+        }
+      } catch (e) {
+        // Invalid URL, skip
       }
     });
 
     page.on('response', response => {
-      if (response.url().includes('socket.io')) {
-        networkRequests.push({
-          type: 'response',
-          url: response.url(),
-          status: response.status(),
-          timestamp: Date.now()
-        });
-        console.log(`[Network] Response: ${response.status()} ${response.url()}`);
+      try {
+        const url = new URL(response.url());
+        if (url.pathname.includes('socket.io')) {
+          networkRequests.push({
+            type: 'response',
+            url: response.url(),
+            status: response.status(),
+            timestamp: Date.now()
+          });
+          console.log(`[Network] Response: ${response.status()} ${response.url()}`);
+        }
+      } catch (e) {
+        // Invalid URL, skip
       }
     });
 

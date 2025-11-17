@@ -267,7 +267,8 @@ def redeem_kindness_token():
         try:
             broadcast_kindness_update(post_id, post.kindness_points, "increment")
             current_app.logger.info(
-                f"Broadcasted kindness update for post {post_id}: {post.kindness_points} points"
+                f"Broadcasted kindness update for post {post_id}: "
+                f"{post.kindness_points} points"
             )
         except Exception as e:
             current_app.logger.error(

@@ -21,7 +21,7 @@ def client():
         app, socketio_instance = result
     else:
         app = result
-        socketio_instance = None
+        # socketio_instance intentionally unused
 
     with app.test_client() as client:
         with app.app_context():

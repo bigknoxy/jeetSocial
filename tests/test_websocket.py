@@ -4,8 +4,7 @@ Tests WebSocket connection, event handling, and real-time updates.
 """
 
 import pytest
-import json
-from unittest.mock import Mock, patch, MagicMock
+from unittest.mock import patch
 
 
 def create_test_app():
@@ -164,7 +163,7 @@ class TestWebSocketRoomManagement:
 
         # Verify room membership (this would be tested via server-side state)
         # For now, just ensure the emit doesn't error
-        received = client.get_received()
+        client.get_received()
 
         client.disconnect()
 
@@ -179,7 +178,7 @@ class TestWebSocketRoomManagement:
         client.emit("join_post", {"post_id": post_id})
 
         # Verify no errors
-        received = client.get_received()
+        client.get_received()
 
         client.disconnect()
 
@@ -193,7 +192,7 @@ class TestWebSocketRoomManagement:
         client.emit("join_feed")
         client.emit("leave_feed")
 
-        received = client.get_received()
+        client.get_received()
 
         client.disconnect()
 
@@ -305,7 +304,7 @@ class TestWebSocketErrorHandling:
         client.emit("join_post", {})
 
         # Should handle gracefully without crashing
-        received = client.get_received()
+        client.get_received()
 
         client.disconnect()
 
@@ -319,7 +318,7 @@ class TestWebSocketErrorHandling:
         client.emit("join_post", "invalid_data")
 
         # Should handle gracefully
-        received = client.get_received()
+        client.get_received()
 
         client.disconnect()
 
@@ -349,7 +348,7 @@ class TestWebSocketIntegration:
 
             # This test will fail until WebSocket implementation is added
             # The mock_broadcast should be called when post is created
-            response = client.post("/api/posts", json=post_data)
+            client.post("/api/posts", json=post_data)
 
             # This assertion will fail until WebSocket is implemented
             mock_broadcast.assert_called_once()
@@ -388,7 +387,7 @@ class TestWebSocketIntegration:
             token_data = token_response.get_json()
 
             # Then redeem the token (this is the actual voting action)
-            response = client.post(
+            client.post(
                 "/api/kindness/redeem",
                 json={"post_id": post_id, "token": token_data["token"]},
             )

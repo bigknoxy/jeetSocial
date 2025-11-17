@@ -7,7 +7,7 @@ Handles client connections, room management, and event broadcasting.
 
 import logging
 from flask import request
-from flask_socketio import emit, join_room, leave_room, disconnect
+from flask_socketio import emit, join_room, leave_room
 from app import socketio
 
 # Configure logging
@@ -99,7 +99,8 @@ def handle_join_post(data):
             {
                 "room": room_name,
                 "post_id": post_id,
-                "message": f"Joined post room for post {post_id} - you will receive kindness updates",
+                "message": f"Joined post room for post {post_id} - "
+                f"you will receive kindness updates",
             },
         )
 
@@ -160,7 +161,8 @@ def broadcast_new_post(post_data):
     """Broadcast new post to all clients in feed room.
 
     Args:
-        post_data (dict): Post data including id, content, username, kindness_points, created_at
+        post_data (dict): Post data including id, content, username,
+    kindness_points, created_at
     """
     logger.info(f'Broadcasting new post {post_data.get("id")} to feed room')
     socketio.emit("new_post", post_data, room=FEED_ROOM)
@@ -215,8 +217,6 @@ def get_client_count():
     # Note: This requires flask-socketio's internal state access
     # In production, you might want to track this manually
     try:
-        from flask_socketio import rooms
-
         # This is a simplified approach - actual implementation may vary
         return len(socketio.server.manager.get_participants("/", None))
     except Exception:

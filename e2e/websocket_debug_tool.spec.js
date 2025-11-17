@@ -25,7 +25,8 @@ class WebSocketDebugger {
             data,
             timestamp: Date.now(),
             userAgent: navigator.userAgent,
-            sessionId: Math.random().toString(36).substr(2, 9)
+            sessionId: Array.from(crypto.getRandomValues(new Uint8Array(9)))
+              .map(b => b.toString(36)).join('')
           };
           this.events.push(event);
           console.log(`[WS Debug] ${type}:`, data);
@@ -139,34 +140,46 @@ class WebSocketDebugger {
         timestamp: Date.now()
       });
       
-      if (text.includes('WebSocket') || text.includes('socket.io') || 
-          text.includes('FeedManager') || text.includes('wsService')) {
+      if (text.includes('WebSocket') || 
+          text.includes('socket.io') || 
+          text.includes('FeedManager') || 
+          text.includes('wsService')) {
         console.log(`[Console Monitor] ${msg.type()}: ${text}`);
       }
     });
 
     // Monitor network requests
     this.page.on('request', request => {
-      if (request.url().includes('socket.io') || request.url().includes('websocket')) {
-        this.networkRequests.push({
-          type: 'request',
-          url: request.url(),
-          method: request.method(),
-          timestamp: Date.now()
-        });
-        console.log(`[Network] Request: ${request.method()} ${request.url()}`);
+      try {
+        const url = new URL(request.url());
+        if (url.pathname.includes('socket.io') || url.pathname.includes('websocket')) {
+          this.networkRequests.push({
+            type: 'request',
+            url: request.url(),
+            method: request.method(),
+            timestamp: Date.now()
+          });
+          console.log(`[Network] Request: ${request.method()} ${request.url()}`);
+        }
+      } catch (e) {
+        // Invalid URL, skip
       }
     });
 
     this.page.on('response', response => {
-      if (response.url().includes('socket.io') || response.url().includes('websocket')) {
-        this.networkRequests.push({
-          type: 'response',
-          url: response.url(),
-          status: response.status(),
-          timestamp: Date.now()
-        });
-        console.log(`[Network] Response: ${response.status()} ${response.url()}`);
+      try {
+        const url = new URL(response.url());
+        if (url.pathname.includes('socket.io') || url.pathname.includes('websocket')) {
+          this.networkRequests.push({
+            type: 'response',
+            url: response.url(),
+            status: response.status(),
+            timestamp: Date.now()
+          });
+          console.log(`[Network] Response: ${response.status()} ${response.url()}`);
+        }
+      } catch (e) {
+        // Invalid URL, skip
       }
     });
 

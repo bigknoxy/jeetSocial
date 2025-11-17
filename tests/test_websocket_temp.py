@@ -3,8 +3,6 @@ Temporary WebSocket test file to verify fixture approach works.
 """
 
 import pytest
-import json
-from unittest.mock import Mock, patch, MagicMock
 
 
 @pytest.fixture

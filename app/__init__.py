@@ -101,12 +101,16 @@ def create_app(config_override=None):
         try:
             import eventlet
 
+            # Reference eventlet to avoid unused import warning
+            _ = eventlet.__version__
             async_mode = "eventlet"
             print("eventlet available, using async_mode=eventlet")
         except ImportError:
             try:
                 import gevent
 
+                # Reference gevent to avoid unused import warning
+                _ = gevent.__version__
                 async_mode = "gevent"
                 print("gevent available, using async_mode=gevent")
             except ImportError:
@@ -137,6 +141,8 @@ def create_app(config_override=None):
         try:
             from app import websocket
 
+            # Reference websocket module to avoid unused import warning
+            _ = websocket.__doc__
             print("WebSocket module imported successfully")
         except Exception as e:
             # If websocket module has issues, continue without it
@@ -162,7 +168,7 @@ def create_app(config_override=None):
         )
         return resp
 
-    # If socketio is None (disabled), return only the Flask app for gunicorn compatibility
+    # If socketio is None (disabled), return only Flask app for gunicorn compatibility
     if socketio is None:
         return flask_app
     return flask_app, socketio

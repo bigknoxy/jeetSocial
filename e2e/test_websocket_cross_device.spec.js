@@ -326,7 +326,9 @@ test.describe('WebSocket Cross-Device Live Updates', () => {
       // Monitor console for WebSocket events
       const consoleMessages = [];
       page.on('console', msg => {
-        if (msg.text().includes('WebSocket') || msg.text().includes('socket.io') || msg.text().includes('FeedManager')) {
+        if (msg.text().includes('WebSocket') || 
+            msg.text().includes('socket.io') || 
+            msg.text().includes('FeedManager')) {
           consoleMessages.push(msg.text());
         }
       });
