@@ -30,6 +30,7 @@ COPY migrations migrations
 COPY wait-for-it.sh wait-for-it.sh
 COPY wait-for-db-healthy.sh wait-for-db-healthy.sh
 COPY init_db.py init_db.py
+COPY run_migrations.py run_migrations.py
 COPY tests tests
 # Include pre-generated reports (Trivy JSON) so tests can read them inside the container
 COPY reports reports
