@@ -49,6 +49,7 @@ window.addEventListener('DOMContentLoaded', async () => {
 });
 
 // WebSocket-based new post handler (replaces polling)
+// eslint-disable-next-line no-unused-vars
 function handleNewPostFromWebSocket(post) {
   // Only handle new posts if we're on page 1 (latest view)
   if (currentPage !== 1 || currentView !== 'latest') return;
@@ -107,6 +108,7 @@ function handleNewPostFromWebSocket(post) {
 // Polling fallback function when WebSocket fails
 let pollingInterval = null;
 
+// eslint-disable-next-line no-unused-vars
 function startLiveFeedPolling() {
   // Stop any existing polling
   stopLiveFeedPolling();
