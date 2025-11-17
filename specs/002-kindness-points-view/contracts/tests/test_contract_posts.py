@@ -11,7 +11,14 @@ def client():
         "ENABLE_RATE_LIMITING": False,
         "ENABLE_KINDNESS_POINTS": "1",
     }
-    app = create_app(config_override)
+    result = create_app(config_override)
+    # Handle tuple return from create_app()
+    if isinstance(result, tuple):
+        app, socketio_instance = result
+    else:
+        app = result
+        # socketio_instance intentionally unused
+
     with app.test_client() as client:
         with app.app_context():
             db.create_all()

@@ -2,16 +2,25 @@
 test_posts_error.py
 """
 
+import pytest
 from app import create_app, db
 
 
+@pytest.fixture
 def client():
     config_override = {
         "TESTING": True,
         "SQLALCHEMY_DATABASE_URI": "sqlite:///:memory:",
         "ENABLE_RATE_LIMITING": False,
     }
-    app = create_app(config_override)
+    result = create_app(config_override)
+    # Handle tuple return from create_app()
+    if isinstance(result, tuple):
+        app, socketio_instance = result
+    else:
+        app = result
+        # socketio_instance intentionally unused
+
     with app.test_client() as client:
         with app.app_context():
             db.create_all()
