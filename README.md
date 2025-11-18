@@ -8,6 +8,8 @@
 [![Issues](https://img.shields.io/github/issues/bigknoxy/jeetSocial)](https://github.com/bigknoxy/jeetSocial)
 
 > 🌟 **A minimal, anonymous social platform designed to spread kindness and positivity through real-time interactions**
+> 
+> *Fun fact: "jeet" = "just yeet" kindness into the world. Because sometimes you gotta yeet some positivity out there! 🎯*
 
 ![jeetSocial Homepage](e2e/homepage.png)
 
