@@ -154,7 +154,7 @@ def create_app(config_override=None):
     # Intelligent 404 error handler to distinguish expected vs problematic 404s
     @flask_app.errorhandler(404)
     def handle_404(e):
-        """Handle 404 errors with appropriate logging levels based on request context."""
+        """Handle 404 errors with appropriate logging based on request context."""
         from flask import request
 
         request_path = getattr(request, "path", "unknown")
