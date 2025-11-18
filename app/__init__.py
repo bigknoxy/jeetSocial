@@ -151,15 +151,71 @@ def create_app(config_override=None):
 
             traceback.print_exc()
 
-    # Global error handler for unhandled exceptions
+    # Intelligent 404 error handler to distinguish expected vs problematic 404s
+    @flask_app.errorhandler(404)
+    def handle_404(e):
+        """Handle 404 errors with appropriate logging levels based on request context."""
+        from flask import request
+
+        request_path = getattr(request, "path", "unknown")
+
+        # Define expected 404s that should only log at DEBUG level
+        expected_404s = [
+            "/favicon.ico",
+            "/robots.txt",
+            "/security.txt",
+            "/apple-touch-icon.png",
+            "/apple-touch-icon-precomposed.png",
+            "/browserconfig.xml",
+            "/manifest.json",
+            "/sitemap.xml",
+        ]
+
+        # Define API endpoints that should log at WARNING level (potential issues)
+        api_patterns = ["/api/", "/socket.io/"]
+
+        # Determine logging level and message
+        if request_path in expected_404s:
+            log_level = "debug"
+            message = f"Expected 404 for standard file: {request_path}"
+        elif any(pattern in request_path for pattern in api_patterns):
+            log_level = "warning"
+            message = f"API endpoint 404 (potential issue): {request_path}"
+        else:
+            log_level = "info"
+            message = f"404 Not Found: {request_path}"
+
+        # Log at appropriate level
+        if hasattr(current_app, "logger"):
+            if log_level == "debug":
+                current_app.logger.debug(message)
+            elif log_level == "warning":
+                current_app.logger.warning(message)
+            else:
+                current_app.logger.info(message)
+
+        # Return JSON response for API requests, HTML for others
+        if request_path.startswith("/api/") or request_path.startswith("/socket.io/"):
+            resp = make_response(
+                jsonify({"error": "Endpoint not found"}),
+                404,
+            )
+        else:
+            resp = make_response(
+                "<h1>Page Not Found</h1><p>The requested page could not be found.</p>",
+                404,
+            )
+        return resp
+
+    # Global error handler for unhandled exceptions (excluding HTTPExceptions)
     @flask_app.errorhandler(Exception)
     def handle_global_exception(e):
-        code = 500
+        # Don't handle HTTPExceptions that have specific handlers (like 404)
         if isinstance(e, HTTPException) and hasattr(e, "code") and e.code is not None:
-            try:
-                code = int(e.code) if e.code is not None else 500
-            except (TypeError, ValueError):
-                code = 500
+            # Let specific handlers deal with HTTP status codes
+            raise e
+
+        code = 500
         if hasattr(current_app, "logger"):
             current_app.logger.error(f"Unhandled exception: {e}")
         resp = make_response(

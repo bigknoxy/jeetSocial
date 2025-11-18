@@ -1,0 +1,33 @@
+# jeetSocial security.txt
+# Security disclosure and contact information
+
+# Our security policy
+Contact: mailto:security@jeetsocial.example
+Contact: https://jeetsocial.example/security
+
+# Security disclosure policy
+Policy: https://jeetsocial.example/security-policy
+
+# Acknowledgments page
+Acknowledgments: https://jeetsocial.example/security-acknowledgments
+
+# Preferred languages
+Preferred-Languages: en
+
+# Encryption key for security communications
+Encryption: https://jeetsocial.example/pgp-key.txt
+
+# Disclosure timeline - we aim to respond within 48 hours
+Disclosure-Policy: https://jeetsocial.example/disclosure-timeline
+
+# Security team (if applicable)
+# Team: https://jeetsocial.example/security-team
+
+# Hiring page for security researchers
+Hiring: https://jeetsocial.example/security-hiring
+
+# Permit security testing under responsible disclosure
+# Please do not perform automated or disruptive testing without permission
+
+# Cache duration (recommended by security.txt standard)
+Cache-Control: max-age=86400

@@ -1,0 +1,77 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>File Copy Helper</title>
+</head>
+<body>
+    <h1>File Copy Helper</h1>
+    <div id="status">Loading...</div>
+    
+    <script>
+    async function copyFiles() {
+        const status = document.getElementById('status');
+        try {
+            status.innerHTML = 'Starting file copy process...';
+            
+            // Read homepage screenshot
+            const homepageResponse = await fetch('file:///tmp/playwright-mcp-output/1763478100531/homepage_new.png');
+            const homepageBlob = await homepageResponse.blob();
+            
+            // Read about screenshot  
+            const aboutResponse = await fetch('file:///tmp/playwright-mcp-output/1763478100531/about_new.png');
+            const aboutBlob = await aboutResponse.blob();
+            
+            status.innerHTML = 'Files read successfully. Homepage size: ' + homepageBlob.size + ' bytes, About size: ' + aboutBlob.size + ' bytes';
+            
+            // Convert to base64
+            const homepageBase64 = await new Promise((resolve, reject) => {
+                const reader = new FileReader();
+                reader.onload = () => resolve(reader.result);
+                reader.onerror = reject;
+                reader.readAsDataURL(homepageBlob);
+            });
+            
+            const aboutBase64 = await new Promise((resolve, reject) => {
+                const reader = new FileReader();
+                reader.onload = () => resolve(reader.result);
+                reader.onerror = reject;
+                reader.readAsDataURL(aboutBlob);
+            });
+            
+            status.innerHTML = '<br>Files converted to base64';
+            
+            // Store in console for extraction
+            console.log('HOMEPAGE_BASE64:', homepageBase64);
+            console.log('ABOUT_BASE64:', aboutBase64);
+            
+            // Create download links
+            const homepageLink = document.createElement('a');
+            homepageLink.href = homepageBase64;
+            homepageLink.download = 'homepage.png';
+            homepageLink.textContent = 'Download Homepage';
+            homepageLink.style.display = 'block';
+            homepageLink.style.margin = '10px';
+            
+            const aboutLink = document.createElement('a');
+            aboutLink.href = aboutBase64;
+            aboutLink.download = 'about.png';
+            aboutLink.textContent = 'Download About';
+            aboutLink.style.display = 'block';
+            aboutLink.style.margin = '10px';
+            
+            document.body.appendChild(homepageLink);
+            document.body.appendChild(aboutLink);
+            
+            status.innerHTML += '<br>Download links created. Click the links above to download the files.';
+            
+        } catch (error) {
+            status.innerHTML = 'Error: ' + error.message;
+            console.error('Error:', error);
+        }
+    }
+
+    // Start the process
+    copyFiles();
+    </script>
+</body>
+</html>

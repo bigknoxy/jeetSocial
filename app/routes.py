@@ -331,6 +331,24 @@ def index():
     return current_app.send_static_file("index.html")
 
 
+@bp.route("/robots.txt")
+def robots_txt():
+    # Serve robots.txt from static folder
+    return current_app.send_static_file("robots.txt")
+
+
+@bp.route("/favicon.ico")
+def favicon_ico():
+    # Serve favicon.ico from static folder
+    return current_app.send_static_file("favicon.ico")
+
+
+@bp.route("/security.txt")
+def security_txt():
+    # Serve security.txt from static folder
+    return current_app.send_static_file("security.txt")
+
+
 @bp.route("/static/<path:path>")
 def static_files(path):
     # Delegate to Flask's static file handler which uses `current_app.static_folder`.

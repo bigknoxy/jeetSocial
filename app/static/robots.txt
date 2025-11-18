@@ -1,0 +1,38 @@
+# jeetSocial robots.txt
+# Privacy-first social platform - restrict search engine indexing
+
+User-agent: *
+# Allow discovery of main platform pages
+Allow: /
+Allow: /about
+Allow: /about.html
+# Block all API endpoints and user-generated content
+Disallow: /api/
+Disallow: /static/
+Disallow: /socket.io/
+# Block common bot paths
+Disallow: /admin
+Disallow: /login
+Disallow: /register
+
+# Block major AI crawlers specifically
+User-agent: GPTBot
+Disallow: /
+
+User-agent: GoogleOther
+Disallow: /
+
+User-agent: anthropic-ai
+Disallow: /
+
+User-agent: Claude-Web
+Disallow: /
+
+User-agent: ChatGPT-User
+Disallow: /
+
+# Crawl delay for privacy
+Crawl-delay: 10
+
+# Sitemap (if available in future)
+# Sitemap: https://jeetsocial.example.com/sitemap.xml

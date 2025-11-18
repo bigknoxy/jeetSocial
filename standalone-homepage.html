@@ -1,0 +1,449 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>jeetSocial - Anonymous, but always kind.</title>
+  <style>
+    body { 
+      font-family: sans-serif; 
+      background: #18181b; 
+      color: #f5f5f5; 
+      margin: 0; 
+    }
+    .banner { 
+      background: #222; 
+      color: #fff; 
+      padding: 1em; 
+      text-align: center; 
+      font-size: 1.2em; 
+      font-weight: bold; 
+      border-bottom: 4px solid; 
+      border-image: linear-gradient(90deg, #ff4b5c, #ffb26b, #ffe347, #43e97b, #3fa7d6, #7c4dff, #c86dd7) 1; 
+      position: sticky; 
+      top: 0; 
+      z-index: 1000; 
+    }
+    .container { 
+      max-width: 600px; 
+      margin: 2em auto; 
+      background: #222; 
+      border-radius: 8px; 
+      box-shadow: 0 2px 8px rgba(0,0,0,0.2); 
+      padding: 2em; 
+    }
+    #feed { 
+      min-height: 400px; 
+      position: relative; 
+      transition: min-height 0.2s; 
+    }
+    .skeleton-loader { 
+      display: flex; 
+      flex-direction: column; 
+      gap: 1em; 
+      padding: 1em 0; 
+    }
+    .skeleton-post { 
+      background: #23232b; 
+      border-radius: 6px; 
+      height: 64px; 
+      margin-bottom: 1em; 
+      position: relative; 
+      overflow: hidden; 
+    }
+    .skeleton-animate { 
+      animation: skeleton-shimmer 1.2s linear infinite; 
+      background: linear-gradient(90deg, #23232b 0%, #2c2c38 50%, #23232b 100%); 
+      background-size: 200% 100%; 
+      width: 100%; 
+      height: 100%; 
+      position: absolute; 
+      top: 0; 
+      left: 0; 
+    }
+    @keyframes skeleton-shimmer { 
+      0% { background-position: -200% 0; } 
+      100% { background-position: 200% 0; } 
+    }
+    h1, h2 { 
+      color: #ffe347; 
+    }
+    .desc { 
+      margin-bottom: 2em; 
+      color: #b3b3b3; 
+    }
+    .rainbow-link-gradient { 
+      background: linear-gradient(90deg, #ff4b5c, #ffb26b, #ffe347, #43e97b, #3fa7d6, #7c4dff, #c86dd7); 
+      -webkit-background-clip: text; 
+      -webkit-text-fill-color: transparent; 
+      font-weight: bold; 
+      font-size: 1.1em; 
+      text-decoration: underline; 
+      transition: text-shadow 0.2s; 
+    }
+    .rainbow-link-gradient:hover { 
+      text-shadow: 0 0 8px #43e97b; 
+    }
+    .post { 
+      background: #23232b; 
+      border-radius: 6px; 
+      box-shadow: 0 1px 4px rgba(0,0,0,0.08); 
+      margin-bottom: 1em; 
+      padding: 1em 1em 0.6em 1em; 
+      border-left: 6px solid #43e97b; 
+      color: #f5f5f5; 
+    }
+    .username { 
+      font-weight: bold; 
+      color: #ff4b5c; 
+      margin-right: 1em; 
+    }
+    .timestamp { 
+      color: #888; 
+      font-size: 0.9em; 
+      margin-left: 0.5em; 
+    }
+    .post div { 
+      margin-top: 0.5em; 
+      font-size: 1.1em; 
+      color: #ffe347; 
+      overflow-wrap: anywhere; 
+      word-break: break-word; 
+      white-space: pre-wrap; 
+    }
+    button { 
+      background: linear-gradient(90deg, #ff4b5c, #ffb26b, #ffe347, #43e97b, #3fa7d6, #7c4dff, #c86dd7); 
+      color: #fff; 
+      border: none; 
+      border-radius: 4px; 
+      padding: 0.75em 2em; 
+      font-weight: bold; 
+      cursor: pointer; 
+      transition: box-shadow 0.2s; 
+      font-size: 1.1em; 
+      min-width: 44px; 
+      min-height: 44px; 
+    }
+    button:hover { 
+      box-shadow: 0 0 8px #43e97b; 
+    }
+    textarea { 
+      background: #23232b; 
+      color: #f5f5f5; 
+      border: 2px solid #3fa7d6; 
+      border-radius: 12px; 
+      padding: 14px 18px; 
+      font-size: 1.1em; 
+      margin-bottom: 0.5em; 
+      width: 100%; 
+      resize: none; 
+      min-height: 120px; 
+      max-height: 180px; 
+      box-sizing: border-box; 
+      transition: border-color 0.2s, box-shadow 0.2s; 
+    }
+    textarea:focus { 
+      border-color: #ff4b5c; 
+      box-shadow: 0 0 0 2px #ff4b5c33; 
+      outline: none; 
+    }
+    .post-form-textarea-container { 
+      position: relative; 
+      margin-bottom: 1.5em; 
+    }
+    #char-count { 
+      position: absolute; 
+      bottom: 12px; 
+      right: 20px; 
+      font-size: 13px; 
+      color: #888; 
+      background: rgba(24,24,27,0.85); 
+      padding: 2px 8px; 
+      border-radius: 12px; 
+      pointer-events: none; 
+      transition: color 0.2s, background 0.2s; 
+    }
+    .kindness-badge {
+      margin-left: 6px;
+      font-size: 14px;
+      min-width: 28px;
+      padding: 2px 8px;
+      background: #ffe347;
+      color: #23232b;
+      border-radius: 10px;
+      font-weight: bold;
+      text-align: center;
+      vertical-align: middle;
+      transition: background 0.2s, color 0.2s;
+    }
+    .kindness-row {
+      display: flex;
+      align-items: center;
+      gap: 0.5em;
+      margin-top: 0.3em;
+      justify-content: flex-end;
+    }
+    .kindness-icon-btn {
+      background: transparent;
+      border: none;
+      color: #ff4b5c;
+      font-size: 14px;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      padding: 6px;
+      min-width: 44px;
+      min-height: 44px;
+      border-radius: 6px;
+      cursor: pointer;
+      transition: background 0.12s, box-shadow 0.12s, transform 0.08s;
+    }
+    .kindness-icon-btn:hover { 
+      background: rgba(255,75,92,0.06); 
+    }
+    .view-tabs {
+      display: flex;
+      background: #2a2a2a;
+      border-radius: 8px;
+      overflow: hidden;
+      box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+    }
+    .view-tab {
+      background: transparent;
+      color: #b3b3b3;
+      border: none;
+      padding: 0.75em 1.5em;
+      font-size: 1em;
+      font-weight: 500;
+      cursor: pointer;
+      transition: all 0.2s ease;
+      outline: none;
+      min-width: 80px;
+    }
+    .view-tab:hover {
+      background: rgba(67, 233, 123, 0.1);
+      color: #43e97b;
+    }
+    .view-tab.active {
+      background: #43e97b;
+      color: #23232b;
+      font-weight: bold;
+    }
+    .feed-header-container {
+      display: flex;
+      align-items: center;
+      gap: 1em;
+      margin-top: 2em;
+      margin-bottom: 1em;
+    }
+    .feed-heading {
+      margin: 0;
+      min-width: 280px;
+      text-align: left;
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+    }
+    .post-form-row {
+      display: flex; 
+      align-items: center; 
+      gap: 1em; 
+      margin-top:0.5em; 
+    }
+    .toggle-switch {
+      display: inline-flex;
+      align-items: center;
+      gap: 0.7em;
+      cursor: pointer;
+      user-select: none;
+      font-size: 1em;
+      position: relative;
+    }
+    .toggle-switch input[type="checkbox"] {
+      opacity: 0;
+      width: 44px;
+      height: 28px;
+      position: absolute;
+      left: 0;
+      margin: 0;
+      z-index: 2;
+      cursor: pointer;
+    }
+    .toggle-switch .slider {
+      position: relative;
+      display: inline-block;
+      width: 44px;
+      height: 28px;
+      background: #444;
+      border-radius: 14px;
+      transition: background 0.2s;
+      box-shadow: 0 1px 4px rgba(0,0,0,0.12);
+      vertical-align: middle;
+    }
+    .toggle-switch input[type="checkbox"]:checked + .slider {
+      background: linear-gradient(90deg, #43e97b 60%, #3fa7d6 100%);
+    }
+    .toggle-switch .slider:before {
+      content: "";
+      position: absolute;
+      left: 4px;
+      top: 4px;
+      width: 20px;
+      height: 20px;
+      background: #23232b;
+      border-radius: 50%;
+      transition: transform 0.2s;
+      box-shadow: 0 1px 4px rgba(0,0,0,0.18);
+    }
+    .toggle-switch input[type="checkbox"]:checked + .slider:before {
+      transform: translateX(16px);
+      background: #ffe347;
+    }
+    .toggle-label {
+      margin-left: 0.2em;
+      color: #f5f5f5;
+      font-weight: 500;
+      vertical-align: middle;
+      transition: color 0.2s;
+    }
+  </style>
+</head>
+<body>
+  <div class="banner">
+    <a href="#" class="rainbow-link-gradient" aria-label="Go to homepage">jeetSocial</a> exists to spread and encourage kindness. Share something uplifting or supportive today!
+  </div>
+  <div class="container">
+    <h1>jeetSocial</h1>
+    <div class="desc">
+      Welcome to a safe, anonymous space for sharing kindness and positivity.<br>
+      All posts are anonymous and assigned a random username.<br>
+      Please keep your messages kind, supportive, and uplifting!
+      <br><br>
+      <div style="margin-bottom:1em;">
+  <a href="#" class="rainbow-link-gradient">Learn more about our kindness mission</a>
+</div>
+    </div>
+    <h2 style="margin-top:0;">Share a message</h2>
+    <form id="post-form" style="margin-bottom:2em;">
+      <div class="post-form-textarea-container" style="position:relative; margin-bottom:1.5em;">
+        <textarea
+          name="message"
+          id="message"
+          rows="4"
+          maxlength="280"
+          aria-label="Share something kind"
+          placeholder="Share something kind…"
+          style="width:100%;"
+        ></textarea>
+         <div id="char-count"
+           aria-live="polite"
+           style="position:absolute; bottom:12px; right:20px; font-size:13px; color:#888; background:rgba(24,24,27,0.85); padding:2px 8px; border-radius:12px; pointer-events:none;">
+           0/280
+         </div>
+        </div>
+       <div id="error" style="color: #ff4b5c; font-weight: bold; margin-bottom: 1em;"></div>
+        <div class="post-form-row" style="display: flex; align-items: center; gap: 1em; margin-top:0.5em;">
+          <button type="button" id="emoji-btn" title="Add emoji" style="font-size:1.2em; padding:0.5em; background: none; border: none; cursor: pointer; border-radius: 4px; transition: background-color 0.2s;" aria-label="Add emoji">😊</button>
+          <label class="toggle-switch" title="When enabled, pressing Enter will post your message. Shift+Enter always adds a new line.">
+            <input type="checkbox" id="enter-to-post" />
+            <span class="slider"></span>
+            <span class="toggle-label">Post on Enter</span>
+          </label>
+          <button type="submit" id="post-btn" aria-label="Post your message">Post</button>
+        </div>
+    </form>
+    <div class="feed-header-container" style="display: flex; align-items: center; gap: 1em; margin-top: 2em; margin-bottom: 1em;">
+      <h2 id="feed-heading" class="feed-heading" style="margin: 0; min-width: 280px; text-align: left;">Recent Posts</h2>
+      <div class="view-tabs" role="tablist" aria-label="Post view options">
+        <button id="view-toggle-recent" class="view-tab active" role="tab" aria-selected="true" aria-controls="feed" tabindex="0">Recent</button>
+        <button id="view-toggle-top" class="view-tab" role="tab" aria-selected="false" aria-controls="feed" tabindex="-1">Top</button>
+      </div>
+    </div>
+   <div id="feed">
+    <!-- Sample posts to show the theme -->
+    <div class="post">
+      <div>
+        <span class="username">KindSquirrel42</span>
+        <span class="timestamp">2 minutes ago</span>
+      </div>
+      <div>You are absolutely amazing just the way you are! Keep shining bright! 🌟</div>
+      <div class="kindness-row">
+        <button class="kindness-icon-btn" title="Award kindness">
+          <span class="icon">❤️</span>
+        </button>
+        <span class="kindness-badge">5</span>
+      </div>
+    </div>
+    <div class="post">
+      <div>
+        <span class="username">GentleBreeze88</span>
+        <span class="timestamp">15 minutes ago</span>
+      </div>
+      <div>Remember that every small act of kindness creates ripples that spread far and wide! 💙</div>
+      <div class="kindness-row">
+        <button class="kindness-icon-btn" title="Award kindness">
+          <span class="icon">❤️</span>
+        </button>
+        <span class="kindness-badge">3</span>
+      </div>
+    </div>
+    <div class="post">
+      <div>
+        <span class="username">SunnyDay23</span>
+        <span class="timestamp">1 hour ago</span>
+      </div>
+      <div>Your presence makes the world a better place. Never forget your worth! 🌈</div>
+      <div class="kindness-row">
+        <button class="kindness-icon-btn" title="Award kindness">
+          <span class="icon">❤️</span>
+        </button>
+        <span class="kindness-badge">7</span>
+      </div>
+    </div>
+    <div class="skeleton-loader" id="skeleton-loader" style="display: none;">
+      <div class="skeleton-post"><div class="skeleton-animate"></div></div>
+      <div class="skeleton-post"><div class="skeleton-animate"></div></div>
+      <div class="skeleton-post"><div class="skeleton-animate"></div></div>
+    </div>
+  </div>
+  </div>
+  <footer style="text-align:center;font-size:0.9em;color:#888;background:#23232b;padding:1em 0;margin-top:2em;">
+    &copy; 2025 jeetSocial | <a href="https://github.com/bigknoxy/jeetSocial" target="_blank" style="color:#ffe347;text-decoration:underline;">GitHub</a>
+  </footer>
+  
+  <script>
+    // Simple character counter
+    const messageTextarea = document.getElementById('message');
+    const charCount = document.getElementById('char-count');
+    
+    messageTextarea.addEventListener('input', function() {
+      const length = this.value.length;
+      charCount.textContent = `${length}/280`;
+      if (length > 280) {
+        charCount.style.color = '#ff4b5c';
+      } else if (length > 250) {
+        charCount.style.color = '#ffb26b';
+      } else {
+        charCount.style.color = '#888';
+      }
+    });
+    
+    // View tab switching
+    const recentTab = document.getElementById('view-toggle-recent');
+    const topTab = document.getElementById('view-toggle-top');
+    const feedHeading = document.getElementById('feed-heading');
+    
+    recentTab.addEventListener('click', function() {
+      recentTab.classList.add('active');
+      topTab.classList.remove('active');
+      feedHeading.textContent = 'Recent Posts';
+    });
+    
+    topTab.addEventListener('click', function() {
+      topTab.classList.add('active');
+      recentTab.classList.remove('active');
+      feedHeading.textContent = 'Top Posts (Last 24 Hours)';
+    });
+  </script>
+</body>
+</html>
