@@ -184,7 +184,7 @@ test.describe('Detailed WebSocket Analysis', () => {
     // Analyze console messages
     const wsMessages = allConsoleMessages.filter(msg => 
       msg.text.includes('WebSocket') || 
-      msg.text.includes('socket.io') || 
+      msg.text.includes('/socket.io/') || 
       msg.text.includes('FeedManager') || 
       msg.text.includes('wsService')
     );
@@ -196,7 +196,7 @@ test.describe('Detailed WebSocket Analysis', () => {
 
     // Analyze network requests
     const wsNetworkRequests = networkRequests.filter(req => 
-      req.url.includes('socket.io') || req.url.includes('websocket')
+      req.url.includes('/socket.io/') || req.url.includes('websocket')
     );
 
     console.log('=== WEBSOCKET NETWORK REQUESTS ===');

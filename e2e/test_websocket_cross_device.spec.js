@@ -106,7 +106,7 @@ test.describe('WebSocket Cross-Device Live Updates', () => {
   test.beforeEach(async ({ context }) => {
     // Enable detailed logging for WebSocket debugging
     context.on('webconsole', msg => {
-      if (msg.type() === 'error' || msg.text().includes('WebSocket') || msg.text().includes('socket.io')) {
+      if (msg.type() === 'error' || msg.text().includes('WebSocket') || msg.text().includes('/socket.io/')) {
         console.log('[WebSocket Console]', msg.text());
       }
     });
@@ -327,7 +327,7 @@ test.describe('WebSocket Cross-Device Live Updates', () => {
       const consoleMessages = [];
       page.on('console', msg => {
         if (msg.text().includes('WebSocket') || 
-            msg.text().includes('socket.io') || 
+            msg.text().includes('/socket.io/') || 
             msg.text().includes('FeedManager')) {
           consoleMessages.push(msg.text());
         }

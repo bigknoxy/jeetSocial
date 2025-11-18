@@ -141,7 +141,7 @@ class WebSocketDebugger {
       });
       
       if (text.includes('WebSocket') || 
-          text.includes('socket.io') || 
+          text.includes('/socket.io/') || 
           text.includes('FeedManager') || 
           text.includes('wsService')) {
         console.log(`[Console Monitor] ${msg.type()}: ${text}`);
@@ -152,7 +152,7 @@ class WebSocketDebugger {
     this.page.on('request', request => {
       try {
         const url = new URL(request.url());
-        if (url.pathname.includes('socket.io') || url.pathname.includes('websocket')) {
+        if (url.pathname.includes('/socket.io/') || url.pathname.includes('websocket')) {
           this.networkRequests.push({
             type: 'request',
             url: request.url(),
@@ -169,7 +169,7 @@ class WebSocketDebugger {
     this.page.on('response', response => {
       try {
         const url = new URL(response.url());
-        if (url.pathname.includes('socket.io') || url.pathname.includes('websocket')) {
+        if (url.pathname.includes('/socket.io/') || url.pathname.includes('websocket')) {
           this.networkRequests.push({
             type: 'response',
             url: response.url(),

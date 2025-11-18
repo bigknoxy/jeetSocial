@@ -16,7 +16,7 @@ test.describe('WebSocket Simple Connection Test', () => {
         timestamp: Date.now()
       });
       
-      if (text.includes('WebSocket') || text.includes('socket.io') || 
+      if (text.includes('WebSocket') || text.includes('/socket.io/') || 
           text.includes('FeedManager') || text.includes('wsService')) {
         console.log(`[Console] ${msg.type()}: ${text}`);
       }
@@ -27,7 +27,7 @@ test.describe('WebSocket Simple Connection Test', () => {
     page.on('request', request => {
       try {
         const url = new URL(request.url());
-        if (url.pathname.includes('socket.io')) {
+        if (url.pathname.includes('/socket.io/')) {
           networkRequests.push({
             type: 'request',
             url: request.url(),
@@ -44,7 +44,7 @@ test.describe('WebSocket Simple Connection Test', () => {
     page.on('response', response => {
       try {
         const url = new URL(response.url());
-        if (url.pathname.includes('socket.io')) {
+        if (url.pathname.includes('/socket.io/')) {
           networkRequests.push({
             type: 'response',
             url: response.url(),
@@ -84,7 +84,7 @@ test.describe('WebSocket Simple Connection Test', () => {
     // Analyze console messages for WebSocket events
     const wsConsoleMessages = consoleMessages.filter(msg => 
       msg.text.includes('WebSocket') || 
-      msg.text.includes('socket.io') || 
+      msg.text.includes('/socket.io/') || 
       msg.text.includes('FeedManager') || 
       msg.text.includes('wsService')
     );
