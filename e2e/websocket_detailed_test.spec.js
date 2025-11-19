@@ -136,9 +136,8 @@ test.describe('Detailed WebSocket Analysis', () => {
           clearTimeout(timeout);
           console.log('Manual connection successful, socket ID:', manualSocket.id);
           resolve({
-            connected: true,
-            socketId: manualSocket.id,
-            connected: manualSocket.connected
+            connected: manualSocket.connected,
+            socketId: manualSocket.id
           });
         });
 

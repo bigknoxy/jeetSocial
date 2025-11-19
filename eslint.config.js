@@ -102,7 +102,11 @@ module.exports = [
       'app/static/src/**/*.ts',
       'test_*.js',
       'playwright.config.js',
-      'debug_*.js'
+      'debug_*.js',
+      'e2e/websocket_*debug*.spec.js',
+      'e2e/websocket_*test*.spec.js',
+      'e2e/websocket_*final*.spec.js',
+      'e2e/manual_validation_test.spec.js'
     ],
   },
 ];
