@@ -7,6 +7,8 @@ services:
     build: .
     command: python3 run_socketio.py
     network_mode: host
+    volumes:
+      - .:/app  # Mount current code into container
     env_file:
       - .env
     environment:

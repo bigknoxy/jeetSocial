@@ -10,6 +10,7 @@ from app import create_app, db
 def client():
     config_override = {
         "TESTING": True,
+        "DEBUG": False,
         "SQLALCHEMY_DATABASE_URI": "sqlite:///:memory:",
         "ENABLE_RATE_LIMITING": False,
     }
@@ -30,8 +31,10 @@ def client():
 
 
 def test_invalid_json(client):
+    # When invalid JSON is sent, it should return a 400 Bad Request response
+    # With our fix, this should now work correctly regardless of debug mode
     resp = client.post("/api/posts", data="not a json", content_type="application/json")
-    assert resp.status_code in (400, 422)
+    assert resp.status_code == 400
 
 
 def test_missing_message_field(client):

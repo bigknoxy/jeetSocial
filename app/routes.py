@@ -555,7 +555,7 @@ def _create_post_impl():
     Returns JSON response with canonical fields including `creation_timestamp`
     and `meta` for display/future indicators.
     """
-    data = request.get_json() or {}
+    data = request.get_json(silent=True) or {}
     # Support both `message` (legacy) and `content` (new tests)
     message = (data.get("message") or data.get("content") or "").strip()
     if not message:

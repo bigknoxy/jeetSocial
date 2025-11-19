@@ -61,7 +61,6 @@ def create_app(config_override=None):
         from flask_socketio import SocketIO
     except Exception:
         SocketIO = None
-    from werkzeug.exceptions import HTTPException
 
     global db, limiter, socketio
 
@@ -75,6 +74,10 @@ def create_app(config_override=None):
     )
     if config_override:
         flask_app.config.update(config_override)
+
+    # Debug: Print configuration to verify
+    print(f"Flask DEBUG: {flask_app.config.get('DEBUG')}")
+    print(f"Flask TESTING: {flask_app.config.get('TESTING')}")
 
     # Ensure a single SQLAlchemy instance is used across the package
     if db is None:
@@ -207,22 +210,27 @@ def create_app(config_override=None):
             )
         return resp
 
-    # Global error handler for unhandled exceptions (excluding HTTPExceptions)
-    @flask_app.errorhandler(Exception)
-    def handle_global_exception(e):
-        # Don't handle HTTPExceptions that have specific handlers (like 404)
-        if isinstance(e, HTTPException) and hasattr(e, "code") and e.code is not None:
-            # Let specific handlers deal with HTTP status codes
-            raise e
+    # Override the request's on_json_loading_failed to handle debug mode properly
+    from flask import Request
 
-        code = 500
-        if hasattr(current_app, "logger"):
-            current_app.logger.error(f"Unhandled exception: {e}")
-        resp = make_response(
-            jsonify({"error": "Sorry, something went wrong. Please try again later."}),
-            code,
-        )
-        return resp
+    original_on_json_loading_failed = Request.on_json_loading_failed
+
+    @staticmethod
+    def fixed_on_json_loading_failed(self, e):
+        try:
+            return original_on_json_loading_failed(self, e)
+        except Exception:
+            # Always return a proper BadRequest response, regardless of debug mode
+            from werkzeug.exceptions import BadRequest
+
+            raise BadRequest("Invalid JSON")
+
+    Request.on_json_loading_failed = fixed_on_json_loading_failed
+
+    # Handle BadRequest exceptions specifically
+    @flask_app.errorhandler(400)
+    def handle_bad_request(e):
+        return jsonify({"error": "Bad request"}), 400
 
     # If socketio is None (disabled), return only Flask app for gunicorn compatibility
     if socketio is None:
