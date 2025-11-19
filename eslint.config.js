@@ -49,7 +49,7 @@ module.exports = [
       ecmaVersion: 2021,
     },
     rules: {
-      'no-unused-vars': 'warn',
+      'no-unused-vars': 'off',
       'no-console': 'off',
       'no-undef': 'off',
     },

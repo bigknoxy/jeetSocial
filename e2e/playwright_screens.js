@@ -1,4 +1,4 @@
-const fs = require('fs');
+// const fs = require('fs'); // Unused - removed to fix ESLint warning
 const { chromium } = require('playwright');
 (async () => {
   const browser = await chromium.launch();
