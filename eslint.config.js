@@ -72,6 +72,25 @@ module.exports = [
     },
   },
   {
+    files: ['*.js'],
+    languageOptions: {
+      globals: {
+        require: 'readonly',
+        module: 'readonly',
+        exports: 'readonly',
+        console: 'readonly',
+        process: 'readonly',
+      },
+      sourceType: 'commonjs',
+      ecmaVersion: 2021,
+    },
+    rules: {
+      'no-unused-vars': 'warn',
+      'no-console': 'off',
+      'no-undef': 'off',
+    },
+  },
+  {
     ignores: [
       'venv/**', 
       'coverage/**', 
@@ -81,7 +100,6 @@ module.exports = [
       'app/static/dist/**',
       'app/static/socket.io.min.js',
       'app/static/src/**/*.ts',
-      'e2e/**/*.js',
       'test_*.js',
       'playwright.config.js',
       'debug_*.js'
