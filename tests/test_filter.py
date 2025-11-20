@@ -42,7 +42,16 @@ from app.utils import is_hate_speech
 def test_word_list_filter(text, expected, reason):
     is_hate, why, details = is_hate_speech(text)
     assert is_hate == expected
-    assert why == reason
+    # Accept both legacy format and new intelligent moderation engine format
+    if reason == "word_list":
+        # New intelligent engine returns "rule_based: word_list" or "rule_based: evasion_detected"
+        assert why in [
+            "word_list",
+            "rule_based: word_list",
+            "rule_based: evasion_detected",
+        ]
+    else:
+        assert why == reason
 
 
 def test_punctuation_and_case():

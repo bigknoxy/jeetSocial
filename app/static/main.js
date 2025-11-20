@@ -414,12 +414,43 @@ async function postMessage(e) {
     } else {
       try {
         const data = await resp.json();
-        errorDiv.textContent = data.error || `Error posting (status ${resp.status}).`;
-      } catch {
-        if (resp.status === 429) {
-          errorDiv.textContent = 'You are posting too quickly. Please wait a minute before posting again. This helps keep jeetSocial spam-free and fair for everyone.';
+        // Handle different error types with user-friendly messages
+        if (resp.status === 403 && data.error_type === 'hate_speech') {
+          // Hate speech rejection - show both error div and toast
+          const userMessage = data.user_message || data.error || 'This post couldn\'t be shared. Let\'s keep our community supportive and kind.';
+          errorDiv.textContent = userMessage;
+          showToast(userMessage, 'error', 4000);
+        } else if (resp.status === 429) {
+          // Handle different types of 429 errors
+          let userMessage;
+          if (data.error_type === 'duplicate_content') {
+            userMessage = data.user_message || data.error || 'This has already been shared recently. Each voice matters, so please wait a bit before sharing again.';
+          } else {
+            // Rate limiting
+            userMessage = data.error || 'You are posting too quickly. Please wait a minute before posting again. This helps keep jeetSocial spam-free and fair for everyone.';
+          }
+          errorDiv.textContent = userMessage;
+          showToast(userMessage, 'error', 3500);
         } else {
-          errorDiv.textContent = `Error posting (status ${resp.status}).`;
+          // Generic error handling
+          const errorMessage = data.error || `Error posting (status ${resp.status}).`;
+          errorDiv.textContent = errorMessage;
+          showToast(errorMessage, 'error', 3000);
+        }
+      } catch {
+        // Fallback for non-JSON responses
+        if (resp.status === 429) {
+          const fallbackMessage = 'You are posting too quickly. Please wait a minute before posting again. This helps keep jeetSocial spam-free and fair for everyone.';
+          errorDiv.textContent = fallbackMessage;
+          showToast(fallbackMessage, 'error', 3500);
+        } else if (resp.status === 403) {
+          const fallbackMessage = 'This post couldn\'t be shared. Let\'s keep our community supportive and kind.';
+          errorDiv.textContent = fallbackMessage;
+          showToast(fallbackMessage, 'error', 4000);
+        } else {
+          const fallbackMessage = `Error posting (status ${resp.status}).`;
+          errorDiv.textContent = fallbackMessage;
+          showToast(fallbackMessage, 'error', 3000);
         }
       }
     }

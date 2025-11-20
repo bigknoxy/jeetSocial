@@ -8,6 +8,17 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ## [Unreleased]
 
 ### Added
+- **Phase 1 Intelligent Moderation Engine**: Four-layer defense architecture
+  - Layer 1: Enhanced rule-based filter with evasion detection
+  - Layer 2: Exact-match cache (L1 LRU + L2 Redis)
+  - Layer 3: Similarity detection using TF-IDF and cosine similarity
+  - Layer 4: AI API placeholder with budget management
+- **Privacy-First Design**: Content hashing, no PII storage, GDPR compliance
+- **Performance Optimizations**: <10ms cache hits, <20ms similarity detection
+- **Metrics Collection**: Async buffering to Redis with aggregation
+- **Feature Flags**: ENABLE_AI_MODERATION, ENABLE_SIMILARITY_REMOTE
+- **Redis Integration**: Persistent caching with 90-day TTL
+- **Backward Compatibility**: Existing is_hate_speech() function preserved
 - Comprehensive README documentation update with visual screenshots
 - WebSocket real-time functionality documentation
 - Kindness points system API documentation

@@ -18,6 +18,7 @@ from app.utils import (
     format_display_timestamp,
 )
 import os
+import hashlib
 
 
 # Import WebSocket broadcast functions from websocket module
@@ -562,14 +563,49 @@ def _create_post_impl():
         return jsonify({"error": "Message required"}), 400
     if len(message) > 280:
         return jsonify({"error": "Message exceeds 280 character limit"}), 400
+    # Check for duplicate posts using Redis
+    content_hash = hashlib.sha256(message.encode("utf-8")).hexdigest()
+    try:
+        import redis
+
+        redis_client = redis.Redis(
+            host="localhost", port=6379, db=0, decode_responses=True
+        )
+        # Check if this content was posted recently (within last 5 minutes)
+        if redis_client.exists(f"post:{content_hash}"):
+            return (
+                jsonify(
+                    {
+                        "error": (
+                            "This has already been shared recently. Each voice matters, "
+                            "so please wait a bit before sharing again."
+                        ),
+                        "error_type": "duplicate_content",
+                        "user_message": (
+                            "This has already been shared recently. Each voice matters, "
+                            "so please wait a bit before sharing again."
+                        ),
+                    }
+                ),
+                429,
+            )
+    except Exception as e:
+        current_app.logger.error(f"Redis duplicate check failed: {e}")
+        # Continue with post creation if Redis is unavailable
     is_hate, reason, details = is_hate_speech(message)
     if is_hate:
         return (
             jsonify(
                 {
                     "error": (
-                        f"Hateful content not allowed (detected by {reason}: {details})"
-                    )
+                        "This post couldn't be shared. Let's keep our community "
+                        "supportive and kind."
+                    ),
+                    "error_type": "hate_speech",
+                    "user_message": (
+                        "This post couldn't be shared. Let's keep our community "
+                        "supportive and kind."
+                    ),
                 }
             ),
             403,
@@ -610,6 +646,15 @@ def _create_post_impl():
         future_flag = bool(post.timestamp and post.timestamp > now)
     except Exception:
         future_flag = False
+
+    # Store content hash in Redis to prevent duplicates (5 minute expiry)
+    try:
+        redis_client = redis.Redis(
+            host="localhost", port=6379, db=0, decode_responses=True
+        )
+        redis_client.setex(f"post:{content_hash}", 300, "1")  # 5 minutes
+    except Exception as e:
+        current_app.logger.error(f"Failed to store duplicate check: {e}")
 
     # Broadcast new post to WebSocket clients
     try:

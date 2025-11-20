@@ -19,6 +19,7 @@ import hashlib
 import time
 from secrets import token_urlsafe
 from datetime import datetime, timezone
+from typing import Optional
 
 try:
     import pytz
@@ -330,13 +331,25 @@ def normalize_text(text):
     return text
 
 
-def is_hate_speech(text):
-    """Checks if text contains hateful words or phrases.
+# Global engine instance for reuse
+_intelligent_engine = None
 
-    Returns: (is_hate, reason, details)
+
+def _legacy_hate_speech_check(text):
     """
+    Legacy hate speech detection without intelligent moderation engine.
+    This function exists to avoid circular dependencies.
+    """
+    # Enhanced legacy implementation with evasion detection
     normalized = normalize_text(text)
     normalized = normalized.lower()
+
+    # Check for evasion attempts first
+    evasion_detected = _detect_evasion_attempts_legacy(text)
+    if evasion_detected:
+        logging.info("Post rejected by evasion detection: '%s'", str(evasion_detected))
+        return True, "evasion_detected", evasion_detected
+
     # Check multi-word phrases first
     for phrase in HATEFUL_WORDS:
         if " " in phrase:
@@ -349,6 +362,182 @@ def is_hate_speech(text):
         logging.info("Post rejected by word list: '%s'", match.group(0))
         return True, "word_list", match.group(0)
     return False, None, None
+
+
+def is_hate_speech(text):
+    """Checks if text contains hateful words or phrases.
+
+    Returns: (is_hate, reason, details)
+
+    Enhanced with Intelligent Moderation Engine (Phase 1) while maintaining
+    backward compatibility with existing interface.
+    """
+    global _intelligent_engine
+
+    # Try to use the new intelligent moderation engine
+    try:
+        # Import here to avoid circular imports
+        from .moderation import IntelligentModerationEngine
+        import asyncio
+        import threading
+        import time
+
+        # Create engine instance (lazy initialization)
+        if _intelligent_engine is None:
+            _intelligent_engine = IntelligentModerationEngine()
+
+        # Ensure engine was created successfully
+        if _intelligent_engine is not None:
+            # Create a simple sync wrapper that runs async in a new thread
+            def run_moderation_sync():
+                """Synchronous wrapper for async moderation"""
+                # Create a new event loop in this thread
+                loop = asyncio.new_event_loop()
+                asyncio.set_event_loop(loop)
+                try:
+                    return loop.run_until_complete(
+                        _intelligent_engine.moderate_content(text)
+                    )
+                finally:
+                    loop.close()
+                    # Clean up any pending tasks
+                    pending = asyncio.all_tasks(loop)
+                    if pending:
+                        for task in pending:
+                            task.cancel()
+                        loop.run_until_complete(
+                            asyncio.gather(*pending, return_exceptions=True)
+                        )
+
+            # Run in a separate thread to avoid any event loop conflicts
+            result_container = {}
+            exception_container = {}
+
+            def target():
+                try:
+                    result_container["result"] = run_moderation_sync()
+                except Exception as e:
+                    exception_container["exception"] = e
+
+            # Start a thread
+            thread = threading.Thread(target=target)
+            thread.start()
+            thread.join(timeout=3)  # 3 second timeout
+
+            # Check for exceptions or timeout
+            if exception_container:
+                raise exception_container["exception"]
+            elif thread.is_alive():
+                # Thread timed out
+                raise TimeoutError("Intelligent moderation engine timed out")
+            elif "result" in result_container:
+                result = result_container["result"]
+
+                # Convert new format to legacy format for backward compatibility
+                if result.is_hate:
+                    return (
+                        True,
+                        result.reason or "intelligent_moderation",
+                        result.metadata,
+                    )
+                else:
+                    return False, None, None
+
+    except ImportError:
+        # Fallback to legacy implementation if dependencies not available
+        pass
+    except Exception as e:
+        # Log error and fallback to legacy implementation
+        logging.warning(f"Intelligent moderation engine failed, falling back: {e}")
+        pass
+    except Exception as e:
+        # Log error and fallback to legacy implementation
+        logging.warning(f"Intelligent moderation engine failed, falling back: {e}")
+        pass
+
+    # Enhanced legacy implementation with evasion detection
+    normalized = normalize_text(text)
+    normalized = normalized.lower()
+
+    # Check for evasion attempts first
+    evasion_detected = _detect_evasion_attempts_legacy(text)
+    if evasion_detected:
+        logging.info("Post rejected by evasion detection: '%s'", str(evasion_detected))
+        return True, "evasion_detected", evasion_detected
+
+    # Check multi-word phrases first
+    for phrase in HATEFUL_WORDS:
+        if " " in phrase:
+            pattern = r"(?<!\w)" + re.escape(phrase.lower()) + r"(?!\w)"
+            if re.search(pattern, normalized):
+                logging.info("Post rejected by word list: '%s'", phrase)
+                return True, "word_list", phrase
+    match = HATEFUL_REGEX.search(normalized)
+    if match:
+        logging.info("Post rejected by word list: '%s'", match.group(0))
+        return True, "word_list", match.group(0)
+    return False, None, None
+
+
+def _detect_evasion_attempts_legacy(content: str):
+    """
+    Detect common evasion attempts (legacy fallback version)
+
+    Args:
+        content: Content to analyze
+
+    Returns:
+        Evasion type if detected, None otherwise
+    """
+    content_lower = content.lower()
+
+    # Check for spaced-out words (h a t e) - more flexible pattern
+    # Look for sequences of single letters separated by spaces
+    spaced_pattern = r"\b(?:[a-z]\s+){3,}[a-z]\b"
+    if re.search(spaced_pattern, content_lower):
+        # Extract spaced letters and check if they form hateful words
+        words = content_lower.split()
+        for i in range(len(words) - 3):
+            # Check sequences of 4+ single-character words
+            sequence = words[i : i + 4]
+            if all(len(word) == 1 for word in sequence):
+                combined = "".join(sequence)
+                if combined in ["hate", "stupid", "idiot", "moron"]:
+                    return "spaced_letters"
+
+    # Check for punctuation-separated letters (h.a.t.e) - improved pattern
+    # Look for words with punctuation between letters
+    punct_pattern = r"\b\w+(?:[.\-_]\w+){3,}\b"
+    if re.search(punct_pattern, content_lower):
+        # Remove punctuation and check
+        cleaned = re.sub(r"[.\-_]", "", content_lower)
+        words = cleaned.split()
+        for word in words:
+            if word in ["hate", "stupid", "idiot", "moron"]:
+                return "punctuation_separation"
+
+    # Check for excessive repetition (haaaatte) - improved pattern
+    if re.search(r"(.)\1{2,}", content_lower):
+        # Normalize repeated letters and check
+        normalized_repeated = re.sub(r"(.)\1+", r"\1", content_lower)
+        words = normalized_repeated.split()
+        for word in words:
+            if word in ["hate", "stupid", "idiot", "moron"]:
+                return "excessive_repetition"
+
+    # Check for leet speak patterns
+    leet_patterns = {
+        r"h[4@]t[3e]": "hate",
+        r"s[t7][u@]p[1i][d]": "stupid",
+        r"[1i][d@][1i][o0][t7]": "idiot",
+        r"m[0o][r@][o0]n": "moron",
+    }
+
+    for pattern, word in leet_patterns.items():
+        if re.search(pattern, content_lower):
+            return f"leet_speak_{word}"
+
+    return None
 
 
 def normalize_text_for_filter(text):
@@ -366,7 +555,10 @@ def generate_kindness_token(post_id):
 
 def verify_kindness_token(token_string):
     try:
-        sig, expiry_s, nonce, post_id = token_string.split("|")
+        parts = token_string.split("|")
+        if len(parts) != 4:
+            return False
+        sig, expiry_s, nonce, post_id = parts
     except Exception:
         return False
     try:
@@ -395,9 +587,7 @@ def is_kind(message):
     return False
 
 
-def format_display_timestamp(
-    creation_timestamp: str, viewer_tz: str = None, now: datetime | None = None
-):
+def format_display_timestamp(creation_timestamp: str, viewer_tz: str = None, now=None):
     """Return display info for a canonical UTC creation_timestamp.
 
     Returns dict: local_iso, local_formatted, relative_label, is_future,
