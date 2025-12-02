@@ -1,0 +1,185 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="description" content="jeetSocial Admin Portal - Secure Login">
+    <title>Admin Login - jeetSocial</title>
+    
+    <!-- Security Headers -->
+    <meta http-equiv="X-Content-Type-Options" content="nosniff">
+    <meta http-equiv="X-Frame-Options" content="DENY">
+    <meta http-equiv="X-XSS-Protection" content="1; mode=block">
+    <meta http-equiv="Referrer-Policy" content="strict-origin-when-cross-origin">
+    
+    <!-- CSS -->
+    <link rel="stylesheet" href="/static/admin/css/admin.css?v=2.0.1">
+    
+    <!-- Critical CSS Fallback for Loading Overlay -->
+    <style>
+    /* Immediate fix for loading overlay - works even if CSS fails to load */
+    [hidden] { display: none !important; }
+    .loading-overlay[hidden] { display: none !important; visibility: hidden !important; opacity: 0 !important; }
+    .loading-overlay { position: fixed; top: 0; left: 0; right: 0; bottom: 0; background: rgba(0,0,0,0.5); display: flex; align-items: center; justify-content: center; z-index: 9999; }
+    .loading-overlay:not([hidden]) { display: flex !important; }
+    </style>
+    
+    <!-- Favicon -->
+    <link rel="icon" type="image/x-icon" href="/static/favicon.ico">
+</head>
+<body class="admin-login">
+    <div class="login-container">
+        <header class="login-header">
+            <h1 class="login-title">
+                <span class="logo">jeet</span>Social Admin
+            </h1>
+            <p class="login-subtitle">Secure Admin Portal</p>
+        </header>
+
+        <main class="login-main">
+            <form id="loginForm" class="login-form" novalidate>
+                <div class="form-group">
+                    <label for="adminId" class="form-label">
+                        Admin ID
+                        <span class="required" aria-label="required">*</span>
+                    </label>
+                    <input 
+                        type="text" 
+                        id="adminId" 
+                        name="admin_id" 
+                        class="form-input" 
+                        required 
+                        aria-required="true"
+                        aria-describedby="adminIdHelp"
+                        autocomplete="username"
+                        autocorrect="off"
+                        autocapitalize="off"
+                        spellcheck="false"
+                        pattern="[a-zA-Z0-9_-]+"
+                        title="Admin ID must contain only letters, numbers, underscores, and hyphens"
+                    >
+                    <div id="adminIdHelp" class="form-help">
+                        Enter your admin identifier
+                    </div>
+                </div>
+
+                <div class="form-group">
+                    <label for="password" class="form-label">
+                        Password
+                        <span class="required" aria-label="required">*</span>
+                    </label>
+                    <input 
+                        type="password" 
+                        id="password" 
+                        name="password" 
+                        class="form-input" 
+                        required 
+                        aria-required="true"
+                        aria-describedby="passwordHelp"
+                        autocomplete="current-password"
+                        minlength="8"
+                        title="Password must be at least 8 characters"
+                    >
+                    <div id="passwordHelp" class="form-help">
+                        Enter your admin password
+                    </div>
+                </div>
+
+                <div class="form-group">
+                    <label for="mfaCode" class="form-label">
+                        MFA Code
+                        <span class="required" aria-label="required">*</span>
+                    </label>
+                    <input 
+                        type="text" 
+                        id="mfaCode" 
+                        name="mfa_code" 
+                        class="form-input" 
+                        required 
+                        aria-required="true"
+                        aria-describedby="mfaCodeHelp"
+                        autocomplete="one-time-code"
+                        pattern="[0-9]{6}"
+                        maxlength="6"
+                        title="Enter 6-digit authentication code"
+                        inputmode="numeric"
+                    >
+                    <div id="mfaCodeHelp" class="form-help">
+                        Enter your 6-digit authenticator code
+                    </div>
+                </div>
+
+                <div class="form-actions">
+                    <button type="submit" class="btn btn-primary" id="loginBtn">
+                        <span class="btn-text">Sign In</span>
+                        <span class="btn-loading" aria-hidden="true">Signing In...</span>
+                        <span class="btn-success" aria-hidden="true">Success!</span>
+                    </button>
+                </div>
+            </form>
+
+            <!-- Error Display -->
+            <div id="errorContainer" class="error-container" role="alert" aria-live="polite" aria-atomic="true" hidden>
+                <div class="error-icon" aria-hidden="true">⚠️</div>
+                <div class="error-message" id="errorMessage"></div>
+                <button type="button" class="error-close" id="errorClose" aria-label="Dismiss error">
+                    <span aria-hidden="true">×</span>
+                </button>
+            </div>
+
+            <!-- Success Display -->
+            <div id="successContainer" class="success-container" role="status" aria-live="polite" aria-atomic="true" hidden>
+                <div class="success-icon" aria-hidden="true">✅</div>
+                <div class="success-message" id="successMessage"></div>
+            </div>
+        </main>
+
+        <footer class="login-footer">
+            <p class="footer-text">
+                <a href="/" class="footer-link">← Back to jeetSocial</a>
+            </p>
+            <p class="footer-text">
+                Protected by MFA • End-to-end encrypted
+            </p>
+        </footer>
+    </div>
+
+    <!-- Loading Overlay -->
+    <div id="loadingOverlay" class="loading-overlay" hidden>
+        <div class="loading-spinner" aria-hidden="true"></div>
+        <div class="loading-text">Authenticating...</div>
+    </div>
+
+    <!-- JavaScript -->
+    <script src="/static/admin/js/auth.js" defer></script>
+    
+    <!-- Security Scripts -->
+    <script>
+        // Content Security Policy helper
+        if (!window.CSP) {
+            window.CSP = {};
+        }
+        
+        // Prevent console access in production
+        if (window.location.hostname !== 'localhost' && window.location.hostname !== '127.0.0.1') {
+            console.log = function() {};
+            console.error = function() {};
+            console.warn = function() {};
+        }
+        
+        // CSRF token placeholder (will be populated by auth.js)
+        window.csrfToken = null;
+        
+        // Security: Clear sensitive data on page unload
+        window.addEventListener('beforeunload', function() {
+            document.getElementById('password').value = '';
+            document.getElementById('mfaCode').value = '';
+        });
+        
+        // Security: Prevent form resubmission
+        if (window.history.replaceState) {
+            window.history.replaceState(null, null, window.location.href);
+        }
+    </script>
+</body>
+</html>
