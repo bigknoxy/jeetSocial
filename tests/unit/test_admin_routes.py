@@ -3,7 +3,6 @@ Unit tests for admin routes following TDD approach.
 Tests are written to fail first, then implementation will make them pass.
 """
 
-import pytest
 import json
 import os
 from unittest.mock import patch
@@ -123,7 +122,10 @@ class TestAdminRoutes:
                     return_value={"sub": "admin-1", "typ": "access"},
                 ):
                     with patch(
-                        "app.admin.moderation_service.ModerationService.get_moderation_queue",
+                        (
+                            "app.admin.moderation_service.ModerationService."
+                            "get_moderation_queue"
+                        ),
                         return_value=[{"id": 1, "status": "pending"}],
                     ):
                         response = client.get("/admin/reports/queue")

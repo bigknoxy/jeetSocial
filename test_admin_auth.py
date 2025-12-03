@@ -6,7 +6,6 @@ This script tests the authentication flow end-to-end.
 
 import os
 import sys
-import json
 import requests
 from datetime import datetime
 
@@ -45,7 +44,8 @@ def test_authentication_flow():
             print(f"   ✅ CSRF token obtained: {csrf_token[:8]}...")
             if csrf_token != csrf_cookie:
                 print(
-                    f"   ⚠️  CSRF token mismatch: header={csrf_token[:8]}..., cookie={csrf_cookie[:8]}..."
+                    f"   ⚠️  CSRF token mismatch: header={csrf_token[:8]}..., "
+                    f"cookie={csrf_cookie[:8]}..."
                 )
         else:
             print(f"   ❌ Failed to get CSRF token: {csrf_response.status_code}")
@@ -68,7 +68,8 @@ def test_authentication_flow():
             print("   ✅ Wrong credentials correctly rejected")
         else:
             print(
-                f"   ❌ Wrong credentials should return 401, got {wrong_response.status_code}"
+                f"   ❌ Wrong credentials should return 401, got "
+                f"{wrong_response.status_code}"
             )
     except requests.exceptions.ConnectionError:
         print("   ❌ Cannot connect to server")
@@ -92,7 +93,7 @@ def test_authentication_flow():
         if login_response.status_code == 200:
             login_data = login_response.json()
             print("   ✅ Login successful!")
-            print(f"   📝 Received tokens: access_token, refresh_token, csrf_token")
+            print("   📝 Received tokens: access_token, refresh_token, csrf_token")
 
             # Extract cookies for next requests
             login_cookies = login_response.cookies
@@ -100,7 +101,7 @@ def test_authentication_flow():
             refresh_token = login_cookies.get("refresh_token")
 
             if access_token and refresh_token:
-                print(f"   🍪 Authentication cookies set successfully")
+                print("   🍪 Authentication cookies set successfully")
             else:
                 print("   ❌ Authentication cookies not set properly")
                 return False
@@ -110,7 +111,7 @@ def test_authentication_flow():
             try:
                 error_data = login_response.json()
                 print(f"   📝 Error: {error_data.get('error', 'Unknown error')}")
-            except:
+            except Exception:
                 print(f"   📝 Response: {login_response.text}")
             return False
     except requests.exceptions.ConnectionError:
@@ -193,7 +194,11 @@ def check_environment():
     for var, expected in required_vars.items():
         actual = os.environ.get(var)
         if actual == expected:
-            print(f"   ✅ {var} = {'*' * len(actual) if 'PASSWORD' in var else actual}")
+            if actual and "PASSWORD" in var:
+                masked = "*" * len(actual)
+            else:
+                masked = actual
+            print(f"   ✅ {var} = {masked}")
         elif actual:
             print(
                 f"   ⚠️  {var} = {'*' * len(actual) if 'PASSWORD' in var else actual} (expected: {expected})"

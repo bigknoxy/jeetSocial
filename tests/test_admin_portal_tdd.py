@@ -1,11 +1,10 @@
 """
 Failing tests for admin portal functionality (TDD approach).
 
-These tests initially fail and drive the implementation of missing admin portal features.
-Following Constitution v2.1.2 TDD requirements.
+These tests initially fail and drive the implementation of missing admin portal
+features. Following Constitution v2.1.2 TDD requirements.
 """
 
-import pytest
 import json
 from unittest.mock import patch, MagicMock
 
@@ -147,7 +146,7 @@ class TestAdminPortalSecurity:
     def test_csrf_protection_enabled(self, client):
         """Test that CSRF protection is enabled for admin routes."""
         # POST requests without CSRF token should be rejected
-        response = client.post(
+        client.post(
             "/admin/login",
             json={"admin_id": "test", "password": "test", "mfa_code": "123456"},
         )
@@ -224,5 +223,5 @@ class TestAdminPortalIntegration:
         """Test that admin portal is disabled when ENABLE_ADMIN_PORTAL=0."""
         with patch.dict("os.environ", {"ENABLE_ADMIN_PORTAL": "0"}):
             # Admin blueprint should not be registered
-            blueprint_names = [bp.name for bp in app.blueprints.values()]
             # This behavior depends on implementation approach
+            [bp.name for bp in app.blueprints.values()]

@@ -92,7 +92,8 @@ def main():
                         # Check if alembic version table exists
                         if "alembic_version" in table_names:
                             logger.info(
-                                "Alembic version table exists - checking current revision"
+                                "Alembic version table exists - checking current "
+                                "revision"
                             )
                             try:
                                 current_rev = current()
@@ -109,7 +110,8 @@ def main():
 
                         # Tables exist but no proper alembic tracking - stamp it
                         logger.info(
-                            "Stamping database as current (tables exist but no migration tracking)"
+                            "Stamping database as current (tables exist but no "
+                            "migration tracking)"
                         )
                         try:
                             stamp()
@@ -155,7 +157,8 @@ def main():
 
                                 conn.execute(text("SELECT 1"))
                             logger.info(
-                                "✅ Database is accessible and appears to be in working state"
+                                "✅ Database is accessible and appears to be in "
+                                "working state"
                             )
                             return 0
                         except Exception as test_error:

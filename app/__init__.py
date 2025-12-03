@@ -18,9 +18,6 @@ except Exception:
 if load_dotenv is not None:
     load_dotenv()
 
-# Import SQLAlchemy event for SQLite configuration
-from sqlalchemy import event
-from sqlalchemy.engine import Engine
 
 # Create a shared SQLAlchemy instance if the library is available at import time.
 # This ensures `from app import db` returns a usable SQLAlchemy object for models
@@ -93,9 +90,9 @@ def create_app(config_override=None):
     # Configure SQLite engine options if using SQLite
     if flask_app.config["SQLALCHEMY_DATABASE_URI"].startswith("sqlite"):
         from sqlalchemy import event
-        from sqlalchemy.engine import Engine
+        from sqlalchemy.engine import Engine as _Engine
 
-        @event.listens_for(Engine, "connect")
+        @event.listens_for(_Engine, "connect")
         def set_sqlite_pragma(dbapi_connection, connection_record):
             cursor = dbapi_connection.cursor()
             cursor.execute("PRAGMA foreign_keys=ON")

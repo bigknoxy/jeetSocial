@@ -424,7 +424,7 @@ def get_posts():
 
         latency = time.time() - start_time
         current_app.logger.info(
-            f"GET /api/posts view={view} count={len(posts)} " f"latency={latency:.3f}s"
+            f"GET /api/posts view={view} count={len(posts)} latency={latency:.3f}s"
         )
     except Exception as e:
         latency = time.time() - start_time
@@ -577,13 +577,13 @@ def _create_post_impl():
                 jsonify(
                     {
                         "error": (
-                            "This has already been shared recently. Each voice matters, "
-                            "so please wait a bit before sharing again."
+                            "This has already been shared recently. Each voice "
+                            "matters, so please wait a bit before sharing again."
                         ),
                         "error_type": "duplicate_content",
                         "user_message": (
-                            "This has already been shared recently. Each voice matters, "
-                            "so please wait a bit before sharing again."
+                            "This has already been shared recently. Each voice "
+                            "matters, so please wait a bit before sharing again."
                         ),
                     }
                 ),

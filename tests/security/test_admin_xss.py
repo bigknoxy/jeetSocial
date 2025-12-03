@@ -3,7 +3,6 @@ Security tests for XSS vulnerabilities in admin portal.
 Tests attempt to exploit XSS vectors and verify they are properly blocked.
 """
 
-import pytest
 import os
 import html
 import re
@@ -124,7 +123,7 @@ class TestSecurityInputValidation:
                 "onblur",
             ]
             for handler in event_handlers:
-                pattern = f"{handler}\s*="
+                pattern = f"{handler}\\s*="
                 input_text = re.sub(pattern, "", input_text, re.IGNORECASE)
 
             # Escape HTML special characters
@@ -165,7 +164,7 @@ class TestSecurityInputValidation:
                     mock_response.return_value.headers = {}
 
                     # Simulate admin endpoint response
-                    response = client.get("/admin/login")
+                    client.get("/admin/login")
 
                     # In a real implementation, CSP headers should be present
                     # For now, test that we can set them
@@ -282,7 +281,7 @@ class TestSecurityInputValidation:
                 db.create_all()
 
                 # Test session cookie security attributes
-                response = client.post(
+                client.post(
                     "/admin/login",
                     json={"admin_id": "test", "password": "test", "mfa_code": "123456"},
                 )

@@ -3,9 +3,6 @@ Vector Store for Similarity Detection (Layer 3)
 TF-IDF vectorization and cosine similarity for hate speech detection
 """
 
-import os
-import re
-import hashlib
 from typing import List, Dict, Tuple, Optional
 import numpy as np
 

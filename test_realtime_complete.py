@@ -5,7 +5,6 @@ Tests multiple clients and real-time post broadcasting.
 """
 
 import time
-import threading
 import requests
 import socketio
 
@@ -42,7 +41,8 @@ class WebSocketClient:
         @self.sio.on("new_post")
         def on_new_post(data):
             print(
-                f"📝 Client {self.client_id} received new post: {data['id']} - {data['content'][:30]}..."
+                f"📝 Client {self.client_id} received new post: "
+                f"{data['id']} - {data['content'][:30]}..."
             )
             self.received_posts.append(data)
 
@@ -61,7 +61,7 @@ class WebSocketClient:
     def disconnect(self):
         try:
             self.sio.disconnect()
-        except:
+        except Exception:
             pass
 
 
