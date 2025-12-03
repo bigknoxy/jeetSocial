@@ -3,6 +3,7 @@ description: specialist developer agent for the jeetSocial project
 mode: subagent
 temperature: 0.1
 model: opencode/big-pickle
+# model: github-copilot/gpt-5
 tools:
   read: true
   edit: true

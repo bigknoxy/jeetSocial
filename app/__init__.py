@@ -18,6 +18,10 @@ except Exception:
 if load_dotenv is not None:
     load_dotenv()
 
+# Import SQLAlchemy event for SQLite configuration
+from sqlalchemy import event
+from sqlalchemy.engine import Engine
+
 # Create a shared SQLAlchemy instance if the library is available at import time.
 # This ensures `from app import db` returns a usable SQLAlchemy object for models
 # and tests. If Flask-SQLAlchemy is not installed in the environment, `db` will
@@ -64,9 +68,11 @@ def create_app(config_override=None):
 
     global db, limiter, socketio
 
-    flask_app = Flask(__name__)
+    flask_app = Flask(__name__, static_folder="static")
     # Apply base config from environment, then override with provided dict
-    flask_app.config["SQLALCHEMY_DATABASE_URI"] = os.getenv("DATABASE_URL")
+    flask_app.config["SQLALCHEMY_DATABASE_URI"] = os.getenv(
+        "DATABASE_URL_OVERRIDE"
+    ) or os.getenv("DATABASE_URL")
     flask_app.config["SQLALCHEMY_TRACK_MODIFICATIONS"] = False
     flask_app.config["SECRET_KEY"] = os.getenv("SECRET_KEY", "default-secret-key")
     flask_app.config["ENABLE_RATE_LIMITING"] = (
@@ -83,6 +89,18 @@ def create_app(config_override=None):
     if db is None:
         db = SQLAlchemy()
     db.init_app(flask_app)
+
+    # Configure SQLite engine options if using SQLite
+    if flask_app.config["SQLALCHEMY_DATABASE_URI"].startswith("sqlite"):
+        from sqlalchemy import event
+        from sqlalchemy.engine import Engine
+
+        @event.listens_for(Engine, "connect")
+        def set_sqlite_pragma(dbapi_connection, connection_record):
+            cursor = dbapi_connection.cursor()
+            cursor.execute("PRAGMA foreign_keys=ON")
+            cursor.close()
+
     if Migrate is not None:
         Migrate(flask_app, db)
 
@@ -134,10 +152,26 @@ def create_app(config_override=None):
         print("SocketIO not available")
 
     # Register routes after extensions are initialized so route modules can
-    # safely import models and the `db` instance.
+    # safely import models and `db` instance.
     from app.routes import bp as routes_bp
 
     flask_app.register_blueprint(routes_bp)
+
+    # Register admin blueprint if admin portal is enabled
+    admin_enabled = os.environ.get("ENABLE_ADMIN_PORTAL", "0") == "1"
+    print(f"Admin portal enabled: {admin_enabled}")
+    if admin_enabled:
+        try:
+            from app.admin.routes import admin_bp
+
+            print("Admin blueprint imported successfully")
+            flask_app.register_blueprint(admin_bp)
+            print("Admin portal blueprint registered")
+        except Exception as e:
+            print(f"Failed to register admin blueprint: {e}")
+            import traceback
+
+            traceback.print_exc()
 
     # Import websocket module to register event handlers
     if socketio is not None:

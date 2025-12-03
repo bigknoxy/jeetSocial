@@ -1,5 +1,6 @@
 {
   "devDependencies": {
+    "@axe-core/playwright": "^4.11.0",
     "@playwright/test": "^1.54.2",
     "@types/jest": "^30.0.0",
     "@types/node": "^24.9.2",

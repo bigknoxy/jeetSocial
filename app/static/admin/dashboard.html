@@ -1,0 +1,336 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Admin Dashboard - jeetSocial</title>
+    <link rel="stylesheet" href="/static/dist/css/admin-portal.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    <style>
+        .dashboard-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 1.5rem;
+            margin-bottom: 2rem;
+        }
+        
+        .metric-card {
+            background: white;
+            border-radius: 8px;
+            padding: 1.5rem;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+            border-left: 4px solid #007bff;
+        }
+        
+        .metric-card h3 {
+            margin: 0 0 0.5rem 0;
+            color: #333;
+            font-size: 0.9rem;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+        
+        .metric-value {
+            font-size: 2rem;
+            font-weight: bold;
+            color: #007bff;
+            margin-bottom: 0.5rem;
+        }
+        
+        .metric-change {
+            font-size: 0.85rem;
+            color: #666;
+        }
+        
+        .metric-change.positive {
+            color: #28a745;
+        }
+        
+        .metric-change.negative {
+            color: #dc3545;
+        }
+        
+        .chart-container {
+            background: white;
+            border-radius: 8px;
+            padding: 1.5rem;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+            margin-bottom: 2rem;
+        }
+        
+        .chart-placeholder {
+            height: 300px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            background: #f8f9fa;
+            border-radius: 4px;
+            color: #666;
+            font-style: italic;
+        }
+        
+        .recent-activity {
+            background: white;
+            border-radius: 8px;
+            padding: 1.5rem;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+        }
+        
+        .activity-item {
+            padding: 1rem 0;
+            border-bottom: 1px solid #eee;
+        }
+        
+        .activity-item:last-child {
+            border-bottom: none;
+        }
+        
+        .activity-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 0.5rem;
+        }
+        
+        .activity-type {
+            font-weight: bold;
+            color: #333;
+        }
+        
+        .activity-time {
+            font-size: 0.85rem;
+            color: #666;
+        }
+        
+        .activity-details {
+            color: #666;
+            font-size: 0.9rem;
+        }
+        
+        .quick-actions {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 1rem;
+            margin-bottom: 2rem;
+        }
+        
+        .action-button {
+            background: white;
+            border: 2px solid #007bff;
+            color: #007bff;
+            padding: 1rem;
+            border-radius: 8px;
+            text-align: center;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            text-decoration: none;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 0.5rem;
+        }
+        
+        .action-button:hover {
+            background: #007bff;
+            color: white;
+            transform: translateY(-2px);
+            box-shadow: 0 4px 8px rgba(0,123,255,0.3);
+        }
+        
+        .action-button i {
+            font-size: 1.5rem;
+        }
+        
+        .status-indicator {
+            display: inline-block;
+            width: 8px;
+            height: 8px;
+            border-radius: 50%;
+            margin-right: 0.5rem;
+        }
+        
+        .status-indicator.online {
+            background: #28a745;
+        }
+        
+        .status-indicator.offline {
+            background: #dc3545;
+        }
+        
+        .loading-spinner {
+            border: 2px solid #f3f3f3;
+            border-top: 2px solid #007bff;
+            border-radius: 50%;
+            width: 20px;
+            height: 20px;
+            animation: spin 1s linear infinite;
+            display: inline-block;
+            margin-left: 0.5rem;
+        }
+        
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+        
+        .alert {
+            padding: 1rem;
+            border-radius: 4px;
+            margin-bottom: 1rem;
+        }
+        
+        .alert-success {
+            background: #d4edda;
+            color: #155724;
+            border: 1px solid #c3e6cb;
+        }
+        
+        .alert-warning {
+            background: #fff3cd;
+            color: #856404;
+            border: 1px solid #ffeaa7;
+        }
+        
+        .alert-error {
+            background: #f8d7da;
+            color: #721c24;
+            border: 1px solid #f5c6cb;
+        }
+    </style>
+</head>
+<body>
+    <div class="admin-container">
+        <!-- Header -->
+        <header class="admin-header">
+            <div class="header-content">
+                <div class="logo">
+                    <h1><i class="fas fa-shield-alt"></i> Admin Portal</h1>
+                </div>
+                <nav class="admin-nav">
+                    <a href="/admin/dashboard.html" class="nav-link active">
+                        <i class="fas fa-tachometer-alt"></i> Dashboard
+                    </a>
+                    <a href="/admin/reports.html" class="nav-link">
+                        <i class="fas fa-flag"></i> Reports
+                        <span id="pending-reports-badge" class="badge" style="display: none;">0</span>
+                    </a>
+                    <a href="/admin/audit-log.html" class="nav-link">
+                        <i class="fas fa-history"></i> Audit Log
+                    </a>
+                </nav>
+                <div class="user-menu">
+                    <span class="status-indicator online" id="connection-status"></span>
+                    <span id="admin-username">Admin</span>
+                    <button id="logout-btn" class="btn btn-secondary btn-sm">
+                        <i class="fas fa-sign-out-alt"></i> Logout
+                    </button>
+                </div>
+            </div>
+        </header>
+
+        <!-- Main Content -->
+        <main class="admin-main">
+            <div class="main-content">
+                <!-- Page Header -->
+                <div class="page-header">
+                    <h2>Dashboard</h2>
+                    <p>Admin overview and system metrics</p>
+                </div>
+
+                <!-- Alerts -->
+                <div id="alerts-container"></div>
+
+                <!-- Quick Actions -->
+                <div class="quick-actions">
+                    <a href="/admin/reports.html" class="action-button">
+                        <i class="fas fa-flag"></i>
+                        <span>Review Reports</span>
+                        <small id="pending-reports-count">0 pending</small>
+                    </a>
+                    <a href="/admin/reports.html?filter=resolved" class="action-button">
+                        <i class="fas fa-check-circle"></i>
+                        <span>Resolved Today</span>
+                        <small id="resolved-today-count">0</small>
+                    </a>
+                    <a href="/admin/audit-log.html" class="action-button">
+                        <i class="fas fa-history"></i>
+                        <span>View Audit Log</span>
+                        <small>Recent activity</small>
+                    </a>
+                    <button class="action-button" id="refresh-metrics">
+                        <i class="fas fa-sync-alt"></i>
+                        <span>Refresh Data</span>
+                        <small>Update metrics</small>
+                    </button>
+                </div>
+
+                <!-- Metrics Grid -->
+                <div class="dashboard-grid">
+                    <div class="metric-card">
+                        <h3>Total Reports</h3>
+                        <div class="metric-value" id="total-reports">-</div>
+                        <div class="metric-change" id="reports-change">Loading...</div>
+                    </div>
+                    <div class="metric-card">
+                        <h3>Pending Review</h3>
+                        <div class="metric-value" id="pending-reports">-</div>
+                        <div class="metric-change" id="pending-change">Loading...</div>
+                    </div>
+                    <div class="metric-card">
+                        <h3>Resolved Today</h3>
+                        <div class="metric-value" id="resolved-today">-</div>
+                        <div class="metric-change" id="resolved-change">Loading...</div>
+                    </div>
+                    <div class="metric-card">
+                        <h3>Active Moderators</h3>
+                        <div class="metric-value" id="active-moderators">-</div>
+                        <div class="metric-change" id="moderators-change">Loading...</div>
+                    </div>
+                </div>
+
+                <!-- Charts Section -->
+                <div class="chart-container">
+                    <h3>Reports Trend (Last 7 Days)</h3>
+                    <div class="chart-placeholder" id="reports-chart">
+                        <i class="fas fa-chart-line"></i> Chart loading...
+                    </div>
+                </div>
+
+                <div class="dashboard-grid">
+                    <div class="chart-container">
+                        <h3>Report Categories</h3>
+                        <div class="chart-placeholder" id="categories-chart">
+                            <i class="fas fa-chart-pie"></i> Chart loading...
+                        </div>
+                    </div>
+                    <div class="chart-container">
+                        <h3>Moderation Actions</h3>
+                        <div class="chart-placeholder" id="actions-chart">
+                            <i class="fas fa-chart-bar"></i> Chart loading...
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Recent Activity -->
+                <div class="recent-activity">
+                    <h3>Recent Activity</h3>
+                    <div id="activity-list">
+                        <div class="activity-item">
+                            <div class="activity-header">
+                                <span class="activity-type">System</span>
+                                <span class="activity-time">Loading...</span>
+                            </div>
+                            <div class="activity-details">Loading recent activity...</div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </main>
+    </div>
+
+    <!-- Scripts -->
+    <script src="/static/dist/js/auth-client.js"></script>
+    <script src="/static/dist/js/websocket-client.js"></script>
+    <script src="/static/dist/js/dashboard.js"></script>
+</body>
+</html>

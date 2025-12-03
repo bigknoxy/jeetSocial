@@ -10,7 +10,7 @@ test.describe('HuggingFace Moderation', () => {
     // Test hate speech post (word-list filter)
     await page.fill('textarea[name="message"]', 'I hate [group], they should all disappear.');
     await page.click('button[type="submit"]');
-    await expect(page.locator('#error')).toHaveText(/Hateful content not allowed/i);
+    await expect(page.locator('#error')).toHaveText(/This post couldn't be shared/i);
     await page.screenshot({ path: 'hate_speech_blocked.png' });
 
     // Test positive post

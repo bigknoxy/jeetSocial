@@ -6,7 +6,8 @@ services:
   web:
     build: .
     command: python3 run_socketio.py
-    network_mode: host
+    ports:
+      - "5678:5678"
     volumes:
       - .:/app  # Mount current code into container
     env_file:
@@ -14,6 +15,7 @@ services:
     environment:
       - USE_SOCKETIO=true
       - REDIS_URL=redis://redis:6379
+      - DATABASE_URL=postgresql://postgres:postgres@db:5432/jeetsocial
     depends_on:
       - db
       - redis

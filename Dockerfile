@@ -14,7 +14,7 @@ RUN pip install --target /install -r requirements-dev.txt
 # Stage 2: Final image
 FROM python:3.10-alpine
 # Install runtime deps
-RUN apk add --no-cache postgresql-client postgresql-dev
+RUN apk add --no-cache postgresql-client postgresql-dev gcc musl-dev
 WORKDIR /app
 # Copy runtime packages from builder stage
 COPY --from=builder /install /usr/local/lib/python3.10/site-packages
