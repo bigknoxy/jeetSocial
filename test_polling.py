@@ -5,7 +5,6 @@ Simple test script to verify polling functionality
 
 import requests
 import time
-import json
 
 
 import pytest

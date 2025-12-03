@@ -3,9 +3,6 @@ Unit tests for admin audit services following TDD approach.
 Tests are written to fail first, then implementation will make them pass.
 """
 
-import pytest
-from datetime import datetime, timedelta
-
 # Import app creation function
 from app import create_app, db
 
@@ -24,7 +21,6 @@ class TestAuditService:
     def test_create_action_with_hash_chain(self):
         """Test that audit actions are created with proper hash chaining."""
         from app.admin.audit_service import AuditService
-        from app.models import AdminAction
 
         app = get_test_app()
         with app.app_context():
@@ -52,7 +48,6 @@ class TestAuditService:
     def test_verify_chain_integrity(self):
         """Test hash chain integrity verification."""
         from app.admin.audit_service import AuditService
-        from app.models import AdminAction
 
         app = get_test_app()
         with app.app_context():
@@ -91,7 +86,6 @@ class TestAuditService:
     def test_get_action_history(self):
         """Test retrieving audit history with filtering."""
         from app.admin.audit_service import AuditService
-        from app.models import AdminAction
 
         app = get_test_app()
         with app.app_context():
@@ -123,7 +117,6 @@ class TestAuditService:
     def test_get_chain_stats(self):
         """Test getting audit chain statistics."""
         from app.admin.audit_service import AuditService
-        from app.models import AdminAction
 
         app = get_test_app()
         with app.app_context():

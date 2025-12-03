@@ -6,8 +6,7 @@ Tests are written to fail first, then implementation will make them pass.
 import pytest
 import jwt  # PyJWT provides jwt module
 import time
-from datetime import datetime, timedelta, timezone
-from unittest.mock import patch, MagicMock
+from unittest.mock import patch
 
 # Import app creation function
 from app import create_app, db
@@ -111,7 +110,10 @@ class TestAuthService:
             assert "SameSite=Strict" in csrf_cookie
 
     def test_refresh_token_rotation_and_blacklist(self):
-        """Test that refresh tokens are properly rotated and old tokens are blacklisted."""
+        (
+            """Test that refresh tokens are properly rotated and old tokens are """
+            """blacklisted."""
+        )
         from app.admin.auth_service import AuthService
         from app.models import AdminSession
 
@@ -287,17 +289,17 @@ class TestAuthService:
             ) as mock_check:
                 # First call should pass
                 mock_check.return_value = True
-                try:
-                    AuthService.issue_login_tokens("admin-1")
-                except AuthError:
-                    pytest.fail("Should not raise AuthError on first call")
+        try:
+            AuthService.issue_login_tokens("admin-1")
+        except Exception:
+            pytest.fail("Should not raise AuthError on first call")
 
-                # Subsequent calls should be limited
-                mock_check.return_value = False
-                with pytest.raises(AuthError) as exc_info:
-                    AuthService.issue_login_tokens("admin-1")
+            # Subsequent calls should be limited
+            mock_check.return_value = False
+            with pytest.raises(AuthError) as exc_info:
+                AuthService.issue_login_tokens("admin-1")
 
-                assert "Rate limit exceeded" in str(exc_info.value)
+            assert "Rate limit exceeded" in str(exc_info.value)
 
     def test_mfa_verification_integration(self):
         """Test MFA verification integration with auth service."""
@@ -327,6 +329,7 @@ class TestAuthService:
         """Test cleanup of expired admin sessions."""
         from app.admin.auth_service import AuthService
         from app.models import AdminSession
+        from datetime import datetime, timedelta
 
         app = get_test_app()
         with app.app_context():

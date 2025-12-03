@@ -5,8 +5,6 @@ Tests post creation and kindness updates across multiple clients
 """
 
 import sys
-import time
-import threading
 from app import create_app
 
 
@@ -108,12 +106,13 @@ def test_realtime_kindness():
     received1 = client1.get_received()
     received2 = client2.get_received()
     print(
-        f"After joining rooms - Client1 received {len(received1)} events, Client2 received {len(received2)} events"
+        (
+            f"After joining rooms - Client1 received {len(received1)} events, "
+            f"Client2 received {len(received2)} events"
+        )
     )
 
     # Simulate kindness update
-    update_data = {"post_id": 999, "kindness_points": 5, "action": "increment"}
-
     print("Broadcasting kindness update...")
     with app.app_context():
         broadcast_kindness_update(999, 5, "increment")
@@ -151,7 +150,7 @@ if __name__ == "__main__":
     posts_work = test_realtime_posts()
     kindness_work = test_realtime_kindness()
 
-    print(f"\n=== Results ===")
+    print("\n=== Results ===")
     print(f"Real-time posts: {'✅ PASS' if posts_work else '❌ FAIL'}")
     print(f"Real-time kindness: {'✅ PASS' if kindness_work else '❌ FAIL'}")
 

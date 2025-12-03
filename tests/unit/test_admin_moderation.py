@@ -3,9 +3,6 @@ Unit tests for admin moderation service following TDD approach.
 Tests are written to fail first, then implementation will make them pass.
 """
 
-import pytest
-from datetime import datetime
-
 # Import app creation function
 from app import create_app, db
 
@@ -222,7 +219,7 @@ class TestModerationService:
     def test_get_moderation_stats(self):
         """Test getting moderation statistics."""
         from app.admin.moderation_service import ModerationService
-        from app.models import Post, AdminReport, AdminAction
+        from app.models import Post, AdminReport
 
         app = get_test_app()
         with app.app_context():
@@ -284,7 +281,6 @@ class TestModerationService:
     def test_nonexistent_post_handling(self):
         """Test handling of moderation actions on non-existent posts."""
         from app.admin.moderation_service import ModerationService
-        from app.models import Post
 
         app = get_test_app()
         with app.app_context():

@@ -2,18 +2,17 @@
 """
 Docker entry point for jeetSocial with WebSocket support
 """
+
 import os
 import sys
+from dotenv import load_dotenv
+from app import create_app
 
 # Add current directory to Python path
 sys.path.insert(0, ".")
 
 # Load environment variables
-from dotenv import load_dotenv
-
 load_dotenv()
-
-from app import create_app
 
 # Create Flask app and SocketIO instance
 result = create_app()

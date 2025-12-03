@@ -6,12 +6,10 @@ Tests are written to fail first, then implementation will make them pass.
 import json
 import os
 from unittest.mock import patch
+from app import create_app, db
 
 # Set environment variable before importing app
 os.environ["ENABLE_ADMIN_PORTAL"] = "1"
-
-# Import app creation function
-from app import create_app, db
 
 
 def get_test_app():
@@ -219,7 +217,10 @@ class TestAdminRoutes:
                     return_value={"sub": "admin-1", "typ": "access"},
                 ):
                     with patch(
-                        "app.admin.moderation_service.ModerationService.bulk_delete_posts",
+                        (
+                            "app.admin.moderation_service."
+                            "ModerationService.bulk_delete_posts"
+                        ),
                         return_value={"deleted_count": 3, "audit_entries_created": 3},
                     ):
                         bulk_data = {
@@ -250,7 +251,10 @@ class TestAdminRoutes:
                     return_value={"sub": "admin-1", "typ": "access"},
                 ):
                     with patch(
-                        "app.admin.moderation_service.ModerationService.get_moderation_stats",
+                        (
+                            "app.admin.moderation_service."
+                            "ModerationService.get_moderation_stats"
+                        ),
                         return_value={"pending_reports": 5, "total_reports": 10},
                     ):
                         response = client.get("/admin/stats")

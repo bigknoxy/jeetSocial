@@ -201,7 +201,11 @@ def check_environment():
             print(f"   ✅ {var} = {masked}")
         elif actual:
             print(
-                f"   ⚠️  {var} = {'*' * len(actual) if 'PASSWORD' in var else actual} (expected: {expected})"
+                (
+                    f"   ⚠️  {var} = "
+                    f"{'*' * len(actual) if 'PASSWORD' in var else actual} "
+                    f"(expected: {expected})"
+                )
             )
         else:
             print(f"   ❌ {var} not set")

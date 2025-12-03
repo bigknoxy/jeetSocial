@@ -17,7 +17,6 @@ def test_imports():
             report_service,
             audit_service,
             moderation_service,
-            utils,
             mfa_service,
         )
 
@@ -78,7 +77,7 @@ def test_database_models():
     print("\n=== Testing Database Models ===")
 
     try:
-        from app import create_app, db
+        from app import create_app
         from app.models import AdminReport, AdminAction, AdminSession
 
         # Create app context

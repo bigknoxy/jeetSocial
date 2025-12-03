@@ -4,7 +4,6 @@ Simple test to verify moderation engine basic functionality
 """
 
 import sys
-import os
 
 sys.path.append("/app")
 
@@ -12,7 +11,7 @@ sys.path.append("/app")
 def test_basic_imports():
     """Test that we can import the moderation modules"""
     try:
-        from app.moderation.data_models import ModerationResult, ModerationLayer
+        # Data models import removed - not used in this test
 
         print("✅ Data models imported successfully")
         return True

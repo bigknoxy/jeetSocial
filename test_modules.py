@@ -2,10 +2,8 @@
 """
 Test script to verify frontend module loading and WebSocket connection
 """
+
 import requests
-import time
-import subprocess
-import json
 
 
 def test_module_loading():

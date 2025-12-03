@@ -1,10 +1,8 @@
 #!/usr/bin/env python3
 import os
+from app import create_app
 
 os.environ["USE_SOCKETIO"] = "true"
-
-# Import and run socketio directly
-from app import create_app
 
 result = create_app()
 if isinstance(result, tuple) and len(result) == 2:

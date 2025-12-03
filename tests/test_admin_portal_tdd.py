@@ -6,7 +6,7 @@ features. Following Constitution v2.1.2 TDD requirements.
 """
 
 import json
-from unittest.mock import patch, MagicMock
+from unittest.mock import patch
 
 
 class TestAdminPortalRoutes:

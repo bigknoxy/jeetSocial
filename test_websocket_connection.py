@@ -6,7 +6,6 @@ Tests basic connection and event handling.
 
 import time
 import socketio
-import json
 
 # Create a SocketIO client
 sio = socketio.Client()
@@ -102,7 +101,7 @@ def main():
         # Disconnect
         try:
             sio.disconnect()
-        except:
+        except Exception:
             pass
 
     print("✅ WebSocket test completed")
