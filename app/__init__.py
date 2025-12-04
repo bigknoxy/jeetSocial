@@ -99,27 +99,33 @@ def create_app(config_override=None):
 
     # Configure SocketIO for WebSocket support
     if SocketIO is not None:
-        # Try to use eventlet mode first, then fallback to threading
-        async_mode = "threading"  # default fallback
-        try:
-            import eventlet
-
-            # Reference eventlet to avoid unused import warning
-            _ = eventlet.__version__
-            async_mode = "eventlet"
-            print("eventlet available, using async_mode=eventlet")
-        except ImportError:
+        # Check if async mode is forced (useful for migrations)
+        forced_mode = os.environ.get("FORCE_ASYNC_MODE")
+        if forced_mode:
+            async_mode = forced_mode
+            print(f"Using forced async_mode={async_mode}")
+        else:
+            # Try to use eventlet mode first, then fallback to threading
+            async_mode = "threading"  # default fallback
             try:
-                import gevent
+                import eventlet
 
-                # Reference gevent to avoid unused import warning
-                _ = gevent.__version__
-                async_mode = "gevent"
-                print("gevent available, using async_mode=gevent")
+                # Reference eventlet to avoid unused import warning
+                _ = eventlet.__version__
+                async_mode = "eventlet"
+                print("eventlet available, using async_mode=eventlet")
             except ImportError:
-                print(
-                    "Neither eventlet nor gevent available, using async_mode=threading"
-                )
+                try:
+                    import gevent
+
+                    # Reference gevent to avoid unused import warning
+                    _ = gevent.__version__
+                    async_mode = "gevent"
+                    print("gevent available, using async_mode=gevent")
+                except ImportError:
+                    print(
+                        "Neither eventlet nor gevent available, using async_mode=threading"
+                    )
 
         socketio = SocketIO(
             flask_app,
