@@ -5,7 +5,7 @@
 
 class AuditLog {
     constructor() {
-        this.authClient = new AuthClient();
+        this.authClient = new AdminAuth();
         this.websocketClient = null;
         this.auditEntries = [];
         this.filteredEntries = [];

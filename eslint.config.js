@@ -15,7 +15,7 @@ module.exports = [
     },
   },
   {
-    files: ['app/static/**/*.js'],
+    files: ['app/static/**/*.js', 'static/**/*.js'],
     languageOptions: {
       globals: {
         window: 'readonly',
@@ -25,6 +25,9 @@ module.exports = [
         clearInterval: 'readonly',
         setInterval: 'readonly',
         console: 'readonly',
+        setTimeout: 'readonly',
+        clearTimeout: 'readonly',
+        URLSearchParams: 'readonly',
       },
       sourceType: 'script',
       ecmaVersion: 2021,

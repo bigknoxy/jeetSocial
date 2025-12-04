@@ -41,11 +41,14 @@ def test_authentication_flow():
             csrf_data = csrf_response.json()
             csrf_token = csrf_data.get("csrf_token")
             csrf_cookie = csrf_response.cookies.get("csrf_token")
-            print(f"   ✅ CSRF token obtained: {csrf_token[:8]}...")
+            token_preview = csrf_token[:8] if csrf_token else "None"
+            print(f"   ✅ CSRF token obtained: {token_preview}...")
             if csrf_token != csrf_cookie:
+                header_preview = csrf_token[:8] if csrf_token else "None"
+                cookie_preview = csrf_cookie[:8] if csrf_cookie else "None"
                 print(
-                    f"   ⚠️  CSRF token mismatch: header={csrf_token[:8]}..., "
-                    f"cookie={csrf_cookie[:8]}..."
+                    f"   ⚠️  CSRF token mismatch: header={header_preview}..., "
+                    f"cookie={cookie_preview}..."
                 )
         else:
             print(f"   ❌ Failed to get CSRF token: {csrf_response.status_code}")
@@ -190,25 +193,32 @@ def check_environment():
         "SECRET_KEY": "test-secret-key",
     }
 
+    # Define which variables are sensitive
+    sensitive_markers = ["PASSWORD", "SECRET", "KEY", "TOKEN"]
+
     all_set = True
     for var, expected in required_vars.items():
         actual = os.environ.get(var)
+        is_sensitive = any(marker in var.upper() for marker in sensitive_markers)
+
         if actual == expected:
-            if actual and "PASSWORD" in var:
-                masked = "*" * len(actual)
+            if actual and is_sensitive:
+                display = "[SET]"
             else:
-                masked = actual
-            print(f"   ✅ {var} = {masked}")
+                display = actual
+            print(f"   ✅ {var} = {display}")
         elif actual:
-            print(
-                (
-                    f"   ⚠️  {var} = "
-                    f"{'*' * len(actual) if 'PASSWORD' in var else actual} "
-                    f"(expected: {expected})"
-                )
-            )
+            if is_sensitive:
+                display = "[SET]"
+            else:
+                display = actual
+            print(f"   ⚠️  {var} = {display} (expected: {expected})")
         else:
-            print(f"   ❌ {var} not set")
+            # Avoid logging the names of sensitive env vars if they are missing
+            if is_sensitive:
+                print("   ❌ A required credential is not set")
+            else:
+                print(f"   ❌ {var} not set")
             all_set = False
 
     print("=" * 50)
