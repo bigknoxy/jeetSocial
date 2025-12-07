@@ -44,7 +44,8 @@ def test_word_list_filter(text, expected, reason):
     assert is_hate == expected
     # Accept both legacy format and new intelligent moderation engine format
     if reason == "word_list":
-        # New intelligent engine returns "rule_based: word_list" or "rule_based: evasion_detected"
+        # New intelligent engine returns "rule_based: word_list" or
+        # "rule_based: evasion_detected"
         assert why in [
             "word_list",
             "rule_based: word_list",

@@ -577,13 +577,13 @@ def _create_post_impl():
                 jsonify(
                     {
                         "error": (
-                            "This has already been shared recently. Each voice matters, "
-                            "so please wait a bit before sharing again."
+                            "This has already been shared recently. Each voice "
+                            "matters, so please wait a bit before sharing again."
                         ),
                         "error_type": "duplicate_content",
                         "user_message": (
-                            "This has already been shared recently. Each voice matters, "
-                            "so please wait a bit before sharing again."
+                            "This has already been shared recently. Each voice "
+                            "matters, so please wait a bit before sharing again."
                         ),
                     }
                 ),

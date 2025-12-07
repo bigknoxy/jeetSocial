@@ -124,7 +124,8 @@ def create_app(config_override=None):
                     print("gevent available, using async_mode=gevent")
                 except ImportError:
                     print(
-                        "Neither eventlet nor gevent available, using async_mode=threading"
+                        "Neither eventlet nor gevent available, "
+                        "using async_mode=threading"
                     )
 
         socketio = SocketIO(

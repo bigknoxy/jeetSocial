@@ -4,7 +4,6 @@ Tests Layers 1-3: Rule-Based, Cache, Similarity
 """
 
 import pytest
-import asyncio
 import time
 from unittest.mock import Mock, AsyncMock, patch
 from datetime import datetime
@@ -12,7 +11,6 @@ from datetime import datetime
 # Import the modules
 from app.moderation import (
     IntelligentModerationEngine,
-    ModerationResult,
     ModerationLayer,
 )
 from app.moderation.cache import IntelligentCache
@@ -131,7 +129,7 @@ class TestLayer2Cache:
         engine = IntelligentModerationEngine(cache=cache)
 
         text = "This is a test message"
-        result = await engine.moderate_content(text)
+        await engine.moderate_content(text)
 
         # Should call Redis get (cache miss)
         mock_redis.get.assert_called()

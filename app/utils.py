@@ -19,7 +19,6 @@ import hashlib
 import time
 from secrets import token_urlsafe
 from datetime import datetime, timezone
-from typing import Optional
 
 try:
     import pytz
@@ -296,7 +295,7 @@ def generate_username():
     return (
         f"{random.choice(ADJECTIVES)}"
         f"{random.choice(ANIMALS)}"
-        f"{random.randint(10,99)}"
+        f"{random.randint(10, 99)}"
     )
 
 
@@ -380,7 +379,6 @@ def is_hate_speech(text):
         from .moderation import IntelligentModerationEngine
         import asyncio
         import threading
-        import time
 
         # Create engine instance (lazy initialization)
         if _intelligent_engine is None:
@@ -499,7 +497,7 @@ def _detect_evasion_attempts_legacy(content: str):
         words = content_lower.split()
         for i in range(len(words) - 3):
             # Check sequences of 4+ single-character words
-            sequence = words[i : i + 4]
+            sequence = words[i:i + 4]
             if all(len(word) == 1 for word in sequence):
                 combined = "".join(sequence)
                 if combined in ["hate", "stupid", "idiot", "moron"]:

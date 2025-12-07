@@ -6,9 +6,8 @@ L1 (in-memory LRU) + L2 (Redis) caching with privacy compliance
 import json
 import hashlib
 import time
-import asyncio
 from typing import Optional, Dict, Any, List
-from datetime import datetime, timedelta
+from datetime import datetime
 from collections import OrderedDict
 
 try:

@@ -6,7 +6,6 @@ Four-layer defense architecture: Rule-Based, Cache, Similarity, AI (placeholder)
 import os
 import time
 import hashlib
-import asyncio
 from typing import Optional, Dict, Any
 import re
 
@@ -196,7 +195,7 @@ class IntelligentModerationEngine:
             # Check if spaced letters form hateful words
             words = normalized.split()
             for i in range(len(words) - 3):
-                combined = "".join(words[i : i + 4])
+                combined = "".join(words[i:i + 4])
                 if combined.lower() in ["hate", "stupid", "idiot", "moron"]:
                     return "spaced_letters"
 

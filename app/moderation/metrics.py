@@ -4,7 +4,6 @@ Async metrics buffering and aggregation with Redis storage
 """
 
 import json
-import time
 import asyncio
 from typing import Dict, List, Any, Optional
 from datetime import datetime, timedelta
