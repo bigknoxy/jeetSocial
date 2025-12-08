@@ -19,6 +19,7 @@ import hashlib
 import time
 from secrets import token_urlsafe
 from datetime import datetime, timezone
+from typing import Optional
 
 try:
     import pytz
@@ -368,100 +369,11 @@ def is_hate_speech(text):
 
     Returns: (is_hate, reason, details)
 
-    Enhanced with Intelligent Moderation Engine (Phase 1) while maintaining
-    backward compatibility with existing interface.
+    Simple, reliable implementation using word list matching.
     """
-    global _intelligent_engine
-
-    # Try to use the new intelligent moderation engine
-    try:
-        # Import here to avoid circular imports
-        from .moderation import IntelligentModerationEngine
-        import asyncio
-        import threading
-
-        # Create engine instance (lazy initialization)
-        if _intelligent_engine is None:
-            _intelligent_engine = IntelligentModerationEngine()
-
-        # Ensure engine was created successfully
-        if _intelligent_engine is not None:
-            # Create a simple sync wrapper that runs async in a new thread
-            def run_moderation_sync():
-                """Synchronous wrapper for async moderation"""
-                # Create a new event loop in this thread
-                loop = asyncio.new_event_loop()
-                asyncio.set_event_loop(loop)
-                try:
-                    return loop.run_until_complete(
-                        _intelligent_engine.moderate_content(text)
-                    )
-                finally:
-                    loop.close()
-                    # Clean up any pending tasks
-                    pending = asyncio.all_tasks(loop)
-                    if pending:
-                        for task in pending:
-                            task.cancel()
-                        loop.run_until_complete(
-                            asyncio.gather(*pending, return_exceptions=True)
-                        )
-
-            # Run in a separate thread to avoid any event loop conflicts
-            result_container = {}
-            exception_container = {}
-
-            def target():
-                try:
-                    result_container["result"] = run_moderation_sync()
-                except Exception as e:
-                    exception_container["exception"] = e
-
-            # Start a thread
-            thread = threading.Thread(target=target)
-            thread.start()
-            thread.join(timeout=3)  # 3 second timeout
-
-            # Check for exceptions or timeout
-            if exception_container:
-                raise exception_container["exception"]
-            elif thread.is_alive():
-                # Thread timed out
-                raise TimeoutError("Intelligent moderation engine timed out")
-            elif "result" in result_container:
-                result = result_container["result"]
-
-                # Convert new format to legacy format for backward compatibility
-                if result.is_hate:
-                    return (
-                        True,
-                        result.reason or "intelligent_moderation",
-                        result.metadata,
-                    )
-                else:
-                    return False, None, None
-
-    except ImportError:
-        # Fallback to legacy implementation if dependencies not available
-        pass
-    except Exception as e:
-        # Log error and fallback to legacy implementation
-        logging.warning(f"Intelligent moderation engine failed, falling back: {e}")
-        pass
-    except Exception as e:
-        # Log error and fallback to legacy implementation
-        logging.warning(f"Intelligent moderation engine failed, falling back: {e}")
-        pass
-
-    # Enhanced legacy implementation with evasion detection
+    # Normalize text for matching
     normalized = normalize_text(text)
     normalized = normalized.lower()
-
-    # Check for evasion attempts first
-    evasion_detected = _detect_evasion_attempts_legacy(text)
-    if evasion_detected:
-        logging.info("Post rejected by evasion detection: '%s'", str(evasion_detected))
-        return True, "evasion_detected", evasion_detected
 
     # Check multi-word phrases first
     for phrase in HATEFUL_WORDS:
@@ -470,10 +382,13 @@ def is_hate_speech(text):
             if re.search(pattern, normalized):
                 logging.info("Post rejected by word list: '%s'", phrase)
                 return True, "word_list", phrase
+
+    # Check single words with regex
     match = HATEFUL_REGEX.search(normalized)
     if match:
         logging.info("Post rejected by word list: '%s'", match.group(0))
         return True, "word_list", match.group(0)
+
     return False, None, None
 
 
@@ -523,17 +438,22 @@ def _detect_evasion_attempts_legacy(content: str):
             if word in ["hate", "stupid", "idiot", "moron"]:
                 return "excessive_repetition"
 
-    # Check for leet speak patterns
+    # Check for leet speak patterns - only match actual substitutions
     leet_patterns = {
         r"h[4@]t[3e]": "hate",
-        r"s[t7][u@]p[1i][d]": "stupid",
+        r"s[\$5][t7][u@]p[1i][d]": "stupid",  # require $ or 5 for s
         r"[1i][d@][1i][o0][t7]": "idiot",
         r"m[0o][r@][o0]n": "moron",
     }
 
     for pattern, word in leet_patterns.items():
-        if re.search(pattern, content_lower):
-            return f"leet_speak_{word}"
+        match = re.search(pattern, content_lower)
+        if match:
+            # Verify this is actually leet speak (contains substitutions)
+            matched_text = match.group(0)
+            leet_chars = set('4@5$3107')
+            if any(char in leet_chars for char in matched_text):
+                return f"leet_speak_{word}"
 
     return None
 
@@ -585,7 +505,9 @@ def is_kind(message):
     return False
 
 
-def format_display_timestamp(creation_timestamp: str, viewer_tz: str = None, now=None):
+def format_display_timestamp(
+    creation_timestamp: str, viewer_tz: Optional[str] = None, now=None
+):
     """Return display info for a canonical UTC creation_timestamp.
 
     Returns dict: local_iso, local_formatted, relative_label, is_future,
