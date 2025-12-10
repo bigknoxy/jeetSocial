@@ -50,6 +50,7 @@ def test_word_list_filter(text, expected, reason):
             "word_list",
             "rule_based: word_list",
             "rule_based: evasion_detected",
+            "evasion_detected",
         ]
     else:
         assert why == reason
