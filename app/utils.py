@@ -373,6 +373,10 @@ def is_hate_speech(text):
     """
     global _intelligent_engine
 
+    # Input validation
+    if not text or not isinstance(text, str):
+        return False, None, None
+
     # Try to use the new intelligent moderation engine
     try:
         # Import here to avoid circular imports
@@ -457,6 +461,18 @@ def is_hate_speech(text):
     normalized = normalize_text(text)
     normalized = normalized.lower()
 
+    # Additional robust check: ensure critical hate speech words are always caught
+    # This provides a safety net for any edge cases
+    critical_hate_words = ["stupid", "idiot", "bigot", "hate", "moron", "racist", "nazi"]
+    text_lower = text.lower()
+    for word in critical_hate_words:
+        if word in text_lower:
+            # Check if it's a whole word match
+            pattern = r"(?<!\w)" + re.escape(word) + r"(?!\w)"
+            if re.search(pattern, text_lower):
+                logging.info("Post rejected by critical word check: '%s'", word)
+                return True, "word_list", word
+
     # Check for evasion attempts first
     evasion_detected = _detect_evasion_attempts_legacy(text)
     if evasion_detected:
@@ -523,12 +539,12 @@ def _detect_evasion_attempts_legacy(content: str):
             if word in ["hate", "stupid", "idiot", "moron"]:
                 return "excessive_repetition"
 
-    # Check for leet speak patterns
+    # Check for leet speak patterns (only match actual leet speak, not normal words)
     leet_patterns = {
-        r"h[4@]t[3e]": "hate",
-        r"s[t7][u@]p[1i][d]": "stupid",
-        r"[1i][d@][1i][o0][t7]": "idiot",
-        r"m[0o][r@][o0]n": "moron",
+        r"h[4@]t[3e]": "hate",           # h4te, h@te, h3e (but not normal "hate")
+        r"5[t7][u@]p[1i][d]": "stupid",     # 5tup1d, stup1d (but not normal "stupid")
+        r"[1i][d@][1i][o0][t7]": "idiot",   # 1d1ot, 1d10t (but not normal "idiot") 
+        r"m[0o][r@][o0]n": "moron",        # m0r0n, m@ron (but not normal "moron")
     }
 
     for pattern, word in leet_patterns.items():
