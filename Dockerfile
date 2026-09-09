@@ -23,7 +23,7 @@ COPY --from=builder /install/bin /usr/local/bin
 # Set PATH
 ENV PATH=/usr/local/bin:$PATH
 # Ensure WebSocket dependencies are available (install directly in final stage)
-RUN pip install flask-socketio==5.3.6 python-socketio==5.14.0 gevent==25.9.1 gevent-websocket==0.10.1 eventlet==0.33.3 --no-cache-dir
+RUN pip install flask-socketio==5.3.6 python-socketio==5.16.2 gevent==25.9.1 gevent-websocket==0.10.1 eventlet==0.40.3 --no-cache-dir
 # Copy application files
 COPY app app
 COPY migrations migrations
