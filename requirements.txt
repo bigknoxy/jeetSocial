@@ -8,7 +8,7 @@ requests
 python-dotenv
 flask-migrate
 alembic
-black==26.3.1
+black==26.10.1
 setuptools==83.0.0
 flask-socketio==5.3.6
 python-socketio==5.16.2
